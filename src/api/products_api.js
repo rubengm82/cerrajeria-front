@@ -1,16 +1,16 @@
-import axios from 'axios';
+import api from './axiosConfig'
 
 // Obtener todos los productos
-export const getProducts = () => axios.get('/api/products');
+export const getProducts = () => api.get('/products')
 
 // Obtener un producto por ID
-export const getProduct = (id) => axios.get(`/api/products/${id}`);
+export const getProduct = (id) => api.get(`/products/${id}`)
 
 // Crear un nuevo producto
-export const createProduct = (productData) => axios.post('/api/products', productData);
+export const createProduct = (productData) => api.post('/products', productData)
 
 // Actualizar un producto
-export const updateProduct = (id, productData) => axios.put(`/api/products/${id}`, productData);
+export const updateProduct = (id, productData) => api.put(`/products/${id}`, productData)
 
 // Eliminar un producto
-export const deleteProduct = (id) => axios.delete(`/api/products/${id}`);
+export const deleteProduct = (id) => api.delete(`/products/${id}`)

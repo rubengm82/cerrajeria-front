@@ -1,16 +1,16 @@
-import axios from 'axios';
+import api from './axiosConfig'
 
 // Obtener todos los pedidos
-export const getOrders = () => axios.get('/api/orders');
+export const getOrders = () => api.get('/orders')
 
 // Obtener un pedido por ID
-export const getOrder = (id) => axios.get(`/api/orders/${id}`);
+export const getOrder = (id) => api.get(`/orders/${id}`)
 
 // Crear un nuevo pedido
-export const createOrder = (orderData) => axios.post('/api/orders', orderData);
+export const createOrder = (orderData) => api.post('/orders', orderData)
 
 // Actualizar un pedido
-export const updateOrder = (id, orderData) => axios.put(`/api/orders/${id}`, orderData);
+export const updateOrder = (id, orderData) => api.put(`/orders/${id}`, orderData)
 
 // Eliminar un pedido
-export const deleteOrder = (id) => axios.delete(`/api/orders/${id}`);
+export const deleteOrder = (id) => api.delete(`/orders/${id}`)

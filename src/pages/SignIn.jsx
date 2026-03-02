@@ -13,7 +13,7 @@ function SignIn() {
   const handleSubmit = (event) => {
     event.preventDefault()
     login(email, password)
-      .then(() => navigate('/'))
+      .then(() => navigate('/dashboard'))
       .catch(() => setError('Email o contrasenya incorrectes'))
   }
 

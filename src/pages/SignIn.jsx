@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 function SignIn() {
@@ -49,6 +49,12 @@ function SignIn() {
         <button type="button" className="btn btn-ghost w-full" onClick={() => navigate('/')}>
           Tornar
         </button>
+        
+        <div className="mt-4 text-center">
+          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+            He oblidat la meva contrasenya
+          </Link>
+        </div>
       </form>
     </div>
   )

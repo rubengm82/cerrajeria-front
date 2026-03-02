@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Users from './pages/UsersList'
 import Login from './pages/SignIn'
+import ResetPassword from './pages/ResetPassword'
+import ForgotPassword from './pages/ForgotPassword'
 import Error404 from './pages/errors/error404'
 import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
@@ -43,6 +45,8 @@ function App() {
       {/* RUTES PÚBLIQUES - Tienda */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       
       {/* Rutas con Layout (Topbar + Sidebar) */}
       <Route element={<Layout />}>

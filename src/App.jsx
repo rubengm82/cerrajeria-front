@@ -1,6 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Users from './pages/UsersList'
+import AdminProducts from './pages/AdminProducts'
+import CreateProduct from './pages/CreateProduct'
+import EditProduct from './pages/EditProduct'
 import Login from './pages/SignIn'
 import ResetPassword from './pages/ResetPassword'
 import ForgotPassword from './pages/ForgotPassword'
@@ -47,7 +50,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      
+
       {/* Rutas con Layout (Topbar + Sidebar) */}
       <Route element={<Layout />}>
         <Route path="/dashboard" element={
@@ -62,26 +65,40 @@ function App() {
         <Route path="/orders" element={<div className="p-4"><h1 className="text-2xl font-bold">Comandes</h1><p>Properament...</p></div>} />
         <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Informes</h1><p>Properament...</p></div>} />
         <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configuració</h1><p>Properament...</p></div>} />
-        
+
         {/* Rutes d'usuari normal */}
         <Route path="/my-orders" element={<div className="p-4"><h1 className="text-2xl font-bold">Les Meves Comandes</h1><p>Properament...</p></div>} />
         <Route path="/my-services" element={<div className="p-4"><h1 className="text-2xl font-bold">Els Meus Serveis</h1><p>Properament...</p></div>} />
-        
+
         {/* Rutas de Admin - Protegidas por rol */}
         <Route path="/users" element={
           <ProtectedRoute requiredRole="admin">
             <Users />
           </ProtectedRoute>
         } />
+        <Route path='/admin/products' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminProducts />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/products/new' element={
+          <ProtectedRoute requiredRole='admin'>
+            <CreateProduct />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/products/:id/edit' element={
+          <ProtectedRoute requiredRole='admin'>
+            <EditProduct />
+          </ProtectedRoute>
+        } />
       </Route>
-      
       {/* PÁGINAS DE ERROR */}
       <Route path="*" element={<Error404 />} />
       <Route path="/error403" element={<Error403 />} />
       <Route path="/error419" element={<Error419 />} />
       <Route path="/error500" element={<Error500 />} />
       <Route path="/error503" element={<Error503 />} />
-      
+
     </Routes>
   )
 }

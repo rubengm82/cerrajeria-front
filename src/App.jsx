@@ -2,8 +2,11 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Users from './pages/UsersList'
 import Login from './pages/SignIn'
+import Register from './pages/Register'
 import ResetPassword from './pages/ResetPassword'
 import ForgotPassword from './pages/ForgotPassword'
+import VerifyEmail from './pages/VerifyEmail'
+import ResendVerification from './pages/ResendVerification'
 import Error404 from './pages/errors/error404'
 import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
@@ -45,6 +48,9 @@ function App() {
       {/* RUTES PÚBLIQUES - Tienda */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
+      <Route path="/resend-verification" element={<ResendVerification />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       

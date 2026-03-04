@@ -12,9 +12,18 @@ function SignIn() {
   // FUNCTION del Submit
   const handleSubmit = (event) => {
     event.preventDefault()
+    setError('')
+    
     login(email, password)
       .then(() => navigate('/dashboard'))
-      .catch(() => setError('Email o contrasenya incorrectes'))
+      .catch((err) => {
+        // Verificar si el error es por email no verificado
+        if (err.response?.status === 403 && err.response?.data?.email_verified === false) {
+          setError('Has de verificar el teu correu electrònic abans d\'accedir.')
+        } else {
+          setError('Email o contrasenya incorrectes')
+        }
+      })
   }
 
   return (
@@ -22,7 +31,18 @@ function SignIn() {
       <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6">
         <h2 className="text-2xl font-bold text-center mb-4">Iniciar Sessió</h2>
         
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        {error && 
+          <div className="mb-4">
+            <p className="text-red-500 text-center mb-2">{error}</p>
+            {error.includes('verificar') && (
+              <div className="text-center">
+                <Link to="/resend-verification" className="text-sm text-primary hover:underline">
+                  Reenviar correu de verificació
+                </Link>
+              </div>
+            )}
+          </div>
+        }
         
         <input
           type="email"
@@ -54,6 +74,15 @@ function SignIn() {
           <Link to="/forgot-password" className="text-sm text-primary hover:underline">
             He oblidat la meva contrasenya
           </Link>
+        </div>
+        
+        <div className="mt-2 text-center">
+          <p className="text-sm text-gray-500">
+            No tens compte?{' '}
+            <Link to="/register" className="text-primary hover:underline">
+              Crear compte
+            </Link>
+          </p>
         </div>
       </form>
     </div>

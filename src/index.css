@@ -2,9 +2,8 @@
 @plugin "daisyui";
 
 @theme {
-  --color-base-400: var(--color-base-400);
+  --color-base-400: #737373;
 }
-
 
 
 @plugin "daisyui/theme" {

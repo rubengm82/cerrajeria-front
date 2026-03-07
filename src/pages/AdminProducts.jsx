@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getProducts } from '../api/products_api'
+import LoadingAnimation from '../components/LoadingAnimation'
 
 function AdminProducts() {
   const [products, setProducts] = useState([])
@@ -18,11 +19,13 @@ function AdminProducts() {
       .finally(() => setLoading(false))
   }, [])
 
-  return loading ? <div className="flex items-center justify-center min-h-screen">Carregant productes...</div> : (
+  return loading ?
+  <LoadingAnimation />
+  : (
     <div>
       <div className='w-full flex flex-row justify-between mb-5'>
         <h1 className='text-2xl font-bold text-base-content'>Productos</h1>
-        <button 
+        <button
           onClick={() => navigate('/admin/products/new')}
           className='btn btn-primary flex items-center'
         >
@@ -80,7 +83,7 @@ function AdminProducts() {
                 <td className='border-base-300 text-right'>{product.price || '-'}€</td>
                 <td className='border-base-300 text-center'>{product.stock || '-'}</td>
                 <td className='border-base-300'>
-                  <p className={`p-1 text-center border rounded-lg w-24 font-medium ${product.is_active == null ? "" : product.is_active == 1 ? "bg-success text-success-content" : "Inactiu"}`}>{product.is_active == null ? "-" : product.is_active == 1 ? "Actiu" : "Inactiu"}</p>
+                  <p className={`p-1 text-center border rounded-lg w-24 font-medium ${product.is_active == null ? "" : product.is_active == 1 ? "bg-success text-success-content" : "bg-error-content text-error"}`}>{product.is_active == null ? "-" : product.is_active == 1 ? "Actiu" : "Inactiu"}</p>
                 </td>
                 <td className='border-base-300'>
                     <button className="btn btn-secondary mr-2">Ver</button>

@@ -18,7 +18,7 @@ function UsersList() {
       .finally(() => setLoading(false))
   }, [])
 
-  return loading 
+  return loading
     ? <div className="flex items-center justify-center min-h-screen">Carregant usuaris...</div>
     : (
     <div className="container mx-auto p-4">

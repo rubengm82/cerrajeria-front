@@ -14,7 +14,7 @@ export default function Sidebar({ userRole }) {
   // Links específics per a administradors
   const adminLinks = [
     { to: '/users', label: '👥 Gestió d\'Usuaris', icon: 'users' },
-    { to: '/products', label: '📦 Productes', icon: 'package' },
+    { to: '/admin/products', label: '📦 Productes', icon: 'package' },
     { to: '/orders', label: '📋 Comandes', icon: 'clipboard' },
     { to: '/categories', label: '🏷️ Categories', icon: 'tag' },
     { to: '/reports', label: '📊 Informes', icon: 'chart' },

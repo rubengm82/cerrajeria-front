@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '../api/categories_api';
-import { createProduct, updateProduct } from "../api/products_api";
+import { createProduct, createProductImage, updateProduct } from "../api/products_api";
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from "./LoadingAnimation";
+import Notifications from './Notifications';
 
 function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null)
   const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [errors, setErrors] = useState({})
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -18,6 +21,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     category_id: "",
     is_installable: false,
     is_important_to_show: false,
+    images: [],
     installation_price: 0,
     extra_keys: 0,
     is_active: true
@@ -27,6 +31,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     if (initialData) {
       setForm({
         ...initialData,
+        images: [],
         is_installable: !!initialData.is_installable,
         is_important_to_show: !!initialData.is_important_to_show,
         is_active: !!initialData.is_active,
@@ -35,19 +40,31 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   }, [initialData])
 
   useEffect(() => {
+    setLoading(true)
     getCategories()
     .then(response => setCategories(response.data))
     .catch(err => {
       console.log(err)
       setCategories([])
     })
+    .finally(() => {
+      setLoading(false)
+    })
   }, [])
 
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target
-    setForm(current => ({
-      ...current, [name]: type === 'checkbox' ? checked : value
-    }))
+    const { name, value, type, checked, files } = event.target
+    if (type == "file") {
+      const newFiles = Array.from(files)
+      setForm(current => ({
+        ...current, images: [...current.images, ...newFiles]
+      }))
+      event.target.value = null
+    } else {
+      setForm(current => ({
+        ...current, [name]: type == 'checkbox' ? checked : value
+      }))
+    }
   }
 
   const handleSubmit = async (event) => {
@@ -55,8 +72,9 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     setLoading(true)
 
     // Se preparan los datos para el backend
+    const { images, ...formWithoutImage } = form
     const payload = {
-      ...form,
+      ...formWithoutImage,
       price: parseFloat(form.price) || 0,
       stock: parseInt(form.stock) || 0,
       discount: parseInt(form.discount) || 0,
@@ -69,14 +87,38 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     }
 
     try {
+      let response = null
+      // Dependiendo de si se actualiza o se crea ejecuta un metodo y notificacion u otro
       if (initialData && initialData.id) {
-        await updateProduct(initialData.id, payload)
+        response = await updateProduct(initialData.id, payload)
       } else {
-        await createProduct(payload)
+        response = await createProduct(payload)
       }
-      navigate("/admin/products")
+      /* Se obtiene el producto creado */
+      const product = response.data
+
+      /* Si se ha subido una imagen se crea en la base de datos */
+      if (images.length > 0) {
+        for (const image of images) {
+            const formData = new FormData()
+            formData.append('product_id', product.id)
+            formData.append('image', image)
+            formData.append('is_important', 0)
+            await createProductImage(formData)
+        }
+      }
+
+      // Se redirecciona con una notificacion al index de productos
+      navigate("/admin/products", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Producto actualizado correctamente" : "Producto creado correctamente" }})
+
     } catch (error) {
-      console.error("Error al guardar:", error.message);
+      console.log("Error: " + error);
+      if (error.response?.status == 422) {
+        const errors = error.response.data.errors
+        setErrors(errors)
+        console.log("Errores: " , error.response.data.errors);
+      }
+      
     }
     finally {
       setLoading(false)
@@ -102,7 +144,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Nombre */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor="name">Nombre del producto *</label>
-            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full" required/>
+            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full"/>
           </div>
           {/* Código */}
           <div className="w-full">
@@ -152,12 +194,32 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Imagenes */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-3">Imagenes del producto</h3>
-          {/* Imagenes */}
-{/*           <div className="w-full">
-            <label className="label text-base-content" htmlFor='price'>Precio(€) *</label>
-            <input type="number" name="price" id='price' value={form.price} onChange={handleChange} placeholder="0.00" className="input w-full" required/>
-          </div> */}
+          <h3 className="text-[20px] font-semibold md:col-span-3">Imagenes del producto</h3>
+          <div className='md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
+
+            {/* Se muestra un div para subir la imagen */}
+            <input type="file" multiple name="images" id="images" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
+            <div className='w-60 h-60 bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
+                <div className='flex flex-col items-center gap-2 text-primary'>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  </svg>
+                  <p>Añadir nueva imagen</p>
+                </div>
+            </div>
+            
+            {/* Se muestra la nueva imagen seleccionada */}
+            {form.images.length > 0 && (
+              form.images.map((image, index) => (
+                <img key={index} src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-60 h-60 object-cover rounded-lg border border-base-300" /> 
+              )))}
+
+            {initialData?.images?.length > 0 ?
+              initialData.images.map((image) => (
+              <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-60 h-60 object-cover rounded-lg border border-base-300"/>
+              ))
+            : ""}
+          </div>
         </div>
 
         {/* Instalacion y extras */}
@@ -213,6 +275,9 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           <button type='submit' className='btn btn-primary'>{submitText}</button>
         </div>
       </form>
+
+      {/* Se muestran los errores */}
+      {Object.keys(errors).length > 0 && <Notifications type={"error"} errors={errors} />}
     </div>
   );
 };

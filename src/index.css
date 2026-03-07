@@ -6,6 +6,7 @@
 }
 
 
+
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
@@ -23,14 +24,14 @@
   --color-accent-content: oklch(97% 0.021 166.113);
   --color-neutral: oklch(14% 0 0);
   --color-neutral-content: oklch(98% 0 0);
-  --color-info: oklch(54% 0.245 262.881);
-  --color-info-content: oklch(97% 0.014 254.604);
+  --color-info: oklch(97% 0.014 254.604);
+  --color-info-content: oklch(54% 0.245 262.881);
   --color-success: oklch(98% 0.018 155.826);
   --color-success-content: oklch(62% 0.194 149.214);
-  --color-warning: oklch(68% 0.162 75.834);
-  --color-warning-content: oklch(98% 0.026 102.212);
-  --color-error: oklch(58% 0.253 17.585);
-  --color-error-content: oklch(97% 0.013 17.38);
+  --color-warning: oklch(98% 0.026 102.212);
+  --color-warning-content: oklch(68% 0.162 75.834);
+  --color-error: oklch(97% 0.013 17.38);
+  --color-error-content: oklch(57% 0.245 27.325);
   --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
   --radius-box: 0.5rem;
@@ -39,4 +40,23 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+.simple-container {
+  @apply p-6 bg-base-100 rounded-lg shadow-md border border-base-300
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }

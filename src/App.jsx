@@ -15,6 +15,7 @@ import Error503 from './pages/errors/error503'
 import { useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
 import './App.css'
+import AdminShowProduct from './pages/AdminShowProduct'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -79,6 +80,12 @@ function App() {
         <Route path='/admin/products' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminProducts />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/products/:id/show' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminShowProduct />
           </ProtectedRoute>
         } />
         <Route path='/admin/products/new' element={

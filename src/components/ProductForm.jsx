@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '../api/categories_api';
-import { createProduct, createProductImage, updateProduct } from "../api/products_api";
+import { createProduct, createProductImage, deleteProductImage, updateProduct } from "../api/products_api";
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from "./LoadingAnimation";
 import Notifications from './Notifications';
@@ -11,6 +11,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
+  const [imagesToDelete, setImagesToDelete] = useState([])
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -51,6 +52,14 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       setLoading(false)
     })
   }, [])
+
+  // Se elimina la imagen de la que se presiona en su boton X
+  const removeNewImage = (indexToRemove) => {
+    setForm(current => ({...current, images: current.images.filter((_, index) => index != indexToRemove)}))
+  }
+  const removeExistingImage = (imageId) => {
+    setImagesToDelete(current => [...current, imageId])
+  }
 
   const handleChange = (event) => {
     const { name, value, type, checked, files } = event.target
@@ -108,6 +117,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         }
       }
 
+      // Si se han eliminado imagenes se eliminan del servidor
+      if (imagesToDelete.length > 0) {
+        for(const imageId of imagesToDelete) {
+          await deleteProductImage(imageId)
+        }
+      }
+
       // Se redirecciona con una notificacion al index de productos
       navigate("/admin/products", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Producto actualizado correctamente" : "Producto creado correctamente" }})
 
@@ -118,7 +134,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         setErrors(errors)
         console.log("Errores: " , error.response.data.errors);
       }
-      
     }
     finally {
       setLoading(false)
@@ -195,12 +210,12 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         {/* Imagenes */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <h3 className="text-[20px] font-semibold md:col-span-3">Imagenes del producto</h3>
-          <div className='md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
+          <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
 
             {/* Se muestra un div para subir la imagen */}
             <input type="file" multiple name="images" id="images" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
-            <div className='w-60 h-60 bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
-                <div className='flex flex-col items-center gap-2 text-primary'>
+            <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
+                <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                   </svg>
@@ -211,12 +226,23 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Se muestra la nueva imagen seleccionada */}
             {form.images.length > 0 && (
               form.images.map((image, index) => (
-                <img key={index} src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-60 h-60 object-cover rounded-lg border border-base-300" /> 
+                <div key={index} className="relative w-full max-w-60 aspect-square">
+                  <img key={index} src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300" />
+                  
+                  {/* Boton para eliminar las imagenes que aun no se han subido */}
+                  <button type="button" onClick={() => removeNewImage(index)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                </div>
               )))}
 
+            {/* Se muestran las imagenes subidas del producto */}
             {initialData?.images?.length > 0 ?
-              initialData.images.map((image) => (
-              <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-60 h-60 object-cover rounded-lg border border-base-300"/>
+              initialData.images.filter(image => !imagesToDelete.includes(image.id)).map((image, index) => (
+                <div key={index} className="relative w-full max-w-60 aspect-square">
+                  <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300"/>
+
+                  {/* Boton para eliminar las imagenes subidas al servidor */}
+                  <button type="button" onClick={() => removeExistingImage(image.id)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                </div>
               ))
             : ""}
           </div>

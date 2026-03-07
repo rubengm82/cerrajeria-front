@@ -42,22 +42,24 @@ function AdminProducts() {
         <button onClick={() => navigate('/admin/products/new')} className='btn btn-primary flex items-center'> Nuevo producto</button>
       </div>
       {/* Buscador */}
-      <div className='flex flex-row gap-5 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar pedido por numero, cliente...' className='w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
+      <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
+          <input type="search" name="search" id="search" placeholder='Buscar pedido por numero, cliente...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
 
-          <select name="status" id="status" className='w-[10%] ml-2 p-2 rounded-lg bg-base-100 border border-base-300'>
-              <option value="Test1">Test1</option>
-              <option value="Test2">Test2</option>
-          </select>
+          <div className='flex flex-row gap-2 w-full md:w-[50%] lg:w-[30%]'>
+            <select name="status" id="status" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
+                <option value="Test1">Test1</option>
+                <option value="Test2">Test2</option>
+            </select>
 
-          <select name="status" id="status" className='w-[10%] p-2 rounded-lg bg-base-100 border border-base-300'>
-              <option value="Test1">Test1</option>
-              <option value="Test2">Test2</option>
-          </select>
+            <select name="status" id="status" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
+                <option value="Test1">Test1</option>
+                <option value="Test2">Test2</option>
+            </select>
 
-          <button className='btn btn-secondary w-[10%] border-base-300 bg-transparent'>
-              Descargar
-          </button>
+            <button className='btn btn-secondary flex-1 border-base-300 bg-transparent px-1'>
+                Descargar
+            </button>
+          </div>
       </div>
       {/* Tabla de productos */}
       <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">

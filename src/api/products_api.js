@@ -17,3 +17,6 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`)
 
 // Crear imagen de producto
 export const createProductImage = (productImageData) => api.post("/product-images", productImageData)
+
+// Eliminar imagen del producto
+export const deleteProductImage = (id) => api.delete(`/product-images/${id}`)

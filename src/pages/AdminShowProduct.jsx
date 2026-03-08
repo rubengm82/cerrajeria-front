@@ -29,7 +29,7 @@ function AdminShowProduct() {
     setLoading(true)
     try {
       deleteProduct(product.id)
-      
+
     } catch (error) {
       console.log(error);
     } finally {
@@ -42,8 +42,13 @@ function AdminShowProduct() {
   return loading ? <LoadingAnimation/> : (
     <div className="flex flex-col items-center p-4 lg:p-0">
       <div className="lg:w-[80%] lg:min-w-150 w-full">
-        <button onClick={() => navigate("/admin/products")} className="text-primary mb-2 inline-block">Volver atras</button>
-        
+        <button onClick={() => navigate("/admin/products")} className="text-primary mb-2 flex items-center gap-2 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          <p>Volver atrás</p>
+        </button>
+
         {/* Header del show */}
         <div className='w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5'>
           <div className="flex items-center gap-4 md:gap-10">
@@ -63,7 +68,6 @@ function AdminShowProduct() {
 
         {/* Cuerpo del show */}
         <div className="flex flex-col lg:flex-row items-start gap-10">
-          
           {/* Contenedor de la izquierda */}
           <div className="w-full lg:w-[70%] flex flex-col gap-5">
             {/* Imagenes */}
@@ -77,14 +81,37 @@ function AdminShowProduct() {
                 ))
               : <p className="col-span-full">Actualmente no hay ninguna imagen</p> }
             </div>
-            
+
             <div className="simple-container">
               <h3 className="text-[18px] font-semibold mb-4">Descripcion</h3>
               <p className="text-base-400">{product.description ? product.description : "Este producto aun no tiene descripcion"}</p>
             </div>
+
+            {/* Características */}
+            <div className="simple-container">
+              <h3 className="text-[18px] font-semibold mb-4">Características</h3>
+              {product.features?.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Object.entries(
+                    product.features.reduce((acc, feature) => {
+                      const typeName = feature.type?.name || "Sin tipo";
+                      if (!acc[typeName]) acc[typeName] = [];
+                      acc[typeName].push(feature.value);
+                      return acc;
+                    }, {})
+                  ).map(([typeName, values]) => (
+                    <div key={typeName} className="flex flex-col gap-1">
+                      <h4 className="font-bold text-primary text-sm uppercase tracking-wider">{typeName}</h4>
+                      <p className="text-base-content font-medium">{values.join(", ")}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-base-400 italic">Este producto no tiene características asignadas</p>
+              )}
+            </div>
           </div>
 
-          {/* Contenedor de la derecha - 100% on mobile, 30% on lg */}
           <div className="w-full lg:w-[30%] flex flex-col gap-5">
             {/* Precio */}
             <div className="simple-container">

@@ -2,8 +2,21 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Users from './pages/UsersList'
 import AdminProducts from './pages/AdminProducts'
+import AdminCategories from './pages/AdminCategories'
 import CreateProduct from './pages/CreateProduct'
+import CreateCategory from './pages/CreateCategory'
 import EditProduct from './pages/EditProduct'
+import EditCategory from './pages/EditCategory'
+import AdminPacks from './pages/AdminPacks'
+import AdminShowPack from './pages/AdminShowPack'
+import CreatePack from './pages/CreatePack'
+import EditPack from './pages/EditPack'
+import AdminFeatures from './pages/AdminFeatures'
+import CreateFeature from './pages/CreateFeature'
+import EditFeature from './pages/EditFeature'
+import AdminFeatureTypes from './pages/AdminFeatureTypes'
+import CreateFeatureType from './pages/CreateFeatureType'
+import EditFeatureType from './pages/EditFeatureType'
 import Login from './pages/SignIn'
 import ResetPassword from './pages/ResetPassword'
 import ForgotPassword from './pages/ForgotPassword'
@@ -96,6 +109,75 @@ function App() {
         <Route path='/admin/products/:id/edit' element={
           <ProtectedRoute requiredRole='admin'>
             <EditProduct />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/packs' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminPacks />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/packs/:id/show' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminShowPack />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/packs/new' element={
+          <ProtectedRoute requiredRole='admin'>
+            <CreatePack />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/packs/:id/edit' element={
+          <ProtectedRoute requiredRole='admin'>
+            <EditPack />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/categories' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminCategories />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/categories/new' element={
+          <ProtectedRoute requiredRole='admin'>
+            <CreateCategory />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/categories/:id/edit' element={
+          <ProtectedRoute requiredRole='admin'>
+            <EditCategory />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/features' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminFeatures />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/features/new' element={
+          <ProtectedRoute requiredRole='admin'>
+            <CreateFeature />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/features/:id/edit' element={
+          <ProtectedRoute requiredRole='admin'>
+            <EditFeature />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/feature-types' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminFeatureTypes />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/feature-types/new' element={
+          <ProtectedRoute requiredRole='admin'>
+            <CreateFeatureType />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/feature-types/:id/edit' element={
+          <ProtectedRoute requiredRole='admin'>
+            <EditFeatureType />
           </ProtectedRoute>
         } />
       </Route>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '../api/categories_api';
+import { getFeatures } from '../api/features_api';
 import { createProduct, createProductImage, deleteProductImage, updateProduct } from "../api/products_api";
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from "./LoadingAnimation";
@@ -9,6 +10,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null)
   const [categories, setCategories] = useState([])
+  const [availableFeatures, setAvailableFeatures] = useState([])
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
   const [imagesToDelete, setImagesToDelete] = useState([])
@@ -25,7 +27,8 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     images: [],
     installation_price: 0,
     extra_keys: 0,
-    is_active: true
+    is_active: true,
+    feature_ids: []
   })
 
   useEffect(() => {
@@ -36,24 +39,38 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         is_installable: !!initialData.is_installable,
         is_important_to_show: !!initialData.is_important_to_show,
         is_active: !!initialData.is_active,
+        feature_ids: initialData.features ? initialData.features.map(f => f.id) : []
       })
     }
   }, [initialData])
 
   useEffect(() => {
-    setLoading(true)
-    getCategories()
-    .then(response => setCategories(response.data))
-    .catch(err => {
-      console.log(err)
-      setCategories([])
-    })
-    .finally(() => {
-      setLoading(false)
-    })
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const [categoriesRes, featuresRes] = await Promise.all([
+          getCategories(),
+          getFeatures()
+        ])
+        setCategories(categoriesRes.data)
+        setAvailableFeatures(featuresRes.data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
   }, [])
 
-  // Se elimina la imagen de la que se presiona en su boton X
+  // Agrupar características por tipo
+  const groupedFeatures = availableFeatures.reduce((acc, feature) => {
+    const typeName = feature.type?.name || "Sin tipo";
+    if (!acc[typeName]) acc[typeName] = [];
+    acc[typeName].push(feature);
+    return acc;
+  }, {});
+
   const removeNewImage = (indexToRemove) => {
     setForm(current => ({...current, images: current.images.filter((_, index) => index != indexToRemove)}))
   }
@@ -76,37 +93,46 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     }
   }
 
+  const handleFeatureChange = (featureId) => {
+    setForm(current => {
+      const ids = [...current.feature_ids];
+      if (ids.includes(featureId)) {
+        return { ...current, feature_ids: ids.filter(id => id !== featureId) };
+      } else {
+        return { ...current, feature_ids: [...ids, featureId] };
+      }
+    });
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setLoading(true)
+    setErrors({})
 
-    // Se preparan los datos para el backend
-    const { images, ...formWithoutImage } = form
+    const { images, features, ...formWithoutImage } = form
     const payload = {
       ...formWithoutImage,
       price: parseFloat(form.price) || 0,
       stock: parseInt(form.stock) || 0,
       discount: parseInt(form.discount) || 0,
       installation_price: parseFloat(form.installation_price) || 0,
-      extra_keys: parseFloat(form.extra_keys) || 0,
+      extra_keys: parseInt(form.extra_keys) || 0,
       category_id: parseInt(form.category_id),
       is_installable: form.is_installable ? 1 : 0,
       is_important_to_show: form.is_important_to_show ? 1 : 0,
-      is_active: form.is_active ? 1 : 0
+      is_active: form.is_active ? 1 : 0,
+      feature_ids: form.feature_ids
     }
 
     try {
       let response = null
-      // Dependiendo de si se actualiza o se crea ejecuta un metodo y notificacion u otro
       if (initialData && initialData.id) {
         response = await updateProduct(initialData.id, payload)
       } else {
         response = await createProduct(payload)
       }
-      /* Se obtiene el producto creado */
       const product = response.data
 
-      /* Si se ha subido una imagen se crea en la base de datos */
       if (images.length > 0) {
         for (const image of images) {
             const formData = new FormData()
@@ -117,25 +143,19 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         }
       }
 
-      // Si se han eliminado imagenes se eliminan del servidor
       if (imagesToDelete.length > 0) {
         for(const imageId of imagesToDelete) {
           await deleteProductImage(imageId)
         }
       }
 
-      // Se redirecciona con una notificacion al index de productos
       navigate("/admin/products", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Producto actualizado correctamente" : "Producto creado correctamente" }})
 
     } catch (error) {
-      console.log("Error: " + error);
       if (error.response?.status == 422) {
-        const errors = error.response.data.errors
-        setErrors(errors)
-        console.log("Errores: " , error.response.data.errors);
+        setErrors(error.response.data.errors)
       }
-    }
-    finally {
+    } finally {
       setLoading(false)
     }
   }
@@ -146,8 +166,11 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     <div className="lg:w-[70%] lg:min-w-150 w-full">
       <div className="mb-5">
         {backLink && (
-          <Link to={backLink} className='text-primary mb-2 inline-block'>
-            Volver atrás
+          <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            <p>Volver atrás</p>
           </Link>
         )}
         {title && <h1 className="text-2xl font-bold">{title}</h1>}
@@ -159,29 +182,53 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Nombre */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor="name">Nombre del producto *</label>
-            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full"/>
+            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full" required/>
           </div>
-          {/* Código */}
+          {/* Codigo */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='code'>Código *</label>
             <input type="text" name="code" id='code' value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full" required/>
           </div>
-          {/* Descripción */}
+          {/* Descripcion */}
           <div className="w-full col-span-1 md:col-span-2">
             <label className="label text-base-content" htmlFor='description'>Descripción</label>
             <textarea name="description" id='description' value={form.description} onChange={handleChange} placeholder="Descripción del producto" className="textarea h-auto max-h-28 w-full"></textarea>
           </div>
-          {/* Categoría */}
+          {/* Categoria */}
           <div className="w-full col-span-1 md:col-span-2">
             <label className="label text-base-content" htmlFor='category_id'>Categoría *</label>
             <select name="category_id" id="category_id" value={form.category_id} onChange={handleChange} className='select w-full' required>
               <option value="" disabled>Selecciona una categoría</option>
-              {
-                categories.map((category) => (
-                  <option key={category.id} value={category.id}>{category.name}</option>
-                ))
-              }
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>{category.name}</option>
+              ))}
             </select>
+          </div>
+        </div>
+
+        {/* Características */}
+        <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
+          <h3 className="text-[20px] font-semibold">Características del producto</h3>
+          <p className='text-sm text-base-content/60 -mt-4'>Selecciona las opciones que definen a este producto.</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {Object.keys(groupedFeatures).length > 0 ? Object.entries(groupedFeatures).map(([typeName, features]) => (
+              <div key={typeName} className="flex flex-col gap-2">
+                <h4 className="font-bold text-primary border-b border-primary/20 pb-1 mb-2">{typeName}</h4>
+                <div className="flex flex-wrap gap-x-6 gap-y-2">
+                  {features.map(feature => (
+                    <label key={feature.id} className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
+                      <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={form.feature_ids.includes(feature.id)} onChange={() => handleFeatureChange(feature.id)}/>
+                      <span className="text-sm">{feature.value}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )) : (
+              <p className="col-span-2 text-center py-4 text-md rounded">
+                No hay características disponibles. <Link to="/admin/features/new" className="text-primary underline">Crear una</Link>
+              </p>
+            )}
           </div>
         </div>
 
@@ -222,13 +269,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
                   <p>Añadir nueva imagen</p>
                 </div>
             </div>
-            
+
             {/* Se muestra la nueva imagen seleccionada */}
             {form.images.length > 0 && (
               form.images.map((image, index) => (
                 <div key={index} className="relative w-full max-w-60 aspect-square">
                   <img key={index} src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300" />
-                  
+
                   {/* Boton para eliminar las imagenes que aun no se han subido */}
                   <button type="button" onClick={() => removeNewImage(index)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
                 </div>
@@ -238,7 +285,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {initialData?.images?.length > 0 ?
               initialData.images.filter(image => !imagesToDelete.includes(image.id)).map((image, index) => (
                 <div key={index} className="relative w-full max-w-60 aspect-square">
-                  <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300"/>
+                  <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300" alt="imagen"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <button type="button" onClick={() => removeExistingImage(image.id)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>

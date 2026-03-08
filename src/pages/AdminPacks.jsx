@@ -93,7 +93,7 @@ function AdminPacks() {
               </tr>
             )) :
               <tr>
-                <td colSpan={4} className='p-6'>
+                <td colSpan={6} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
                     <p>Actualmente no hay packs creados</p>
                     <Link to="/admin/packs/new" className='text-primary'>crea uno nuevo!</Link>

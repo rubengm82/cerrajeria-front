@@ -29,6 +29,7 @@ import { useAuth } from './context/AuthContext'
 import Layout from './components/layout/Layout'
 import './App.css'
 import AdminShowProduct from './pages/AdminShowProduct'
+import AdminDashboard from './pages/AdminDashboard'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -178,6 +179,12 @@ function App() {
         <Route path='/admin/feature-types/:id/edit' element={
           <ProtectedRoute requiredRole='admin'>
             <EditFeatureType />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/dashboard' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminDashboard />
           </ProtectedRoute>
         } />
       </Route>

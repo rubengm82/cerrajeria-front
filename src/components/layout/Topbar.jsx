@@ -18,13 +18,13 @@ export default function Topbar() {
         
         <div className="flex-1">
           <Link to="/" className="btn btn-ghost text-xl">
-            🔒 Cerrajería ABP
+            Cerrajería ABP
           </Link>
         </div>
         
         <div className="flex-none gap-2">
           <Link to="/login" className="btn btn-primary">
-            🚪 Iniciar Sessió
+            Iniciar Sessió
           </Link>
         </div>
       </div>
@@ -43,9 +43,7 @@ export default function Topbar() {
       </div>
       
       <div className="flex-1">
-        <Link to="/dashboard" className="btn btn-ghost text-xl">
-          🔒 Cerrajería ABP
-        </Link>
+        {/* Espai buit per mantenir el dropdown a la dreta */}
       </div>
       
       <div className="flex-none gap-2">
@@ -63,13 +61,13 @@ export default function Topbar() {
             <li>
               <a>
                 {user?.role === 'admin' || user?.role === 1 
-                  ? '🔧 Administrador' 
-                  : '👤 Usuari'}
+                  ? 'Administrador' 
+                  : 'Usuari'}
               </a>
             </li>
             <li className="border-t border-base-300 mt-2 pt-2">
-              <button onClick={logout} className="text-error">
-                🚪 Tancar Sessió
+              <button onClick={logout} className="btn btn-ghost text-base-content">
+                Tancar Sessió
               </button>
             </li>
           </ul>

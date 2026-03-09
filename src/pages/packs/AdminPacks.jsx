@@ -37,23 +37,23 @@ function AdminPacks() {
       {locationState && ( <Notifications type={locationState.notificationType || ""} title={locationState.title || ""} message={locationState.notificationMessage}/>)}
       <div className='w-full flex flex-row justify-between mb-5'>
         <h1 className='text-2xl font-bold text-base-content'>Packs</h1>
-        <button onClick={() => navigate('/admin/packs/new')} className='btn btn-primary flex items-center'> Nuevo pack</button>
+        <button onClick={() => navigate('/admin/packs/new')} className='btn btn-primary flex items-center'> Nou pack</button>
       </div>
 
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar pack por nombre...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
+          <input type="search" name="search" id="search" placeholder='Buscar pack per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
       </div>
 
       <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
         <table className="table">
           <thead>
               <tr className='text-neutral'>
-                  <th>Imagen</th>
-                  <th>Nombre</th>
-                  <th>Descripción</th>
-                  <th className='text-center'>Productos</th>
-                  <th className='text-right'>Precio Total</th>
-                  <th className='text-center'>Acciones</th>
+                  <th>Imatge</th>
+                  <th>Nom</th>
+                  <th>Descripció</th>
+                  <th className='text-center'>Productes</th>
+                  <th className='text-right'>Preu Total</th>
+                  <th className='text-center'>Accions</th>
               </tr>
           </thead>
           <tbody>
@@ -95,8 +95,8 @@ function AdminPacks() {
               <tr>
                 <td colSpan={6} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
-                    <p>Actualmente no hay packs creados</p>
-                    <Link to="/admin/packs/new" className='text-primary'>crea uno nuevo!</Link>
+                    <p>Actualment no hi ha packs creats</p>
+                    <Link to="/admin/packs/new" className='text-primary'>crea'n un de nou!</Link>
                   </div>
                 </td>
               </tr>}

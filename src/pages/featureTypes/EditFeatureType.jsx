@@ -26,7 +26,7 @@ function EditFeatureType() {
 
   return (
     <div className='flex justify-center'>
-      <FeatureTypeForm initialData={type} submitText="Actualizar Tipo" title="Editar Tipo de Característica" subtitle="Modifica el nombre del grupo de características" backLink="/admin/feature-types"/>
+      <FeatureTypeForm initialData={type} submitText="Actualitzar Tipus" title="Editar Tipus de Caracteristica" subtitle="Modifica el nom del grup de caracteristiques" backLink="/admin/feature-types"/>
     </div>
   );
 }

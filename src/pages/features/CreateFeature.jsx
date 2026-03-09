@@ -4,7 +4,7 @@ import FeatureForm from '../../components/FeatureForm';
 function CreateFeature() {
   return (
     <div className='flex justify-center'>
-      <FeatureForm submitText="Crear Característica" title="Nueva Característica" subtitle="Añade una nueva característica para tus productos (Ej: Color, Material, etc.)" backLink="/admin/features"/>
+      <FeatureForm submitText="Crear Caracteristica" title="Nova Caracteristica" subtitle="Afegeix una nova caracteristica per als teus productes (Ex: Color, Material, etc.)" backLink="/admin/features"/>
     </div>
   );
 }

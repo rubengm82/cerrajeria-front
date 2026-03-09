@@ -36,7 +36,7 @@ function AdminShowProduct() {
       setLoading(false)
     }
     // Se redirecciona al index de productos
-    navigate("/admin/products", { state: { notificationType: "success", notificationMessage: "Producto eliminado correctamente" }})
+    navigate("/admin/products", { state: { notificationType: "success", notificationMessage: "Producte eliminat correctament" }})
   }
 
   return loading ? <LoadingAnimation/> : (
@@ -46,7 +46,7 @@ function AdminShowProduct() {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
           </svg>
-          <p>Volver atrás</p>
+          <p>Tornar enrere</p>
         </button>
 
         {/* Header del show */}
@@ -54,13 +54,13 @@ function AdminShowProduct() {
           <div className="flex items-center gap-4 md:gap-10">
             <div>
               <h1 className='text-2xl md:text-3xl font-bold text-base-content'>{product.name}</h1>
-              <p className="text-base-400 text-md md:text-lg">Codigo: {product.code}</p>
+              <p className="text-base-400 text-md md:text-lg">Codi: {product.code}</p>
             </div>
             <p className={`p-1 text-center border rounded-lg w-16 font-medium ${product.is_active == null ? "" : product.is_active == 1 ? "bg-success text-success-content" : "bg-error text-error-content"}`}>{product.is_active == null ? "-" : product.is_active == 1 ? "Actiu" : "Inactiu"}</p>
           </div>
           <div className="flex flex-row w-full md:w-auto justify-end">
             <button onClick={() => navigate(`/admin/products/${product.id}/edit`)} className="btn btn-secondary mr-2">Editar</button>
-            <ConfirmableModal title="Eliminar producto" message={`¿Seguro que quieres eliminar el producto "${product.name}"?`} onConfirm={() => handleDelete(product.id)} >
+            <ConfirmableModal title="Eliminar producte" message={`Segur que vols eliminar el producte "${product.name}"?`} onConfirm={() => handleDelete(product.id)} >
               <button className="btn btn-error">Eliminar</button>
             </ConfirmableModal>
           </div>
@@ -72,29 +72,29 @@ function AdminShowProduct() {
           <div className="w-full lg:w-[70%] flex flex-col gap-5">
             {/* Imagenes */}
             <div className="simple-container grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 items-center gap-6 ">
-              <h3 className="text-[18px] font-semibold col-span-full">Imagenes</h3>
+              <h3 className="text-[18px] font-semibold col-span-full">Imatges</h3>
               {product.images?.length > 0 ?
                 product.images.map((image, number) => (
                   <div key={image + number} className="flex justify-center">
                     <img src={`http://127.0.0.1:8000/storage/${image.path}`} className="rounded-lg aspect-square object-cover w-full max-w-60 border border-base-300"/>
                   </div>
                 ))
-              : <p className="col-span-full">Actualmente no hay ninguna imagen</p> }
+              : <p className="col-span-full">Actualment no hi ha cap imatge</p> }
             </div>
 
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold mb-4">Descripcion</h3>
-              <p className="text-base-400">{product.description ? product.description : "Este producto aun no tiene descripcion"}</p>
+              <h3 className="text-[18px] font-semibold mb-4">Descripció</h3>
+              <p className="text-base-400">{product.description ? product.description : "Aquest producte encara no té descripció"}</p>
             </div>
 
             {/* Características */}
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold mb-4">Características</h3>
+              <h3 className="text-[18px] font-semibold mb-4">Característiques</h3>
               {product.features?.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.entries(
                     product.features.reduce((acc, feature) => {
-                      const typeName = feature.type?.name || "Sin tipo";
+                      const typeName = feature.type?.name || "Sense tipus";
                       if (!acc[typeName]) acc[typeName] = [];
                       acc[typeName].push(feature.value);
                       return acc;
@@ -107,7 +107,7 @@ function AdminShowProduct() {
                   ))}
                 </div>
               ) : (
-                <p className="text-base-400 italic">Este producto no tiene características asignadas</p>
+                <p className="text-base-400 italic">Aquest producte no té característiques assignades</p>
               )}
             </div>
           </div>
@@ -115,15 +115,15 @@ function AdminShowProduct() {
           <div className="w-full lg:w-[30%] flex flex-col gap-5">
             {/* Precio */}
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold">Precio</h3>
+              <h3 className="text-[18px] font-semibold">Preu</h3>
               <p className="text-primary font-bold text-4xl mt-4">{product.price}€</p>
             </div>
 
             {/* Inventario */}
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold">Inventario</h3>
+              <h3 className="text-[18px] font-semibold">Inventari</h3>
               <div className="flex items-center justify-between">
-                <p className="mt-4 text-base-400 font-semibold">Stock actual</p>
+                <p className="mt-4 text-base-400 font-semibold">Estoc actual</p>
                 <p className="mt-4 text-primary font-bold">{product.stock}u</p>
               </div>
 
@@ -131,7 +131,7 @@ function AdminShowProduct() {
               {product.extra_keys > 0 &&
                 <div>
                   <hr className="border-base-300 my-5" />
-                  <p className="text-base-400 font-semibold">{product.extra_keys} llaves extras incluidas</p>
+                  <p className="text-base-400 font-semibold">{product.extra_keys} claus extres incloses</p>
                 </div>
               }
             </div>
@@ -144,14 +144,14 @@ function AdminShowProduct() {
 
             {/* Estado */}
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold">Estado</h3>
+              <h3 className="text-[18px] font-semibold">Estat</h3>
               <div className="w-full flex items-center justify-between mt-3">
-                <p className="font-semibold text-base-400">Visibilidad</p>
+                <p className="font-semibold text-base-400">Visibilitat</p>
                 <p className={`p-1 text-center border rounded-lg w-16 font-medium ${product.is_active == null ? "" : product.is_active == 1 ? "bg-success text-success-content" : "bg-error text-error-content"}`}>{product.is_active == null ? "-" : product.is_active == 1 ? "Actiu" : "Inactiu"}</p>
               </div>
 
               <div className="w-full flex items-center justify-between mt-2">
-                <p className="font-semibold text-base-400">Producto destacado</p>
+                <p className="font-semibold text-base-400">Producte destacat</p>
                 <p>{product.is_important_to_show ? "Si" : "No" }</p>
               </div>
             </div>

@@ -38,12 +38,12 @@ function AdminProducts() {
       {/* Se muestra la notificacion si es que hay */}
       {locationState && ( <Notifications type={locationState.notificationType || ""} title={locationState.title || ""} message={locationState.notificationMessage}/>)}
       <div className='w-full flex flex-row justify-between mb-5'>
-        <h1 className='text-2xl font-bold text-base-content'>Productos</h1>
-        <button onClick={() => navigate('/admin/products/new')} className='btn btn-primary flex items-center'> Nuevo producto</button>
+        <h1 className='text-2xl font-bold text-base-content'>Productes</h1>
+        <button onClick={() => navigate('/admin/products/new')} className='btn btn-primary flex items-center'> Nou producte</button>
       </div>
       {/* Buscador */}
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar pedido por numero, cliente...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
+          <input type="search" name="search" id="search" placeholder='Buscar producte per número, client...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
 
           <div className='flex flex-row gap-2 w-full md:w-[50%] lg:w-[30%]'>
             <select name="status" id="status" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
@@ -66,14 +66,14 @@ function AdminProducts() {
         <table className="table">
           <thead>
               <tr className='text-neutral'>
-                  <th>Imagen</th>
-                  <th>Producto</th>
-                  <th>Codigo</th>
+                  <th>Imatge</th>
+                  <th>Producte</th>
+                  <th>Codi</th>
                   <th>Categoria</th>
-                  <th className='text-right'>Precio</th>
-                  <th className='text-center'>Stock</th>
-                  <th>Estado</th>
-                  <th className='text-center'>Acciones</th>
+                  <th className='text-right'>Preu</th>
+                  <th className='text-center'>Estoc</th>
+                  <th>Estat</th>
+                  <th className='text-center'>Accions</th>
               </tr>
           </thead>
           <tbody>
@@ -117,8 +117,8 @@ function AdminProducts() {
               <tr>
                 <td colSpan={8} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
-                    <p>Actualmente no hay productos creados</p>
-                    <Link to="/admin/products/new" className='text-primary'>crea uno nuevo!</Link>
+                    <p>Actualment no hi ha productes creats</p>
+                    <Link to="/admin/products/new" className='text-primary'>crea'n un de nou!</Link>
                   </div>
                 </td>
               </tr>}

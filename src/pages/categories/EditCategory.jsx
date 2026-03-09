@@ -24,7 +24,7 @@ const EditCategory = () => {
 
   return loading ? <LoadingAnimation/> : (
     <div className='flex flex-col items-center'>
-      <CategoryForm initialData={category} submitText="Actualizar categoría" title="Editar categoría" subtitle="Completa la informacion para editar la categoría" backLink="/admin/categories"/>
+      <CategoryForm initialData={category} submitText="Actualitzar categoria" title="Editar categoria" subtitle="Completa la informació per editar la categoria" backLink="/admin/categories"/>
     </div>
   )
 };

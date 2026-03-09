@@ -26,7 +26,7 @@ function EditFeature() {
 
   return (
     <div className='flex justify-center'>
-      <FeatureForm initialData={feature} submitText="Actualizar Característica" title="Editar Característica" subtitle="Modifica los detalles de la característica" backLink="/admin/features"/>
+      <FeatureForm initialData={feature} submitText="Actualitzar Caracteristica" title="Editar Caracteristica" subtitle="Modifica els detalls de la caracteristica" backLink="/admin/features"/>
     </div>
   );
 }

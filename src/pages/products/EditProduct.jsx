@@ -24,7 +24,7 @@ const EditProduct = () => {
 
   return loading ? <LoadingAnimation/> : (
     <div className='flex flex-col items-center'>
-      <ProductForm initialData={product} submitText={"Actualizar producto"} title={"Editar producto"} subtitle={"Completa la informacion para editar el producto"} backLink={"/admin/products"}/>
+      <ProductForm initialData={product} submitText={"Actualitzar producte"} title={"Editar producte"} subtitle={"Completa la informació per editar el producte"} backLink={"/admin/products"}/>
     </div>
   )
 };

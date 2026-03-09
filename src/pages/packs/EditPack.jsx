@@ -24,7 +24,7 @@ const EditPack = () => {
 
   return loading ? <LoadingAnimation/> : (
     <div className='flex flex-col items-center'>
-      <PackForm initialData={pack} submitText={"Actualizar pack"} title={"Editar pack"} subtitle={"Completa la informacion para editar el pack"} backLink={"/admin/packs"}/>
+      <PackForm initialData={pack} submitText={"Actualitzar pack"} title={"Editar pack"} subtitle={"Completa la informació per editar el pack"} backLink={"/admin/packs"}/>
     </div>
   )
 };

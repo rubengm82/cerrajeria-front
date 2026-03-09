@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
-import Users from './pages/users/UsersList'
+import AdminUsers from './pages/users/AdminUsers'
 import AdminProducts from './pages/products/AdminProducts'
 import AdminCategories from './pages/categories/AdminCategories'
 import CreateProduct from './pages/products/CreateProduct'
@@ -88,7 +88,7 @@ function App() {
         {/* Rutas de Admin - Protegidas por rol */}
         <Route path="/users" element={
           <ProtectedRoute requiredRole="admin">
-            <Users />
+            <AdminUsers />
           </ProtectedRoute>
         } />
         <Route path='/admin/products' element={

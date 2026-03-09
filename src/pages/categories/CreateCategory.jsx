@@ -3,7 +3,7 @@ import CategoryForm from '../../components/CategoryForm';
 const CreateCategory = () => {
   return (
     <div className='flex flex-col items-center'>
-      <CategoryForm submitText="Crear categoría" title="Crear categoría" subtitle="Completa la informacion para crear una nueva categoría" backLink="/admin/categories"/>
+      <CategoryForm submitText="Crear categoria" title="Crear categoria" subtitle="Completa la informació per crear una nova categoria" backLink="/admin/categories"/>
     </div>
   )
 };

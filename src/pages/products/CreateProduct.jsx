@@ -3,7 +3,7 @@ import ProductForm from '../../components/ProductForm';
 const CreateProduct = () => {
   return (
     <div className='flex flex-col items-center'>
-      <ProductForm submitText={"Crear producto"} title={"Crear producto"} subtitle={"Completa la informacion para crear un nuevo producto"} backLink={"/admin/products"}/>
+      <ProductForm submitText={"Crear producte"} title={"Crear producte"} subtitle={"Completa la informació per crear un nou producte"} backLink={"/admin/products"}/>
     </div>
   )
 };

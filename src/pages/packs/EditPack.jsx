@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import {useParams} from 'react-router-dom';
-import { getPack } from '../api/packs_api';
-import PackForm from '../components/PackForm';
-import LoadingAnimation from '../components/LoadingAnimation';
+import { getPack } from '../../api/packs_api';
+import PackForm from '../../components/PackForm';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const EditPack = () => {
   const {id} = useParams()

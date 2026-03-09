@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getPacks } from '../api/packs_api'
-import LoadingAnimation from '../components/LoadingAnimation'
-import Notifications from '../components/Notifications'
+import { getPacks } from '../../api/packs_api'
+import LoadingAnimation from '../../components/LoadingAnimation'
+import Notifications from '../../components/Notifications'
 
 function AdminPacks() {
   const [packs, setPacks] = useState([])

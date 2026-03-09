@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { deleteProduct, getProduct } from "../api/products_api"
+import { deleteProduct, getProduct } from "../../api/products_api"
 import { useNavigate, useParams } from "react-router-dom"
-import LoadingAnimation from "../components/LoadingAnimation"
-import ConfirmableModal from "../components/ConfirmableModal"
+import LoadingAnimation from "../../components/LoadingAnimation"
+import ConfirmableModal from "../../components/ConfirmableModal"
 
 function AdminShowProduct() {
   const navigate = useNavigate()

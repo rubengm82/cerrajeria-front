@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import {useParams} from 'react-router-dom';
-import { getProduct } from '../api/products_api';
-import ProductForm from '../components/ProductForm';
-import LoadingAnimation from '../components/LoadingAnimation';
+import { getProduct } from '../../api/products_api';
+import ProductForm from '../../components/ProductForm';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const EditProduct = () => {
   const {id} = useParams()

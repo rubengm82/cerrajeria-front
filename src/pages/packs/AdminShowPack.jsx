@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { deletePack, getPack } from "../api/packs_api"
+import { deletePack, getPack } from "../../api/packs_api"
 import { useNavigate, useParams } from "react-router-dom"
-import LoadingAnimation from "../components/LoadingAnimation"
-import ConfirmableModal from "../components/ConfirmableModal"
+import LoadingAnimation from "../../components/LoadingAnimation"
+import ConfirmableModal from "../../components/ConfirmableModal"
 
 function AdminShowPack() {
   const navigate = useNavigate()

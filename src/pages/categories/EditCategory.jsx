@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getCategory } from '../api/categories_api';
-import CategoryForm from '../components/CategoryForm';
-import LoadingAnimation from '../components/LoadingAnimation';
+import { getCategory } from '../../api/categories_api';
+import CategoryForm from '../../components/CategoryForm';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const EditCategory = () => {
   const { id } = useParams()

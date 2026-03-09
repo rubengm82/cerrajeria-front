@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getProducts } from '../api/products_api'
-import LoadingAnimation from '../components/LoadingAnimation'
-import Notifications from '../components/Notifications'
+import { getProducts } from '../../api/products_api'
+import LoadingAnimation from '../../components/LoadingAnimation'
+import Notifications from '../../components/Notifications'
 
 function AdminProducts() {
   const [products, setProducts] = useState([])

@@ -1,4 +1,4 @@
-import PackForm from '../components/PackForm';
+import PackForm from '../../components/PackForm';
 
 const CreatePack = () => {
   return (

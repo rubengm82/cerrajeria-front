@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getCategories, deleteCategory } from '../api/categories_api'
-import LoadingAnimation from '../components/LoadingAnimation'
-import Notifications from '../components/Notifications'
-import ConfirmableModal from '../components/ConfirmableModal'
+import { getCategories, deleteCategory } from '../../api/categories_api'
+import LoadingAnimation from '../../components/LoadingAnimation'
+import Notifications from '../../components/Notifications'
+import ConfirmableModal from '../../components/ConfirmableModal'
 
 function AdminCategories() {
   const [categories, setCategories] = useState([])

@@ -7,7 +7,7 @@ export default function Topbar() {
   // Si no hay usuario logueado, mostrar botón de login
   if (!user) {
     return (
-      <div className="navbar bg-base-100 shadow-sm">
+      <div className="navbar bg-transparent">
         <div className="flex-none lg:hidden">
           <label htmlFor="drawer" className="btn btn-square btn-ghost">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">
@@ -33,7 +33,7 @@ export default function Topbar() {
   
   // Usuario logueado - mostrar dropdown con opciones
   return (
-    <div className="navbar bg-base-100 shadow-sm">
+    <div className="navbar bg-transparent">
       <div className="flex-none lg:hidden">
         <label htmlFor="drawer" className="btn btn-square btn-ghost">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-6 h-6 stroke-current">

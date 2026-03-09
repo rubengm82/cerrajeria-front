@@ -12,7 +12,9 @@ export default function Layout() {
 
       <div className="drawer-content flex flex-col">
         {/* Topbar - siempre visible */}
-        <Topbar />
+        <div className="sticky top-0 z-50 bg-base-100/80 backdrop-blur shadow-sm">
+          <Topbar />
+        </div>
 
         {/* Contenido principal */}
         <div className="px-8 py-6 min-h-screen bg-base-200">

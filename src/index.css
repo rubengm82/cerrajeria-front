@@ -67,3 +67,8 @@
     outline: none !important;
     outline-offset: 0 !important;
 }
+
+/* ANIMATIONS BUTTONS */
+@utility btn {
+  @apply transition-transform duration-150 ease-in-out hover:-translate-y-0.5;
+}

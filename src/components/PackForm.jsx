@@ -10,31 +10,29 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null)
   const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
   const [imagesToDelete, setImagesToDelete] = useState([])
-  const [form, setForm] = useState({
-    name: "",
-    total_price: "",
-    description: "",
-    product_ids: [],
-    images: []
-  })
-
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
     if (initialData) {
-      setForm({
+      return {
         name: initialData.name || "",
         total_price: initialData.total_price || "",
         description: initialData.description || "",
         product_ids: initialData.products?.map(p => p.id) || [],
         images: []
-      })
+      }
     }
-  }, [initialData])
+    return {
+      name: "",
+      total_price: "",
+      description: "",
+      product_ids: [],
+      images: []
+    }
+  })
 
   useEffect(() => {
-    setLoading(true)
     getProducts()
       .then(response => setProducts(response.data))
       .catch(err => console.error(err))
@@ -119,7 +117,6 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
       if (error.response?.status == 422) {
         setErrors(error.response.data.errors)
       }
-    } finally {
       setLoading(false)
     }
   }

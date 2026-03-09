@@ -14,39 +14,37 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
   const [imagesToDelete, setImagesToDelete] = useState([])
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    stock: "",
-    code: "",
-    discount: 0,
-    category_id: "",
-    is_installable: false,
-    is_important_to_show: false,
-    images: [],
-    installation_price: 0,
-    extra_keys: 0,
-    is_active: true,
-    feature_ids: []
-  })
-
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
     if (initialData) {
-      setForm({
+      return {
         ...initialData,
         images: [],
         is_installable: !!initialData.is_installable,
         is_important_to_show: !!initialData.is_important_to_show,
         is_active: !!initialData.is_active,
         feature_ids: initialData.features ? initialData.features.map(f => f.id) : []
-      })
+      }
     }
-  }, [initialData])
+    return {
+      name: "",
+      description: "",
+      price: "",
+      stock: "",
+      code: "",
+      discount: 0,
+      category_id: "",
+      is_installable: false,
+      is_important_to_show: false,
+      images: [],
+      installation_price: 0,
+      extra_keys: 0,
+      is_active: true,
+      feature_ids: []
+    }
+  })
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
       try {
         const [categoriesRes, featuresRes] = await Promise.all([
           getCategories(),
@@ -109,7 +107,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     setLoading(true)
     setErrors({})
 
-    const { images, features, ...formWithoutImage } = form
+    const { images, ...formWithoutImage } = form
     const payload = {
       ...formWithoutImage,
       price: parseFloat(form.price) || 0,
@@ -155,7 +153,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       if (error.response?.status == 422) {
         setErrors(error.response.data.errors)
       }
-    } finally {
       setLoading(false)
     }
   }

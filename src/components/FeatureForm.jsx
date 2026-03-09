@@ -7,25 +7,23 @@ import Notifications from './Notifications';
 function FeatureForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
   const [types, setTypes] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
 
-  const [form, setForm] = useState({
-    type_id: "",
-    value: ""
+  const [form, setForm] = useState(() => {
+    if (initialData) {
+      return {
+        type_id: initialData.type_id || "",
+        value: initialData.value || ""
+      }
+    }
+    return {
+      type_id: "",
+      value: ""
+    }
   })
 
   useEffect(() => {
-    if (initialData) {
-      setForm({
-        type_id: initialData.type_id || "",
-        value: initialData.value || ""
-      })
-    }
-  }, [initialData])
-
-  useEffect(() => {
-    setLoading(true)
     getFeatureTypes()
       .then(response => setTypes(response.data))
       .catch(err => console.error(err))
@@ -49,10 +47,8 @@ function FeatureForm({ initialData, submitText, title, subtitle, backLink }) {
     } catch (error) {
       if (error.response?.status == 422) {
         setErrors(error.response.data.errors)
-      }
-    } finally {
-      setLoading(false)
-    }
+      }  setLoading(false)
+    } 
   }
 
   return loading ? <LoadingAnimation /> : (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { createFeatureType, updateFeatureType } from '../api/features_api';
 import LoadingAnimation from './LoadingAnimation';
@@ -8,17 +8,16 @@ function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink })
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const [form, setForm] = useState({
-    name: ""
-  })
-
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
     if (initialData) {
-      setForm({
+      return {
         name: initialData.name || ""
-      })
+      }
     }
-  }, [initialData])
+    return {
+      name: ""
+    }
+  })
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -38,7 +37,6 @@ function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink })
       if (error.response?.status == 422) {
         setErrors(error.response.data.errors)
       }
-    } finally {
       setLoading(false)
     }
   }

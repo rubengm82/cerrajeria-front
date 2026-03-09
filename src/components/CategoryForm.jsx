@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { createCategory, updateCategory } from '../api/categories_api';
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from "./LoadingAnimation";
@@ -10,20 +10,18 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
   const [loading, setLoading] = useState(false)
   const [existingImageRemoved, setExistingImageRemoved] = useState(false)
   const [errors, setErrors] = useState({})
-  const [form, setForm] = useState({
-    name: "",
-    image: null
-  })
-
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
     if (initialData) {
-      setForm({
+      return {
         name: initialData.name || "",
         image: null
-      })
+      }
     }
-  }, [initialData])
-
+    return {
+      name: "",
+      image: null
+    }
+  })
 
   // Se elimina la imagen de la que se presiona en su boton X o subir una nueva
   const removeNewImage = () => { setForm(current => ({...current, image: null}))}
@@ -73,8 +71,6 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
         const errors = error.response.data.errors
         setErrors(errors)
       }
-    }
-    finally {
       setLoading(false)
     }
   }

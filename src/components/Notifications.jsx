@@ -1,4 +1,22 @@
-function Notifications({ type, title, message, errors }) {
+import { useEffect, useState } from 'react'
+
+function Notifications({ type, title, message, errors, autoClose = true }) {
+  const [isClosing, setIsClosing] = useState(false)
+
+  useEffect(() => {
+    if (autoClose) {
+      const timer = setTimeout(() => {
+        setIsClosing(true)
+        // Remover del DOM después de la transición (500ms)
+        setTimeout(() => {
+          const element = document.getElementById('notification-root')
+          if (element) element.remove()
+        }, 500)
+      }, 3000)
+
+      return () => clearTimeout(timer)
+    }
+  }, [autoClose])
   const config = {
     success: {
       className: "alert alert-success border border-success-content/30 mt-5",
@@ -41,7 +59,15 @@ function Notifications({ type, title, message, errors }) {
   const currentNotification = config[type] || config.info
   
   return (
-    <div role="alert" className={`fixed top-12 right-2 w-102 shadow-lg z-10 animate-slide-in ${currentNotification.className}`}>
+    <div 
+      id="notification-root"
+      role="alert" 
+      className={`fixed bottom-12 right-2 w-102 shadow-lg z-10 animate-slide-in ${currentNotification.className}`}
+      style={{
+        opacity: isClosing ? 0 : 1,
+        transition: 'opacity 0.5s ease'
+      }}
+    >
       {currentNotification.icon}
       <div>
         <h3 className="font-bold mb-1">{title || currentNotification.title}</h3>

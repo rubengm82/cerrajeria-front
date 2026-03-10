@@ -1,0 +1,149 @@
+// SignIn page specific styles
+
+// Contenedor principal
+.signin-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+// Tarjeta del formulario
+.signin-card {
+  width: 24rem; // w-96
+  background-color: oklch(100% 0 0);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+
+  // Título
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: oklch(14% 0 0);
+  }
+}
+
+// Mensaje de error
+.signin-error {
+  margin-bottom: 1rem;
+
+  p {
+    color: #ef4444;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .resend-link {
+    text-align: center;
+    display: block;
+
+    a {
+      font-size: 0.875rem;
+      color: #DA7606;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Inputs
+.signin-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid oklch(82% 0 0);
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  background-color: oklch(100% 0 0);
+  color: oklch(14% 0 0);
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: #DA7606;
+    box-shadow: 0 0 0 3px rgba(218, 118, 6, 0.1);
+  }
+
+  &::placeholder {
+    color: oklch(55% 0 0);
+  }
+}
+
+// Botón primario
+.signin-button-primary {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background-color: #DA7606;
+  color: oklch(97% 0.014 343.198);
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+  margin-bottom: 0.75rem;
+
+  &:hover {
+    background-color: #b56205;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Botón secundario (ghost)
+.signin-button-ghost {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  background-color: transparent;
+  color: oklch(14% 0 0);
+  border: 1px solid oklch(82% 0 0);
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: oklch(96% 0 0);
+  }
+}
+
+// Enlaces
+.signin-links {
+  margin-top: 1rem;
+  text-align: center;
+
+  a {
+    font-size: 0.875rem;
+    color: #DA7606;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Registro link
+.signin-register {
+  margin-top: 0.5rem;
+  text-align: center;
+
+  p {
+    font-size: 0.875rem;
+    color: oklch(55% 0 0);
+    margin: 0;
+  }
+
+  a {
+    color: #DA7606;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

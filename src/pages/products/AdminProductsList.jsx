@@ -4,7 +4,7 @@ import { getProducts } from '../../api/products_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 
-function AdminProducts() {
+function AdminProductsList() {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
@@ -128,4 +128,4 @@ function AdminProducts() {
     </div>
   )
 }
-export default AdminProducts
+export default AdminProductsList

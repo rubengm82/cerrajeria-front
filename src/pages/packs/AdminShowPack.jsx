@@ -12,7 +12,6 @@ function AdminShowPack() {
   const {id} = useParams()
 
   useEffect(() => {
-    setLoading(true)
     getPack(id)
     .then(response => setPack(response.data))
     .catch(error => {

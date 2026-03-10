@@ -2,20 +2,20 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ScrollToTop from './components/ScrollTop'
 import Home from './pages/Home'
 import AdminUsers from './pages/users/AdminUsers'
-import AdminProducts from './pages/products/AdminProducts'
-import AdminCategories from './pages/categories/AdminCategories'
+import AdminProductsList from './pages/products/AdminProductsList'
+import AdminCategoriesList from './pages/categories/AdminCategoriesList'
 import CreateProduct from './pages/products/CreateProduct'
 import CreateCategory from './pages/categories/CreateCategory'
 import EditProduct from './pages/products/EditProduct'
 import EditCategory from './pages/categories/EditCategory'
-import AdminPacks from './pages/packs/AdminPacks'
+import AdminPacksList from './pages/packs/AdminPacksList'
 import AdminShowPack from './pages/packs/AdminShowPack'
 import CreatePack from './pages/packs/CreatePack'
 import EditPack from './pages/packs/EditPack'
-import AdminFeatures from './pages/features/AdminFeatures'
+import AdminFeaturesList from './pages/features/AdminFeaturesList'
 import CreateFeature from './pages/features/CreateFeature'
 import EditFeature from './pages/features/EditFeature'
-import AdminFeatureTypes from './pages/featureTypes/AdminFeatureTypes'
+import AdminFeatureTypesList from './pages/featureTypes/AdminFeatureTypesList'
 import CreateFeatureType from './pages/featureTypes/CreateFeatureType'
 import EditFeatureType from './pages/featureTypes/EditFeatureType'
 import Login from './pages/auth/SignIn'
@@ -102,7 +102,7 @@ function App() {
         } />
         <Route path='/admin/products' element={
           <ProtectedRoute requiredRole='admin'>
-            <AdminProducts />
+            <AdminProductsList />
           </ProtectedRoute>
         } />
 
@@ -124,7 +124,7 @@ function App() {
 
         <Route path='/admin/packs' element={
           <ProtectedRoute requiredRole='admin'>
-            <AdminPacks />
+            <AdminPacksList />
           </ProtectedRoute>
         } />
         <Route path='/admin/packs/:id/show' element={
@@ -145,7 +145,7 @@ function App() {
 
         <Route path='/admin/categories' element={
           <ProtectedRoute requiredRole='admin'>
-            <AdminCategories />
+            <AdminCategoriesList />
           </ProtectedRoute>
         } />
         <Route path='/admin/categories/new' element={
@@ -161,7 +161,7 @@ function App() {
 
         <Route path='/admin/features' element={
           <ProtectedRoute requiredRole='admin'>
-            <AdminFeatures />
+            <AdminFeaturesList />
           </ProtectedRoute>
         } />
         <Route path='/admin/features/new' element={
@@ -177,7 +177,7 @@ function App() {
 
         <Route path='/admin/feature-types' element={
           <ProtectedRoute requiredRole='admin'>
-            <AdminFeatureTypes />
+            <AdminFeatureTypesList />
           </ProtectedRoute>
         } />
         <Route path='/admin/feature-types/new' element={

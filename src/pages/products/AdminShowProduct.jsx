@@ -8,12 +8,11 @@ function AdminShowProduct() {
   const navigate = useNavigate()
   // Se obtiene el producto y el ID
   const [product, setProduct] = useState({})
-  const [loading, setLoading] = useState({})
+  const [loading, setLoading] = useState(true)
 
   const {id} = useParams()
 
   useEffect(() => {
-    setLoading(true)
     getProduct(id)
     .then(response => setProduct(response.data))
     .catch(error => {
@@ -23,9 +22,9 @@ function AdminShowProduct() {
     .finally(() => {
       setLoading(false)
     })
-  }, [])
+  }, [id])
 
-  const handleDelete = (event) => {
+  const handleDelete = () => {
     setLoading(true)
     try {
       deleteProduct(product.id)

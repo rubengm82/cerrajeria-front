@@ -4,7 +4,7 @@ import { getPacks } from '../../api/packs_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 
-function AdminPacks() {
+function AdminPacksList() {
   const [packs, setPacks] = useState([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
@@ -106,4 +106,4 @@ function AdminPacks() {
     </div>
   )
 }
-export default AdminPacks
+export default AdminPacksList

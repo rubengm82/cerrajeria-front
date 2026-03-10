@@ -5,7 +5,7 @@ import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
 
-function AdminCategories() {
+function AdminCategoriesList() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
@@ -23,8 +23,7 @@ function AdminCategories() {
   }, [locationState])
 
   // Se obtienen las categorias
-  const fetchCategories = () => {
-    setLoading(true)
+  useEffect(() => {
     getCategories()
       .then(response => {
         setCategories(response.data)
@@ -34,16 +33,15 @@ function AdminCategories() {
         setCategories([])
       })
       .finally(() => setLoading(false))
-  }
-
-  useEffect(() => {
-    fetchCategories()
   }, [])
 
   const handleDelete = (id) => {
     deleteCategory(id)
       .then(() => {
-        fetchCategories()
+        getCategories()
+          .then(response => {
+            setCategories(response.data)
+          })
         setNotification({ type: "success", message: "Categoria eliminada correctament"})
       })
       .catch(err => {
@@ -130,4 +128,4 @@ function AdminCategories() {
   )
 }
 
-export default AdminCategories
+export default AdminCategoriesList

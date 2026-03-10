@@ -7,10 +7,9 @@ import LoadingAnimation from '../../components/LoadingAnimation';
 const EditCategory = () => {
   const { id } = useParams()
   const [category, setCategory] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
     getCategory(id)
     .then(response => setCategory(response.data))
     .catch(error => {

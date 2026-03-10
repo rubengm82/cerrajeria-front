@@ -7,10 +7,9 @@ import LoadingAnimation from '../../components/LoadingAnimation';
 const EditProduct = () => {
   const {id} = useParams()
   const [product, setProduct] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setLoading(true)
     getProduct(id)
     .then(response => setProduct(response.data))
     .catch(error => {

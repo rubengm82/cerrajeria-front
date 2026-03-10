@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import ScrollToTop from './components/ScrollTop'
 import Home from './pages/Home'
 import AdminUsers from './pages/users/AdminUsers'
 import AdminProducts from './pages/products/AdminProducts'
@@ -58,8 +59,10 @@ function App() {
     /* /////////////////////////////// */
     /* DECLARACION DE ROUTES de la APP */
     /* /////////////////////////////// */
-    <Routes>
+    <>
+    <ScrollToTop /> {/* Scroll to Top en todas las páginas */}
 
+    <Routes>
       {/* RUTES PÚBLIQUES - Tienda */}
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
@@ -196,6 +199,7 @@ function App() {
       <Route path="/error503" element={<Error503 />} />
 
     </Routes>
+    </>
   )
 }
 

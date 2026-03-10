@@ -3,6 +3,7 @@ import { deleteProduct, getProduct } from "../../api/products_api"
 import { useNavigate, useParams } from "react-router-dom"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ConfirmableModal from "../../components/ConfirmableModal"
+import { HiArrowLeft } from "react-icons/hi2"
 
 function AdminShowProduct() {
   const navigate = useNavigate()
@@ -42,9 +43,7 @@ function AdminShowProduct() {
     <div className="flex flex-col items-center p-4 lg:p-0">
       <div className="lg:w-[80%] lg:min-w-150 w-full">
         <button onClick={() => navigate("/admin/products")} className="text-primary mb-2 flex items-center gap-2 cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-          </svg>
+          <HiArrowLeft className="size-5" />
           <p>Tornar enrere</p>
         </button>
 

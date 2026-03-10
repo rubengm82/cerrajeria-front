@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import FeatureTypeForm from '../../components/FeatureTypeForm';
+import FeatureTypeForm from '../../components/form/FeatureTypeForm';
 import { getFeatureType } from '../../api/features_api';
 import LoadingAnimation from '../../components/LoadingAnimation';
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {useParams} from 'react-router-dom';
 import { getPack } from '../../api/packs_api';
-import PackForm from '../../components/PackForm';
+import PackForm from '../../components/form/PackForm';
 import LoadingAnimation from '../../components/LoadingAnimation';
 
 const EditPack = () => {

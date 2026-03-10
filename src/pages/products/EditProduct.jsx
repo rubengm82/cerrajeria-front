@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {useParams} from 'react-router-dom';
 import { getProduct } from '../../api/products_api';
-import ProductForm from '../../components/ProductForm';
+import ProductForm from '../../components/form/ProductForm';
 import LoadingAnimation from '../../components/LoadingAnimation';
 
 const EditProduct = () => {

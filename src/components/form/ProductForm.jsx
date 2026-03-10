@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getCategories } from '../api/categories_api';
-import { getFeatures } from '../api/features_api';
-import { createProduct, createProductImage, deleteProductImage, updateProduct } from "../api/products_api";
+import { getCategories } from '../../api/categories_api';
+import { getFeatures } from '../../api/features_api';
+import { createProduct, createProductImage, deleteProductImage, updateProduct } from '../../api/products_api';
 import { useNavigate, Link } from "react-router-dom";
-import LoadingAnimation from "./LoadingAnimation";
-import Notifications from './Notifications';
+import LoadingAnimation from '../LoadingAnimation';
+import Notifications from '../Notifications';
 
 function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { createCategory, updateCategory } from '../api/categories_api';
+import { createCategory, updateCategory } from '../../api/categories_api';
 import { useNavigate, Link } from "react-router-dom";
-import LoadingAnimation from "./LoadingAnimation";
-import Notifications from './Notifications';
+import LoadingAnimation from '../LoadingAnimation';
+import Notifications from '../Notifications';
 
 function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();

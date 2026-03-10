@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { getProducts } from '../api/products_api';
-import { createPack, updatePack } from '../api/packs_api';
-import { createPackImage, deletePackImage } from '../api/pack_images_api'; // Importamos la nueva API
-import LoadingAnimation from './LoadingAnimation';
-import Notifications from './Notifications';
+import { getProducts } from '../../api/products_api';
+import { createPack, updatePack } from '../../api/packs_api';
+import { createPackImage, deletePackImage } from '../../api/pack_images_api'; // Importamos la nueva API
+import LoadingAnimation from '../LoadingAnimation';
+import Notifications from '../Notifications';
 
 function PackForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();

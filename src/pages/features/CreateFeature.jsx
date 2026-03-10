@@ -1,5 +1,5 @@
 import React from 'react';
-import FeatureForm from '../../components/FeatureForm';
+import FeatureForm from '../../components/form/FeatureForm';
 
 function CreateFeature() {
   return (

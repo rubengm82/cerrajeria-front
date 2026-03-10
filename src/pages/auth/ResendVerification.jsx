@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { resendVerificationEmail } from '../api/auth_api'
+import { resendVerificationEmail } from '../../api/auth_api'
 
 function ResendVerification() {
   const [email, setEmail] = useState('')

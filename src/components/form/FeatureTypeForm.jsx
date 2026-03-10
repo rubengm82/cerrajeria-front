@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { createFeatureType, updateFeatureType } from '../api/features_api';
-import LoadingAnimation from './LoadingAnimation';
-import Notifications from './Notifications';
+import { createFeatureType, updateFeatureType } from '../../api/features_api';
+import LoadingAnimation from '../LoadingAnimation';
+import Notifications from '../Notifications';
 
 function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();

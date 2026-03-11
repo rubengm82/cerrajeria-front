@@ -142,7 +142,7 @@ export default function Sidebar({ userRole }) {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className={`${isActive(link.to) ? 'bg-primary text-primary-content' : ''} active:bg-base-300 active:text-base-content`}
+                    className={`${isActive(link.to) ? 'bg-primary text-primary-content' : ''} active:bg-base-300 active:text-base-content py-3`}
                   >
                     {React.cloneElement(link.icon, { className: link.icon.props.className.replace('text-primary', isActive(link.to) ? 'text-primary-content' : 'text-primary') })}
                     {link.label}

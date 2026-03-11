@@ -59,7 +59,7 @@ function AdminFeaturesList() {
 
       <div className='w-full flex flex-row justify-between mb-5'>
         <h1 className='text-2xl font-bold text-base-content'>Característiques</h1>
-        <button onClick={() => navigate('/admin/features/new')} className='btn btn-primary flex items-center'> Nova caracteristica</button>
+        <button onClick={() => navigate('/admin/features/new')} className='btn btn-primary flex items-center'>Nou valor de Caracteristica</button>
       </div>
 
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>

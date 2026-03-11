@@ -18,5 +18,8 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`)
 // Crear imagen de producto
 export const createProductImage = (productImageData) => api.post("/product-images", productImageData)
 
+// Obtener productos destacados
+export const getImportantProducts = () => api.get('/products/important')
+
 // Eliminar imagen del producto
 export const deleteProductImage = (id) => api.delete(`/product-images/${id}`)

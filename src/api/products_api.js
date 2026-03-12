@@ -3,6 +3,9 @@ import api from './axiosConfig'
 // Obtener todos los productos
 export const getProducts = () => api.get('/products')
 
+// Obtener todos los productos incluyendo eliminados
+export const getProductsWithTrashed = () => api.get('/products/with-trashed')
+
 // Obtener un producto por ID
 export const getProduct = (id) => api.get(`/products/${id}`)
 

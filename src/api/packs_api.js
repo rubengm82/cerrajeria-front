@@ -3,6 +3,9 @@ import api from './axiosConfig'
 // Obtener todos los packs
 export const getPacks = () => api.get('/packs')
 
+// Obtener todos los packs incluyendo eliminados
+export const getPacksWithTrashed = () => api.get('/packs/with-trashed')
+
 // Obtener un pack por ID
 export const getPack = (id) => api.get(`/packs/${id}`)
 

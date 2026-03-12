@@ -1,21 +1,33 @@
 import { useEffect, useState } from "react"
-import { deletePack, getPack } from "../../api/packs_api"
+import { deletePack, getPack, restorePack } from "../../api/packs_api"
 import { useNavigate, useParams } from "react-router-dom"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ConfirmableModal from "../../components/ConfirmableModal"
+import Notifications from "../../components/Notifications"
 
 function AdminShowPack() {
   const navigate = useNavigate()
   const [pack, setPack] = useState({})
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const {id} = useParams()
 
   useEffect(() => {
     getPack(id)
-    .then(response => setPack(response.data))
+    .then(response => {
+      const data = response.data;
+      // Verificar si el elemento está eliminado (softdeleted)
+      if (data.deleted_at) {
+        setError("Aquest pack està eliminat.");
+        setPack(null);
+      } else {
+        setPack(data);
+      }
+    })
     .catch(error => {
       console.error(error);
+      setError("Error en carregar el pack");
       setPack(null)
     })
     .finally(() => {
@@ -37,7 +49,43 @@ function AdminShowPack() {
     })
   }
 
-  return loading ? <LoadingAnimation/> : (
+  const handleRestore = () => {
+    setLoading(true)
+    restorePack(pack.id)
+    .then(() => {
+      getPack(id)
+      .then(response => {
+        setPack(response.data);
+        setError(null);
+      })
+    })
+    .catch(error => {
+      console.log(error);
+    })
+    .finally(() => {
+      setLoading(false)
+    })
+  }
+
+  if (loading) return <LoadingAnimation/>;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8">
+        <Notifications type="error" message={error} />
+        <div className="flex gap-2 mt-4">
+          <button onClick={() => navigate('/admin/packs')} className='btn btn-primary'>
+            Tornar a la llista
+          </button>
+          <button onClick={handleRestore} className='btn btn-secondary'>
+            Restaurar pack
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="flex flex-col items-center p-4 lg:p-0">
       <div className="lg:w-[80%] lg:min-w-150 w-full">
         <button onClick={() => navigate("/admin/packs")} className="text-primary mb-2 flex items-center gap-2 cursor-pointer">

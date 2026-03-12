@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getFeatureTypes, deleteFeatureType } from '../../api/features_api'
+import { getFeatureTypesWithTrashed, deleteFeatureType, restoreFeatureType, forceDeleteFeatureType } from '../../api/features_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
@@ -21,7 +21,7 @@ function AdminFeatureTypesList() {
   }, [locationState])
 
   const fetchTypes = () => {
-    getFeatureTypes()
+    getFeatureTypesWithTrashed()
       .then(response => setTypes(response.data))
       .catch(err => {
         console.error(err)
@@ -34,15 +34,41 @@ function AdminFeatureTypesList() {
     fetchTypes()
   }, [])
 
-  const handleDelete = (id) => {
-    deleteFeatureType(id)
+  const handleToggle = (id, isActive) => {
+    if (isActive) {
+      // Si está activa, hacer softdelete (desactivar)
+      deleteFeatureType(id)
+        .then(() => {
+          fetchTypes()
+          setNotification({ id: Date.now(), type: "success", message: "Tipus de caracteristica desactivat correctament"})
+        })
+        .catch(err => {
+          console.error(err)
+          setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut desactivar el tipus de caracteristica"})
+        })
+    } else {
+      // Si está inactiva, restaurar (activar)
+      restoreFeatureType(id)
+        .then(() => {
+          fetchTypes()
+          setNotification({ id: Date.now(), type: "success", message: "Tipus de caracteristica restaurat correctament"})
+        })
+        .catch(err => {
+          console.error(err)
+          setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut restaurar el tipus de caracteristica"})
+        })
+    }
+  }
+
+  const handleForceDelete = (id) => {
+    forceDeleteFeatureType(id)
       .then(() => {
         fetchTypes()
-        setNotification({ type: "success", message: "Tipus de caracteristica eliminat correctament"})
+        setNotification({ id: Date.now(), type: "success", message: "Tipus de caracteristica eliminat permanentment"})
       })
       .catch(err => {
         console.error(err)
-        setNotification({ type: "error", message: "No s'ha pogut eliminar el tipus de caracteristica"})
+        setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut eliminar permanentment el tipus de caracteristica"})
       })
   }
 
@@ -51,7 +77,7 @@ function AdminFeatureTypesList() {
   : (
     <div>
       {notification && (
-        <Notifications type={notification.type} message={notification.message} onClose={() => setNotification(null)}/>
+        <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)}/>
       )}
 
       {locationState && ( <Notifications type={locationState.notificationType || ""} message={locationState.notificationMessage}/>)}
@@ -70,6 +96,7 @@ function AdminFeatureTypesList() {
           <thead>
               <tr className='text-neutral'>
                   <th>Nom</th>
+                  <th className='text-center'>Estat</th>
                   <th className='text-center'>Accions</th>
               </tr>
           </thead>
@@ -78,26 +105,40 @@ function AdminFeatureTypesList() {
               <tr key={type.id} className='hover:bg-base-200/30'>
                 <td className='border-base-300 font-medium'>{type.name || '-'}</td>
                 <td className='border-base-300'>
+                  <div className='flex justify-center'>
+                    <input 
+                      type="checkbox" 
+                      className="toggle toggle-primary" 
+                      checked={!type.deleted_at}
+                      onChange={() => handleToggle(type.id, !type.deleted_at)}
+                    />
+                  </div>
+                </td>
+                <td className='border-base-300'>
                   <div className='flex items-center justify-center gap-3'>
-                    <button onClick={() => navigate(`/admin/feature-types/${type.id}/edit`)} className="text-base-400 hover:text-primary transition-colors cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                      </svg>
-                    </button>
-
-                    <ConfirmableModal title="Eliminar tipus"  message={`Segur que vols eliminar el tipus de caracteristica "${type.name}"? Aquesta acció no es pot desfer.`}  onConfirm={() => handleDelete(type.id)}>
-                      <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer">
+                    {type.deleted_at ? (
+                      <>
+                        <ConfirmableModal title="Eliminar tipus permanentment"  message={`Segur que vols eliminar permanentment el tipus de caracteristica "${type.name}"? Aquesta acció no es pot desfer.`}  onConfirm={() => handleForceDelete(type.id)}>
+                          <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            </svg>
+                          </button>
+                        </ConfirmableModal>
+                      </>
+                    ) : (
+                      <button onClick={() => navigate(`/admin/feature-types/${type.id}/edit`)} className="text-base-400 hover:text-primary transition-colors cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                         </svg>
                       </button>
-                    </ConfirmableModal>
+                    )}
                   </div>
                 </td>
               </tr>
             )) :
               <tr>
-                <td colSpan={2} className='p-6'>
+                <td colSpan={3} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
                     <p>Actualment no hi ha tipus de caracteristiques creats</p>
                     <Link to="/admin/feature-types/new" className='text-primary'>crea'n un de nou!</Link>

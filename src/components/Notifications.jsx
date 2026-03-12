@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 function Notifications({ type, title, message, errors, autoClose = true, onClose }) {
   const [isClosing, setIsClosing] = useState(false)
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setIsClosing(true)
     // Llamar a onClose después de la transición
     setTimeout(() => {
       if (onClose) onClose()
     }, 500)
-  }
+  }, [onClose])
 
   useEffect(() => {
     if (autoClose) {
@@ -19,7 +19,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
 
       return () => clearTimeout(timer)
     }
-  }, [autoClose, message])
+  }, [autoClose, message, handleClose])
   const config = {
     success: {
       className: "alert alert-success border border-success-content/30 mt-5",

@@ -5,6 +5,7 @@ import { createProduct, createProductImage, deleteProductImage, updateProduct } 
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
+import { HiArrowLeft, HiPhoto } from 'react-icons/hi2';
 
 function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
@@ -164,9 +165,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       <div className="mb-5">
         {backLink && (
           <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
+            <HiArrowLeft className="size-5" />
             <p>Volver atrás</p>
           </Link>
         )}
@@ -260,9 +259,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             <input type="file" multiple name="images" id="images" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
             <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
                 <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                  </svg>
+                  <HiPhoto className="size-9" />
                   <p>Añadir nueva imagen</p>
                 </div>
             </div>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { createFeatureType, updateFeatureType } from '../../api/features_api';
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
+import { HiArrowLeft } from 'react-icons/hi2';
 
 function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
@@ -46,9 +47,7 @@ function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink })
       <div className="mb-5">
         {backLink && (
           <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
+            <HiArrowLeft className="size-5" />
             <p>Volver atrás</p>
           </Link>
         )}

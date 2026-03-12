@@ -2,8 +2,11 @@ import { HiArrowRight } from 'react-icons/hi'
 import { FiHeadphones, FiShield, FiTruck } from 'react-icons/fi'
 import { useEffect, useState } from 'react'
 import { getImportantProducts } from '../api/products_api'
+import { getImportantCategories } from "../api/categories_api";
+import ProductCard from '../components/ProductCard'
 function Home() {
   const [importantProducts, setImportantProducts] = useState([])
+  const [importantCategories, setImportantCategories] = useState([])
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -11,7 +14,13 @@ function Home() {
       setImportantProducts(products.data)
     }
 
+    const fetchCategories = async () => {
+      const categories = await getImportantCategories()
+      setImportantCategories(categories.data)
+    }
+
     fetchProducts()
+    fetchCategories()
   }, [])
   return (
     <div className=" bg-base-200">
@@ -88,62 +97,11 @@ function Home() {
               </button>
             </div>
             <div className="mt-8 grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {importantProducts.map((product) => (
-                <article key={product.id} className="flex flex-col overflow-hidden rounded-2xl border border-base-300 bg-white shadow-sm">
-                  <div className="group relative h-56 shrink-0 overflow-hidden bg-neutral-100 flex items-center justify-center ">
-                    {product.discount > 0 && (
-                      <div className="absolute top-3 left-3 z-10 rounded-full bg-primary px-4 py-1 text-xs font-semibold text-white duration-700 group-hover:blur-[2px]">
-                        <p>-{parseInt(product.discount)}%</p>
-                      </div>
-                    )}
-                    <div className='relative'>
-                      <img src={`http://127.0.0.1:8000/storage/${product.images[0].path}`} alt={product.name} className="w-full h-full object-cover aspect-square transition-all duration-700 group-hover:scale-110 group-hover:blur-[2px]"/>
-
-                      {/* Se muestran los iconos de ver y añadir al carrito */}
-                      <div className='absolute inset-0 flex items-center justify-center gap-7 opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-700'>
-                        <button className='bg-white rounded-full p-4 hover:bg-white/80 cursor-pointer transition-all'>
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-black">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                          </svg>
-                        </button>
-
-                        <button className='bg-primary rounded-full p-4 shadow-lg hover:bg-primary/80 cursor-pointer transition-all'>
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 text-white">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
-                    <p className="text-xs font-medium uppercase tracking-wider text-base-400">{product.category.name}</p>
-                    <h3 className="mt-2 text-[20px] leading-6 font-medium hover:text-primary cursor-pointer transition-all wrap-break-word">{product.name}</h3>
-
-                    <p className="mt-2 leading-5 text-base-300 w-full wrap-break-word whitespace-normal text-sm">
-                      {product.description && product.description.length > 70 ? product.description.substring(0, 70) + '...' : product.description || ''}
-                    </p>
-                    <div className="mt-auto pt-4 flex items-end justify-between gap-3">
-                      <div>
-                        {/* Se muestra el precio del producto y si tiene descuento se muestra el precio con el descuento aplicado */}
-                        <p className="text-xl font-bold tracking-tight">
-                          {product.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product.price}€
-                        </p>
-                        {product.discount > 0 && (
-                          <p className="text-xs text-base-300 line-through">{product.price}€</p>
-                        )}
-                      </div>
-                      <button type="button" className="btn btn-primary text-sm font-medium py-1 px-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                        </svg>
-                        <p>Comprar</p>
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
+              { importantProducts.length > 0 ? importantProducts.map((product) => (
+                <ProductCard product={product} />
+              )) :
+              <p className='col-span-full font-semibold text-2xl'>Actualmente no hay productos destacados</p>
+              }
             </div>
 
             <button type="button" className="mt-6 flex items-center gap-2 text-lg font-medium text-primary md:hidden">
@@ -153,9 +111,54 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className='w-full bg-primary'>
-        <p>Funciona</p>
+      {/* Banner naranja */}
+      <div className='w-full bg-primary py-10 flex items-center justify-center shadow-lg'>
+        <h3 className='text-base-100 text-2xl italic font-sans'>La llave de tu tranquilidad, a un solo clic</h3>
       </div>
+
+      {/* Categorias */}
+      <div className='flex flex-col items-center justify-center'>
+        <div className="max-w-390 px-0 py-12 sm:py-16 lg:px-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-lg font-medium uppercase tracking-wide text-primary">Explora nuestro catalogo</p>
+              <h2 className="mt-1 text-4xl font-medium tracking-tight sm:text-3xl">Categorias principales</h2>
+            </div>
+
+            <button type="button" className="hidden items-center gap-2 text-lg font-medium text-primary md:flex">
+              Ver todas
+              <HiArrowRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {importantCategories.length > 0 ? importantCategories.map((category) => (
+              <div key={category.id} className="group relative min-h-48 overflow-hidden rounded-3xl border border-base-300 cursor-pointer">
+                <img src={`http://127.0.0.1:8000/storage/${category.image}`} alt={category.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"/>
+                <div className="absolute inset-x-0 bottom-0 p-6">
+                  <h3 className="text-2xl font-medium tracking-tight text-black">{category.name}</h3>
+                </div>
+              </div>
+            )) : (
+              <p className="col-span-full text-2xl font-semibold">Actualmente no hay categorias destacadas</p>
+            )}
+          </div>
+
+          <button type="button" className="mt-6 flex items-center gap-2 text-lg font-medium text-primary md:hidden">
+            Ver todas
+            <HiArrowRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Banner naranja de contacto */}
+      <div className='w-full bg-primary py-10 flex flex-col items-center justify-center gap-5 shadow-lg mb-10'>
+        <h3 className='text-base-100 text-3xl font-bold'>Contacta con nosotros ahora</h3>
+        <p className='text-base-100 text-lg w-90 text-center'>Contacta con nosotros ahora, somos especialistas en cerrajeria</p>
+
+        <button className='btn btn-secondary text-md rounded-full'>Contacta con nosotros ahora</button>
+      </div>
+
     </div>
   )
 }

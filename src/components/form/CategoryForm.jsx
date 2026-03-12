@@ -14,12 +14,14 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
     if (initialData) {
       return {
         name: initialData.name || "",
-        image: null
+        image: null,
+        is_important_to_show: !!initialData.is_important_to_show
       }
     }
     return {
       name: "",
-      image: null
+      image: null,
+      is_important_to_show: false
     }
   })
 
@@ -29,14 +31,14 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
   const removeExistingImage = () => { setExistingImageRemoved(true)}
 
   const handleChange = (event) => {
-    const { name, value, type, files } = event.target
+    const { name, value, type, checked, files } = event.target
     if (type == "file") {
       const file = files[0] || null
       setForm(current => ({ ...current, image: file}))
       event.target.value = null
 
     } else {
-      setForm(current => ({ ...current, [name]: value }))
+      setForm(current => ({ ...current, [name]: type == 'checkbox' ? checked : value }))
     }
   }
 
@@ -48,6 +50,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
     try {
       const formData = new FormData()
       formData.append("name", form.name)
+      formData.append("is_important_to_show", form.is_important_to_show ? 1 : 0)
 
       if (form.image) {
         formData.append("image", form.image)
@@ -99,6 +102,14 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
           <div className="w-full md:col-span-3">
             <label className="label text-base-content" htmlFor="name">Nombre de la categoria *</label>
             <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre de la categoria" className="input w-full" required/>
+          </div>
+
+          <div className="flex items-center justify-between md:col-span-3 w-full border border-base-300 p-3 rounded-lg">
+            <div>
+              <label className="label text-base-content" htmlFor='is_important_to_show'>Categoria destacada</label>
+              <p className='text-sm font-semibold text-base-content/55'>Aparecerá en la sección de categorias principales</p>
+            </div>
+            <input id='is_important_to_show' name='is_important_to_show' type="checkbox" checked={form.is_important_to_show} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
 
         {/* Imagenes */}

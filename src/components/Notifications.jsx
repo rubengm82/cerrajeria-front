@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react'
 
-function Notifications({ type, title, message, errors, autoClose = true }) {
+function Notifications({ type, title, message, errors, autoClose = true, onClose }) {
   const [isClosing, setIsClosing] = useState(false)
+
+  const handleClose = () => {
+    setIsClosing(true)
+    // Llamar a onClose después de la transición
+    setTimeout(() => {
+      if (onClose) onClose()
+    }, 500)
+  }
 
   useEffect(() => {
     if (autoClose) {
       const timer = setTimeout(() => {
-        setIsClosing(true)
+        handleClose()
       }, 3000)
 
       return () => clearTimeout(timer)
@@ -63,7 +71,7 @@ function Notifications({ type, title, message, errors, autoClose = true }) {
       }}
     >
       {currentNotification.icon}
-      <div>
+      <div className="flex-1">
         <h3 className="font-bold mb-1">{title || currentNotification.title}</h3>
         {message && <p>{message}</p>}
         
@@ -78,6 +86,14 @@ function Notifications({ type, title, message, errors, autoClose = true }) {
           </ul>
         )}
       </div>
+      <button 
+        onClick={handleClose}
+        className="btn btn-sm btn-ghost"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
     </div>
   )
 }

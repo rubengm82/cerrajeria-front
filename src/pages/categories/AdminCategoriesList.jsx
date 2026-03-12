@@ -9,6 +9,7 @@ function AdminCategoriesList() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
+  const [notificationId, setNotificationId] = useState(0)
   const navigate = useNavigate()
 
   // Se obtiene la notificacion del historial si es que hay
@@ -44,10 +45,12 @@ function AdminCategoriesList() {
             .then(response => {
               setCategories(response.data)
             })
+          setNotificationId(prev => prev + 1)
           setNotification({ type: "success", message: "Categoria desactivada correctament"})
         })
         .catch(err => {
           console.error(err)
+          setNotificationId(prev => prev + 1)
           setNotification({ type: "error", message: "No s'ha pogut desactivar la categoria"})
         })
     } else {
@@ -58,10 +61,12 @@ function AdminCategoriesList() {
             .then(response => {
               setCategories(response.data)
             })
+          setNotificationId(prev => prev + 1)
           setNotification({ type: "success", message: "Categoria restaurada correctament"})
         })
         .catch(err => {
           console.error(err)
+          setNotificationId(prev => prev + 1)
           setNotification({ type: "error", message: "No s'ha pogut restaurar la categoria"})
         })
     }
@@ -74,10 +79,12 @@ function AdminCategoriesList() {
           .then(response => {
             setCategories(response.data)
           })
+        setNotificationId(prev => prev + 1)
         setNotification({ type: "success", message: "Categoria eliminada permanentment"})
       })
       .catch(err => {
         console.error(err)
+        setNotificationId(prev => prev + 1)
         setNotification({ type: "error", message: "No s'ha pogut eliminar permanentment la categoria"})
       })
   }
@@ -88,7 +95,7 @@ function AdminCategoriesList() {
     <div>
       {/* Notificaciones locales (borrado) */}
       {notification && (
-        <Notifications key={notification.message} type={notification.type} title={notification.title} message={notification.message} onClose={() => setNotification(null)}/>
+        <Notifications key={notificationId} type={notification.type} title={notification.title} message={notification.message} onClose={() => setNotification(null)}/>
       )}
 
       {/* Se muestra la notificacion si es que hay del router */}

@@ -4,7 +4,7 @@ import { getFeatureTypesWithTrashed, deleteFeatureType, restoreFeatureType, forc
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
-import { HiTrash, HiPencilSquare, HiPhoto } from 'react-icons/hi2'
+import { HiTrash, HiPencilSquare } from 'react-icons/hi2'
 
 function AdminFeatureTypesList() {
   const [types, setTypes] = useState([])

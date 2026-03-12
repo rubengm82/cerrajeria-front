@@ -4,7 +4,7 @@ import { getPacksWithTrashed, deletePack, restorePack, forceDeletePack } from '.
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
-import { HiPhoto, HiTrash, HiPencilSquare, HiEye, HiPhotoIcon } from 'react-icons/hi2'
+import { HiPhoto, HiTrash, HiPencilSquare, HiEye } from 'react-icons/hi2'
 
 function AdminPacksList() {
   const [packs, setPacks] = useState([])

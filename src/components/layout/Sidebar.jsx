@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import React from 'react'
-import { HiOutlineHome, HiOutlineChartBar, HiOutlineUser, HiOutlineCog, HiOutlineShoppingCart, HiOutlineUserGroup, HiOutlineChartPie, HiOutlineCube, HiOutlineShoppingBag, HiOutlineTag, HiOutlineClipboardDocumentList, HiOutlineWrenchScrewdriver, HiOutlineViewColumns, HiOutlineSwatch } from 'react-icons/hi2'
+import { HiOutlineHome, HiOutlineSquares2X2, HiOutlineUser, HiOutlineShoppingCart, HiOutlineUserGroup, HiOutlineChartPie, HiOutlineCube, HiOutlineShoppingBag, HiOutlineTag, HiOutlineClipboardDocumentList, HiOutlineWrenchScrewdriver, HiOutlineViewColumns, HiOutlineSwatch } from 'react-icons/hi2'
 
 export default function Sidebar({ userRole }) {
   const location = useLocation()
@@ -9,7 +9,7 @@ export default function Sidebar({ userRole }) {
   // Links comuns per a tots els usuaris (sense "Tornar a la botiga")
   const commonLinks = [
     { to: '/admin/dashboard', label: 'Dashboard', icon: (
-      <HiOutlineChartBar className="size-6 text-white dark:text-black" />
+      <HiOutlineSquares2X2 className="size-6 text-white dark:text-black" />
     ) },
     { to: '/perfil', label: 'El Meu Perfil', icon: (
       <HiOutlineUser className="size-6 text-white dark:text-black" />

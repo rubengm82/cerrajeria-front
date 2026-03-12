@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
-import { deleteProduct, getProduct, restoreProduct } from "../../api/products_api"
+import { getProduct, restoreProduct } from "../../api/products_api"
 import { useNavigate, useParams } from "react-router-dom"
 import LoadingAnimation from "../../components/LoadingAnimation"
-import ConfirmableModal from "../../components/ConfirmableModal"
 import Notifications from "../../components/Notifications"
 import { HiArrowLeft } from 'react-icons/hi2'
 
@@ -36,20 +35,6 @@ function AdminShowProduct() {
       setLoading(false)
     })
   }, [id])
-
-  const handleDelete = () => {
-    setLoading(true)
-    try {
-      deleteProduct(product.id)
-
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-    // Se redirecciona al index de productos
-    navigate("/admin/products", { state: { notificationType: "success", notificationMessage: "Producte eliminat correctament" }})
-  }
 
   const handleRestore = () => {
     setLoading(true)
@@ -90,7 +75,7 @@ function AdminShowProduct() {
   return (
     <div className="flex flex-col items-center p-4 lg:p-0">
       <div className="lg:w-[80%] lg:min-w-150 w-full">
-        <button onClick={() => navigate("/admin/products")} className="text-primary mb-2 flex items-center gap-2 cursor-pointer">
+        <button onClick={() => navigate("/admin/products")} className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
           <HiArrowLeft className="size-5" />
           <p>Tornar enrere</p>
         </button>
@@ -105,10 +90,7 @@ function AdminShowProduct() {
             <p className={`p-1 text-center border rounded-lg w-16 font-medium ${product.is_active == null ? "" : product.is_active == 1 ? "bg-success text-success-content" : "bg-error text-error-content"}`}>{product.is_active == null ? "-" : product.is_active == 1 ? "Actiu" : "Inactiu"}</p>
           </div>
           <div className="flex flex-row w-full md:w-auto justify-end">
-            <button onClick={() => navigate(`/admin/products/${product.id}/edit`)} className="btn btn-secondary mr-2">Editar</button>
-            <ConfirmableModal title="Eliminar producte" message={`Segur que vols eliminar el producte "${product.name}"?`} onConfirm={() => handleDelete(product.id)} >
-              <button className="btn btn-error">Eliminar</button>
-            </ConfirmableModal>
+            <button onClick={() => navigate(`/admin/products/${product.id}/edit`)} className="btn btn-outline btn-primary">Editar</button>
           </div>
         </div>
 

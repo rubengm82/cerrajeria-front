@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
-import { deletePack, getPack, restorePack } from "../../api/packs_api"
+import { getPack, restorePack } from "../../api/packs_api"
 import { useNavigate, useParams } from "react-router-dom"
 import LoadingAnimation from "../../components/LoadingAnimation"
-import ConfirmableModal from "../../components/ConfirmableModal"
 import Notifications from "../../components/Notifications"
 import { HiArrowLeft } from 'react-icons/hi2'
 
@@ -35,20 +34,6 @@ function AdminShowPack() {
       setLoading(false)
     })
   }, [id])
-
-  const handleDelete = () => {
-    setLoading(true)
-    deletePack(pack.id)
-    .then(() => {
-        navigate("/admin/packs", { state: { notificationType: "success", notificationMessage: "Pack eliminat correctament" }})
-    })
-    .catch(error => {
-      console.log(error);
-    })
-    .finally(() => {
-      setLoading(false)
-    })
-  }
 
   const handleRestore = () => {
     setLoading(true)
@@ -89,7 +74,7 @@ function AdminShowPack() {
   return (
     <div className="flex flex-col items-center p-4 lg:p-0">
       <div className="lg:w-[80%] lg:min-w-150 w-full">
-        <button onClick={() => navigate("/admin/packs")} className="text-primary mb-2 flex items-center gap-2 cursor-pointer">
+        <button onClick={() => navigate("/admin/packs")} className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
           <HiArrowLeft className="size-5" />
           <p>Tornar enrere</p>
         </button>
@@ -97,10 +82,7 @@ function AdminShowPack() {
         <div className='w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5'>
           <h1 className='text-2xl md:text-3xl font-bold text-base-content'>{pack.name}</h1>
           <div className="flex flex-row w-full md:w-auto justify-end">
-            <button onClick={() => navigate(`/admin/packs/${pack.id}/edit`)} className="btn btn-secondary mr-2">Editar</button>
-            <ConfirmableModal title="Eliminar pack" message={`Segur que vols eliminar el pack "${pack.name}"?`} onConfirm={() => handleDelete()} >
-              <button className="btn btn-error">Eliminar</button>
-            </ConfirmableModal>
+            <button onClick={() => navigate(`/admin/packs/${pack.id}/edit`)} className="btn btn-outline btn-primary">Editar</button>
           </div>
         </div>
 

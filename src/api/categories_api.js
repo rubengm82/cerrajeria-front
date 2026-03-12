@@ -12,5 +12,14 @@ export const createCategory = (categoryData) => api.post('/categories', category
 // Actualizar una categoría
 export const updateCategory = (id, categoryData) => api.post(`/categories/${id}`, categoryData)
 
-// Eliminar una categoría
+// Eliminar una categoría (soft delete)
 export const deleteCategory = (id) => api.delete(`/categories/${id}`)
+
+// Obtener todas las categorías eliminadas
+export const getTrashedCategories = () => api.get('/categories/trashed')
+
+// Restaurar una categoría
+export const restoreCategory = (id) => api.post(`/categories/${id}/restore`)
+
+// Eliminar una categoría permanentemente
+export const forceDeleteCategory = (id) => api.delete(`/categories/${id}/force`)

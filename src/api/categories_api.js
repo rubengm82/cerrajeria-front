@@ -1,7 +1,10 @@
 import api from './axiosConfig'
 
-// Obtener todas las categorías
+// Obtener todas las categorías (sin softdelete)
 export const getCategories = () => api.get('/categories')
+
+// Obtener todas las categorías incluyendo las eliminadas (con softdelete)
+export const getCategoriesWithTrashed = () => api.get('/categories/with-trashed')
 
 // Obtener una categoría por ID
 export const getCategory = (id) => api.get(`/categories/${id}`)

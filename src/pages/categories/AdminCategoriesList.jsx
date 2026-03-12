@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
-import { getCategories, deleteCategory } from '../../api/categories_api'
+import { getCategoriesWithTrashed, deleteCategory, restoreCategory, forceDeleteCategory } from '../../api/categories_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
@@ -24,7 +24,7 @@ function AdminCategoriesList() {
 
   // Se obtienen las categorias
   useEffect(() => {
-    getCategories()
+    getCategoriesWithTrashed()
       .then(response => {
         setCategories(response.data)
       })
@@ -35,18 +35,50 @@ function AdminCategoriesList() {
       .finally(() => setLoading(false))
   }, [])
 
-  const handleDelete = (id) => {
-    deleteCategory(id)
+  const handleToggle = (id, isActive) => {
+    if (isActive) {
+      // Si está activa, hacer softdelete (desactivar)
+      deleteCategory(id)
+        .then(() => {
+          getCategoriesWithTrashed()
+            .then(response => {
+              setCategories(response.data)
+            })
+          setNotification({ type: "success", message: "Categoria desactivada correctament"})
+        })
+        .catch(err => {
+          console.error(err)
+          setNotification({ type: "error", message: "No s'ha pogut desactivar la categoria"})
+        })
+    } else {
+      // Si está inactiva, restaurar (activar)
+      restoreCategory(id)
+        .then(() => {
+          getCategoriesWithTrashed()
+            .then(response => {
+              setCategories(response.data)
+            })
+          setNotification({ type: "success", message: "Categoria restaurada correctament"})
+        })
+        .catch(err => {
+          console.error(err)
+          setNotification({ type: "error", message: "No s'ha pogut restaurar la categoria"})
+        })
+    }
+  }
+
+  const handleForceDelete = (id) => {
+    forceDeleteCategory(id)
       .then(() => {
-        getCategories()
+        getCategoriesWithTrashed()
           .then(response => {
             setCategories(response.data)
           })
-        setNotification({ type: "success", message: "Categoria eliminada correctament"})
+        setNotification({ type: "success", message: "Categoria eliminada permanentment"})
       })
       .catch(err => {
         console.error(err)
-        setNotification({ type: "error", message: "No s'ha pogut eliminar la categoria"})
+        setNotification({ type: "error", message: "No s'ha pogut eliminar permanentment la categoria"})
       })
   }
 
@@ -56,7 +88,7 @@ function AdminCategoriesList() {
     <div>
       {/* Notificaciones locales (borrado) */}
       {notification && (
-        <Notifications type={notification.type} title={notification.title} message={notification.message} onClose={() => setNotification(null)}/>
+        <Notifications key={notification.message} type={notification.type} title={notification.title} message={notification.message} onClose={() => setNotification(null)}/>
       )}
 
       {/* Se muestra la notificacion si es que hay del router */}
@@ -78,6 +110,7 @@ function AdminCategoriesList() {
               <tr className='text-neutral'>
                   <th>Imatge</th>
                   <th>Nom</th>
+                  <th className='text-center'>Estat</th>
                   <th className='text-center'>Accions</th>
               </tr>
           </thead>
@@ -95,6 +128,16 @@ function AdminCategoriesList() {
                 </td>
                 <td className='border-base-300 font-medium'>{category.name || '-'}</td>
                 <td className='border-base-300'>
+                  <div className='flex justify-center'>
+                    <input 
+                      type="checkbox" 
+                      className="toggle toggle-primary" 
+                      checked={!category.deleted_at}
+                      onChange={() => handleToggle(category.id, !category.deleted_at)}
+                    />
+                  </div>
+                </td>
+                <td className='border-base-300'>
                   <div className='flex items-center justify-center gap-3'>
                     <button onClick={() => navigate(`/admin/categories/${category.id}/edit`)} className="text-base-400 hover:text-primary transition-colors cursor-pointer">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -102,7 +145,7 @@ function AdminCategoriesList() {
                       </svg>
                     </button>
 
-                    <ConfirmableModal title="Eliminar categoria"  message={`Segur que vols eliminar la categoria "${category.name}"? Aquesta acció no es pot desfer.`}  onConfirm={() => handleDelete(category.id)}>
+                    <ConfirmableModal title="Eliminar categoria permanentment"  message={`Segur que vols eliminar permanentment la categoria "${category.name}"? Aquesta acció no es pot desfer.`}  onConfirm={() => handleForceDelete(category.id)}>
                       <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                           <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -114,7 +157,7 @@ function AdminCategoriesList() {
               </tr>
             )) :
               <tr>
-                <td colSpan={3} className='p-6'>
+                <td colSpan={4} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
                     <p>Actualment no hi ha categories creades</p>
                     <Link to="/admin/categories/new" className='text-primary'>crea'n una de nova!</Link>

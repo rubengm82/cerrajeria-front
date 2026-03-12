@@ -7,16 +7,11 @@ function Notifications({ type, title, message, errors, autoClose = true }) {
     if (autoClose) {
       const timer = setTimeout(() => {
         setIsClosing(true)
-        // Remover del DOM después de la transición (500ms)
-        setTimeout(() => {
-          const element = document.getElementById('notification-root')
-          if (element) element.remove()
-        }, 500)
       }, 3000)
 
       return () => clearTimeout(timer)
     }
-  }, [autoClose])
+  }, [autoClose, message])
   const config = {
     success: {
       className: "alert alert-success border border-success-content/30 mt-5",
@@ -60,9 +55,8 @@ function Notifications({ type, title, message, errors, autoClose = true }) {
   
   return (
     <div 
-      id="notification-root"
       role="alert" 
-      className={`fixed bottom-12 right-2 w-102 shadow-lg z-10 animate-slide-in ${currentNotification.className}`}
+      className={`fixed bottom-12 right-2 w-102 shadow-lg z-50 animate-slide-in ${currentNotification.className}`}
       style={{
         opacity: isClosing ? 0 : 1,
         transition: 'opacity 0.5s ease'

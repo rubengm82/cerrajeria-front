@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
-import { getUsers } from '../../api/users_api'
+import { getUsers, updateUser, deleteUser } from '../../api/users_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
+import ConfirmableModal from '../../components/ConfirmableModal'
+import Notifications from '../../components/Notifications'
+import { HiOutlineUser, HiTrash } from 'react-icons/hi2'
 
 function AdminUsers() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [notification, setNotification] = useState(null)
 
   // Obtencion de los usuarios de la APP
   useEffect(() => {
@@ -17,12 +21,48 @@ function AdminUsers() {
       .finally(() => setLoading(false))
   }, [])
 
+  const handleRoleChange = (user) => {
+    const newRole = (user.role === 1 || user.role === 'admin') ? 'user' : 'admin'
+    const newRoleName = newRole === 'admin' ? 'Admin' : 'Usuari'
+
+    updateUser(user.id, { role: newRole })
+      .then(() => {
+        getUsers()
+          .then(response => setUsers(response.data))
+        setNotification({ id: Date.now(), type: "success", message: `Rol canviat a ${newRoleName} correctament`})
+      })
+      .catch(err => {
+        console.error(err)
+        setNotification({ id: Date.now(), type: "error", message: `No s'ha pogut canviar el rol a ${newRoleName}`})
+      })
+  }
+
+  const handleDelete = (user) => {
+    deleteUser(user.id)
+      .then(() => {
+        getUsers()
+          .then(response => setUsers(response.data))
+        setNotification({ id: Date.now(), type: "success", message: `Usuari eliminat correctament`})
+      })
+      .catch(err => {
+        console.error(err)
+        setNotification({ id: Date.now(), type: "error", message: `No s'ha pogut eliminar l'usuari`})
+      })
+  }
+
   return loading
     ? <LoadingAnimation />
     : (
     <div>
+      {notification && (
+        <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)}/>
+      )}
       <div className='w-full flex flex-row justify-between mb-5'>
         <h1 className='text-2xl font-bold text-base-content'>Usuaris</h1>
+        <div className='badge badge-lg badge-primary badge-outline gap-2'>
+          <HiOutlineUser className="size-4" />
+          <span>{users.length} usuari{users.length !== 1 ? 's' : ''}</span>
+        </div>
       </div>
 
       {/* Tabla de usuarios */}
@@ -40,6 +80,7 @@ function AdminUsers() {
                   <th>Adreça</th>
                   <th>Codi Postal</th>
                   <th>Rol</th>
+                  <th>Accions</th>
               </tr>
           </thead>
           <tbody>
@@ -55,14 +96,33 @@ function AdminUsers() {
                 <td className='border-base-300'>{user.address || ''}</td>
                 <td className='border-base-300'>{user.zip_code || ''}</td>
                 <td className='border-base-300'>
-                  <p className={`p-1 text-center border rounded-lg w-20 font-medium ${user.role === 1 || user.role === 'admin' ? "bg-success text-success-content" : "bg-info text-info-content"}`}>
-                    {user.role === 1 || user.role === 'admin' ? 'Admin' : 'Usuari'}
-                  </p>
+                  <ConfirmableModal 
+                    title="Canviar rol de l'usuari" 
+                    message={`Segur que vols canviar el rol de l'usuari "${user.name}" de ${user.role === 1 || user.role === 'admin' ? 'Admin' : 'Usuari'} a ${user.role === 1 || user.role === 'admin' ? 'Usuari' : 'Admin'}?`} 
+                    onConfirm={() => handleRoleChange(user)}
+                  >
+                    <p className={`p-1 text-center border rounded-lg w-20 font-medium cursor-pointer hover:opacity-80 transition-opacity ${user.role === 1 || user.role === 'admin' ? "bg-success text-success-content" : "bg-info text-info-content"}`}>
+                      {user.role === 1 || user.role === 'admin' ? 'Admin' : 'Usuari'}
+                    </p>
+                  </ConfirmableModal>
+                </td>
+                <td className='border-base-300'>
+                  <div className='flex items-center gap-2'>
+                    <ConfirmableModal 
+                      title="Eliminar usuari" 
+                      message={`Segur que vols eliminar l'usuari "${user.name}"? Aquesta acció no es pot desfer.`} 
+                      onConfirm={() => handleDelete(user)}
+                    >
+                      <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer">
+                        <HiTrash className="size-6" />
+                      </button>
+                    </ConfirmableModal>
+                  </div>
                 </td>
               </tr>
             )) :
               <tr>
-                <td colSpan={10} className='p-6'>
+                <td colSpan={11} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
                     <p>Actualment no hi ha usuaris creats</p>
                   </div>

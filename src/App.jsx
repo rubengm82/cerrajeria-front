@@ -34,6 +34,7 @@ import Layout from './components/layout/Layout'
 import './App.css'
 import AdminShowProduct from './pages/products/AdminShowProduct'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import Products from './pages/products/Products'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -68,6 +69,7 @@ function App() {
     <Routes>
       {/* RUTES PÚBLIQUES - Tienda */}
       <Route path="/" element={<Home />} />
+      <Route path="/products" element={<Products />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />

@@ -1,13 +1,13 @@
+import { Navigate, useNavigate } from "react-router-dom"
+
 function CategoryCard({ category }) {
+  const navigate = useNavigate()
   const imagePath = category?.image
 
   return category ? (
-    <div className="group relative min-h-48 cursor-pointer overflow-hidden rounded-3xl border border-base-300">
+    <div onClick={() => navigate(`/categories/${category.id}`)} className="group relative min-h-48 cursor-pointer overflow-hidden rounded-3xl border border-base-300">
       {imagePath ? (
-        <img
-          src={`http://127.0.0.1:8000/storage/${imagePath}`}
-          alt={category.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        <img src={`http://127.0.0.1:8000/storage/${imagePath}`} alt={category.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-primary/15">

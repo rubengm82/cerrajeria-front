@@ -41,7 +41,7 @@ function ProductCard({product}) {
       </div>
 
       <div className="flex flex-col px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
-        <p className="text-xs font-medium uppercase line-clamp-1 tracking-wider text-base-400">{product.category.name}</p>
+        <p className="text-xs font-medium uppercase line-clamp-1 tracking-wider text-base-400">{product.category?.name}</p>
         <Link to='/products' className="mt-1 line-clamp-2 text-base font-medium transition-all hover:text-primary sm:mt-2 sm:text-[20px]">
           {product.name}
         </Link>

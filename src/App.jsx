@@ -35,18 +35,20 @@ import './App.css'
 import AdminShowProduct from './pages/products/AdminShowProduct'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import Products from './pages/products/Products'
+import Categories from './pages/categories/Categories'
+import CategoriesShow from './pages/categories/CategoriesShow'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
-  
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Carregant...</div>
   }
-  
+
   if (!user) {
     return <Navigate to="/login" />
   }
-  
+
   // Verificar rol si se requiere uno específico
   if (requiredRole) {
     const isAdmin = user.role === 'admin' || user.role === 1
@@ -54,7 +56,7 @@ function ProtectedRoute({ children, requiredRole }) {
       return <Navigate to="/error403" />
     }
   }
-  
+
   return children
 }
 
@@ -70,6 +72,8 @@ function App() {
       {/* RUTES PÚBLIQUES - Tienda */}
       <Route path="/" element={<Home />} />
       <Route path="/products" element={<Products />} />
+      <Route path="/categories" element={<Categories />} />
+      <Route path="/categories/:id" element={<CategoriesShow />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-email" element={<VerifyEmail />} />

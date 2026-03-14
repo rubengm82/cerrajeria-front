@@ -48,17 +48,15 @@ function Home() {
                   <HiArrowRight className="h-5 w-5" />
                 </Link>
 
-                <button type="button" className="btn btn-secondary h-12">
+                <Link to='/categories' type="button" className="btn btn-secondary h-12">
                   <p>Ver categorias</p>
                   <HiArrowRight className="h-5 w-5" />
-                </button>
+                </Link>
               </div>
             </div>
 
             <div className="w-full lg:justify-self-end">
-              <div className="overflow-hidden rounded-2xl bg-stone-300">
-                <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" className="block h-72 w-full max-w-full object-cover sm:h-80 lg:h-96 lg:max-w-xl"/>
-              </div>
+              <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"/>
             </div>
           </div>
 

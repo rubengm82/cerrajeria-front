@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ScrollToTop from './components/ScrollTop'
 import Home from './pages/Home'
 import AdminUsers from './pages/users/AdminUsers'
+import EditMyProfile from './pages/myProfile/EditMyProfile'
 import AdminProductsList from './pages/products/AdminProductsList'
 import AdminCategoriesList from './pages/categories/AdminCategoriesList'
 import CreateProduct from './pages/products/CreateProduct'
@@ -82,7 +83,7 @@ function App() {
             <div className="p-4"><h1 className="text-2xl font-bold">Dashboard</h1><p>Properament...</p></div>
           </ProtectedRoute>
         } />
-        <Route path="/perfil" element={<div className="p-4"><h1 className="text-2xl font-bold">El Meu Perfil</h1><p>Properament...</p></div>} />
+        
         <Route path="/services" element={<div className="p-4"><h1 className="text-2xl font-bold">Serveis</h1><p>Properament...</p></div>} />
         <Route path="/products" element={<div className="p-4"><h1 className="text-2xl font-bold">Productes</h1><p>Properament...</p></div>} />
         <Route path="/categories" element={<div className="p-4"><h1 className="text-2xl font-bold">Categories</h1><p>Properament...</p></div>} />
@@ -100,6 +101,13 @@ function App() {
             <AdminUsers />
           </ProtectedRoute>
         } />
+
+        <Route path="/perfil" element={
+          <ProtectedRoute>
+            <EditMyProfile />
+          </ProtectedRoute>
+        } />
+
         <Route path='/admin/products' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminProductsList />

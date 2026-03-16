@@ -7,7 +7,7 @@ import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'
-function Home() {
+function Shop() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const [importantProducts, setImportantProducts] = useState([])
@@ -183,4 +183,4 @@ function Home() {
   )
 }
 
-export default Home
+export default Shop

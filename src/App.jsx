@@ -1,13 +1,40 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+
+// Components
 import ScrollToTop from './components/ScrollTop'
-import Home from './pages/Home'
+
+// Context
+import { useAuth } from './context/AuthContext'
+
+// Layout
+import Layout from './components/layout/Layout'
+
+// Styles
+import './App.css'
+
+// Pages - Public/Store
+import Shop from './pages/Shop'
+import Products from './pages/products/Products'
+import Categories from './pages/categories/Categories'
+import CategoriesShow from './pages/categories/CategoriesShow'
+
+// Pages - Auth
+import Login from './pages/auth/SignIn'
+import Register from './pages/auth/Register'
+import ResetPassword from './pages/auth/ResetPassword'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import VerifyEmail from './pages/auth/VerifyEmail'
+import ResendVerification from './pages/auth/ResendVerification'
+
+// Pages - Admin
 import AdminUsers from './pages/users/AdminUsers'
 import EditMyProfile from './pages/myProfile/EditMyProfile'
 import AdminProductsList from './pages/products/AdminProductsList'
-import AdminCategoriesList from './pages/categories/AdminCategoriesList'
+import AdminShowProduct from './pages/products/AdminShowProduct'
 import CreateProduct from './pages/products/CreateProduct'
-import CreateCategory from './pages/categories/CreateCategory'
 import EditProduct from './pages/products/EditProduct'
+import AdminCategoriesList from './pages/categories/AdminCategoriesList'
+import CreateCategory from './pages/categories/CreateCategory'
 import EditCategory from './pages/categories/EditCategory'
 import AdminPacksList from './pages/packs/AdminPacksList'
 import AdminShowPack from './pages/packs/AdminShowPack'
@@ -19,25 +46,14 @@ import EditFeature from './pages/features/EditFeature'
 import AdminFeatureTypesList from './pages/featureTypes/AdminFeatureTypesList'
 import CreateFeatureType from './pages/featureTypes/CreateFeatureType'
 import EditFeatureType from './pages/featureTypes/EditFeatureType'
-import Login from './pages/auth/SignIn'
-import Register from './pages/auth/Register'
-import ResetPassword from './pages/auth/ResetPassword'
-import ForgotPassword from './pages/auth/ForgotPassword'
-import VerifyEmail from './pages/auth/VerifyEmail'
-import ResendVerification from './pages/auth/ResendVerification'
+import AdminDashboard from './pages/admin/AdminDashboard'
+
+// Pages - Errors
 import Error404 from './pages/errors/error404'
 import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
 import Error500 from './pages/errors/error500'
 import Error503 from './pages/errors/error503'
-import { useAuth } from './context/AuthContext'
-import Layout from './components/layout/Layout'
-import './App.css'
-import AdminShowProduct from './pages/products/AdminShowProduct'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import Products from './pages/products/Products'
-import Categories from './pages/categories/Categories'
-import CategoriesShow from './pages/categories/CategoriesShow'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -71,7 +87,7 @@ function App() {
 
     <Routes>
       {/* RUTES PÚBLIQUES - Tienda */}
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Shop />} />
       <Route path="/products" element={<Products />} />
       <Route path="/categories" element={<Categories />} />
       <Route path="/categories/:id" element={<CategoriesShow />} />

@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import React from 'react'
 import { HiOutlineHome, HiOutlineSquares2X2, HiOutlineUser, HiOutlineShoppingCart, HiOutlineUserGroup, HiOutlineChartPie, HiOutlineCube, HiOutlineShoppingBag, HiOutlineTag, HiOutlineClipboardDocumentList, HiOutlineWrenchScrewdriver, HiOutlineViewColumns, HiOutlineSwatch } from 'react-icons/hi2'
 
-export default function Sidebar({ userRole }) {
+export default function SideBarDashboard({ userRole }) {
   const location = useLocation()
   const isAdmin = userRole === 'admin' || userRole === 1
 

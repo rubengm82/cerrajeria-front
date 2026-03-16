@@ -7,7 +7,7 @@ import ScrollToTop from './components/ScrollTop'
 import { useAuth } from './context/AuthContext'
 
 // Layout
-import Layout from './components/layout/Layout'
+import LayoutDashboard from './components/layout/LayoutDashboard'
 
 // Styles
 import './App.css'
@@ -99,7 +99,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Rutas con Layout (Topbar + Sidebar) */}
-      <Route element={<Layout />}>
+      <Route element={<LayoutDashboard />}>
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <div className="p-4"><h1 className="text-2xl font-bold">Dashboard</h1><p>Properament...</p></div>

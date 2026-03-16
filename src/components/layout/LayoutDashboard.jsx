@@ -1,10 +1,10 @@
 import { Outlet } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import Topbar from './Topbar'
-import Sidebar from './Sidebar'
+import TopBarDashBoard from './TopBarDashBoard'
+import SideBarDashboard from './SideBarDashboard'
 import LoadingAnimation from '../LoadingAnimation'
 
-export default function Layout() {
+export default function LayoutDashboard() {
   const { user, loading } = useAuth()
 
   // Mostrar pantalla de carga mientras se verifica el usuario
@@ -23,7 +23,7 @@ export default function Layout() {
       <div className="drawer-content flex flex-col">
         {/* Topbar - siempre visible */}
         <div className="sticky top-0 z-50 bg-base-100/80 backdrop-blur shadow-sm">
-          <Topbar />
+          <TopBarDashBoard />
         </div>
 
         {/* Contenido principal */}
@@ -35,7 +35,7 @@ export default function Layout() {
       {/* Sidebar - Drawer de DaisyUI */}
       <div className="drawer-side shadow-2xl">
         <label htmlFor="drawer" className="drawer-overlay"></label>
-        <Sidebar userRole={user?.role} />
+        <SideBarDashboard userRole={user?.role} />
       </div>
     </div>
   )

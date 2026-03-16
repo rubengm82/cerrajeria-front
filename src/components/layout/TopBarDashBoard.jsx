@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { HiBars3 } from 'react-icons/hi2'
 
-export default function Topbar() {
+export default function TopBarDashBoard() {
   const { user, logout } = useAuth()
   
   // Si no hay usuario logueado, mostrar botón de login

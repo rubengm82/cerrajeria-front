@@ -77,6 +77,9 @@ export default function Sidebar({ userRole }) {
 
   return (
     <ul className="menu bg-base-200 rounded-box w-70 min-h-full text-base-content">
+      {/* Espaciador para evitar que el topbar se superponga al abrir el menú */}
+      <div className="h-16 w-full"></div>
+
       {/* Títul del menú */}
       <li className="menu-title">
         <span className="text-primary text-lg font-bold">

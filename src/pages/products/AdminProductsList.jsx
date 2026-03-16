@@ -131,7 +131,7 @@ function AdminProductsList() {
                 <td className='border-base-300'>
                   <div className="flex items-center gap-3">
                     <div className="avatar">
-                      <div className={`mask h-12 w-12 rounded-lg ${product.images?.[0] ? "" : "flex items-center justify-center bg-primary/15"}`}>
+                      <div className={`mask h-12 w-12 rounded-lg ${product.images?.[0] ? "" : "flex items-center justify-center bg-primary/10"}`}>
                         {/* Se muestra la imagen del producto y si no tiene se muestra un svg */}
                         {product.images?.[0] ? <img src={`http://127.0.0.1:8000/storage/${product.images[0].path}`} alt="Imagen" /> : <HiPhoto className="size-6 text-base-400" />}
                       </div>

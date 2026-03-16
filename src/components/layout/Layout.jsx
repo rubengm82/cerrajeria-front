@@ -2,9 +2,19 @@ import { Outlet } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import Topbar from './Topbar'
 import Sidebar from './Sidebar'
+import LoadingAnimation from '../LoadingAnimation'
 
 export default function Layout() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
+
+  // Mostrar pantalla de carga mientras se verifica el usuario
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingAnimation />
+      </div>
+    )
+  }
 
   return (
     <div className="drawer lg:drawer-open">

@@ -9,11 +9,7 @@ function Register() {
     name: '',
     last_name_one: '',
     last_name_second: '',
-    dni: '',
-    phone: '',
     email: '',
-    address: '',
-    zip_code: '',
     password: '',
     password_confirmation: ''
   })
@@ -90,7 +86,7 @@ function Register() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nom */}
-          <div>
+          <div className="md:col-span-2">
             <label className="label">
               <span className="label-text">Nom *</span>
             </label>
@@ -105,71 +101,40 @@ function Register() {
             />
           </div>
 
-          {/* Primer cognom */}
-          <div>
-            <label className="label">
-              <span className="label-text">Primer Cognom *</span>
-            </label>
-            <input
-              type="text"
-              name="last_name_one"
-              placeholder="Primer Cognom"
-              className="input input-bordered w-full"
-              value={formData.last_name_one}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          {/* Primer cognom y Segon cognom en la misma línea */}
+          <div className="grid grid-cols-2 gap-4 md:col-span-2">
+            <div>
+              <label className="label">
+                <span className="label-text">Primer Cognom *</span>
+              </label>
+              <input
+                type="text"
+                name="last_name_one"
+                placeholder="Primer Cognom"
+                className="input input-bordered w-full"
+                value={formData.last_name_one}
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-          {/* Segon cognom */}
-          <div>
-            <label className="label">
-              <span className="label-text">Segon Cognom</span>
-            </label>
-            <input
-              type="text"
-              name="last_name_second"
-              placeholder="Segon Cognom"
-              className="input input-bordered w-full"
-              value={formData.last_name_second}
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* DNI */}
-          <div>
-            <label className="label">
-              <span className="label-text">DNI *</span>
-            </label>
-            <input
-              type="text"
-              name="dni"
-              placeholder="DNI"
-              className="input input-bordered w-full"
-              value={formData.dni}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Telèfon */}
-          <div>
-            <label className="label">
-              <span className="label-text">Telèfon *</span>
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Telèfon"
-              className="input input-bordered w-full"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <label className="label">
+                <span className="label-text">Segon Cognom</span>
+              </label>
+              <input
+                type="text"
+                name="last_name_second"
+                placeholder="Segon Cognom"
+                className="input input-bordered w-full"
+                value={formData.last_name_second}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           {/* Email */}
-          <div>
+          <div className="md:col-span-2">
             <label className="label">
               <span className="label-text">Email *</span>
             </label>
@@ -184,40 +149,12 @@ function Register() {
             />
           </div>
 
-          {/* Adreça */}
-          <div className="md:col-span-2">
-            <label className="label">
-              <span className="label-text">Adreça *</span>
-            </label>
-            <input
-              type="text"
-              name="address"
-              placeholder="Adreça"
-              className="input input-bordered w-full"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Codi Postal */}
-          <div>
-            <label className="label">
-              <span className="label-text">Codi Postal *</span>
-            </label>
-            <input
-              type="text"
-              name="zip_code"
-              placeholder="Codi Postal"
-              className="input input-bordered w-full"
-              value={formData.zip_code}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
           {/* Contrasenya */}
-          <div>
+          <div className="md:col-span-2 mt-4">
+            <div className="divider">Contrasenya</div>
+          </div>
+
+          <div className="md:col-span-2">
             <label className="label">
               <span className="label-text">Contrasenya *</span>
             </label>
@@ -234,7 +171,7 @@ function Register() {
           </div>
 
           {/* Confirmar Contrasenya */}
-          <div>
+          <div className="md:col-span-2">
             <label className="label">
               <span className="label-text">Confirmar Contrasenya *</span>
             </label>

@@ -58,27 +58,29 @@ function Products() {
               </div>
 
               <div className="mt-6 space-y-8">
-                <section className="border-t border-base-300 pt-6">
-                  <div className="mb-4 flex items-center justify-between">
+                <div className="collapse collapse-arrow border-t border-base-300 rounded-none">
+                  <input type="checkbox" defaultChecked />
+                  <div className="collapse-title flex items-center justify-between px-0">
                     <h4 className="text-lg font-semibold">Categories</h4>
-                    <HiChevronDown className="size-6" />
                   </div>
 
-                  <label className="input">
-                    <HiMagnifyingGlass className="size-6 text-base-300" />
-                    <input type="search" placeholder="Buscar categoria.." />
-                  </label>
+                  <div className="collapse-content px-0">
+                    <label className="input mb-4">
+                      <HiMagnifyingGlass className="size-6 text-base-300" />
+                      <input type="search" placeholder="Buscar categoria.." />
+                    </label>
 
-                  <div className="mt-5 space-y-3">
-                    {categories.map((category) => (
-                      <label key={category.name} className="flex items-center gap-3 text-base">
-                        <input type="checkbox" className="checkbox checkbox-md border-base-300" checked={selectedCategories.includes(category.name)} onChange={() => toggleCategory(category.name)}/>
-                        <span className="flex-1">{category.name}</span>
-                        <span className="text-sm text-base-400">({category.products?.length})</span>
-                      </label>
-                    ))}
+                    <div className="space-y-3">
+                      {categories.map((category) => (
+                        <label key={category.name} className="flex items-center gap-3 text-base cursor-pointer">
+                          <input type="checkbox" className="checkbox checkbox-md border-base-300" checked={selectedCategories.includes(category.name)} onChange={() => toggleCategory(category.name)}/>
+                          <span className="flex-1">{category.name}</span>
+                          <span className="text-sm text-base-400">({category.products?.length})</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </section>
+                </div>
               </div>
             </aside>
 

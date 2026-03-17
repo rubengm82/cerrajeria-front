@@ -1,32 +1,40 @@
 import { HiArrowRight } from 'react-icons/hi'
 import { FiHeadphones, FiShield, FiTruck } from 'react-icons/fi'
-import { useEffect, useState } from 'react'
 import { getImportantProducts } from '../api/products_api'
 import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'
+import { useQuery } from '@tanstack/react-query'
+
+ // Se obtiene los productos y categorias importantes
+function usePersistedQuery(key, fetchFn) {
+  const cacheKey = `cached_${key}`;
+
+  return useQuery({
+    queryKey: [key],
+    queryFn: async () => {
+      const res = await fetchFn();
+      sessionStorage.setItem(cacheKey, JSON.stringify(res.data));
+      return res.data;
+    },
+    // Los datos iniciales son del cache si es que existen
+    initialData: () => {
+      const cached = sessionStorage.getItem(cacheKey);
+      return cached ? JSON.parse(cached) : undefined;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
 function Shop() {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const [importantProducts, setImportantProducts] = useState([])
-  const [importantCategories, setImportantCategories] = useState([])
+  // Se obtiene el data de lo que retorna el usePersistedQuery
+  const { data: importantProducts = [] } = usePersistedQuery('importantProducts', getImportantProducts);
+  const { data: importantCategories = [] } = usePersistedQuery('importantCategories', getImportantCategories);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const products = await getImportantProducts()
-      setImportantProducts(products.data)
-    }
-
-    const fetchCategories = async () => {
-      const categories = await getImportantCategories()
-      setImportantCategories(categories.data)
-    }
-
-    fetchProducts()
-    fetchCategories()
-  }, [])
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-base-200 pt-4">
       {/* Botones de autenticacion temporales */}
@@ -50,7 +58,7 @@ function Shop() {
             </button>
           )}
       </div>
-      
+
       <div className='flex flex-col items-center justify-center'>
         <div className="w-full max-w-390 px-4 py-6">
           <div className="grid gap-10 bg-base-200 lg:grid-cols-2 lg:items-center">
@@ -80,7 +88,12 @@ function Shop() {
             </div>
 
             <div className="w-full lg:justify-self-end">
-              <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"/>
+              <img 
+                src="http://127.0.0.1:8000/storage/images/imagen_principal.png" 
+                alt="Cerrajero trabajando en una puerta" 
+                fetchPriority="high"
+                className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"
+              />
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getCategories } from '../../api/categories_api';
 import { getFeatures } from '../../api/features_api';
-import { createProduct, createProductImage, deleteProductImage, updateProduct } from '../../api/products_api';
+import { createProduct, createProductImage, deleteProductImage, updateProduct, updateProductImage } from '../../api/products_api';
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
@@ -10,6 +10,8 @@ import { HiArrowLeft, HiPhoto } from 'react-icons/hi2';
 function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
   const fileInputRef = useRef(null)
+  const [newImportantImage, setNewImportantImage] = useState(null)
+  const [importantImageId, setImportantImageId] = useState(null)
   const [categories, setCategories] = useState([])
   const [availableFeatures, setAvailableFeatures] = useState([])
   const [loading, setLoading] = useState(true)
@@ -44,6 +46,16 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     }
   })
 
+  /* Se obtiene el ID de la imagen destacada */
+  useEffect(() => {
+    if (initialData?.images?.length > 0) {
+      const importantImage = initialData.images.find((image) => image.is_important == 1)
+      if (importantImage) {
+        setImportantImageId(importantImage.id)
+      }
+    }
+  }, [initialData])
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -70,7 +82,11 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     return acc;
   }, {});
 
-  const removeNewImage = (indexToRemove) => {
+  const removeNewImage = (indexToRemove, image) => {
+    if (newImportantImage == image) {
+      console.log(image);
+      setNewImportantImage(null)
+    }
     setForm(current => ({...current, images: current.images.filter((_, index) => index != indexToRemove)}))
   }
   const removeExistingImage = (imageId) => {
@@ -137,9 +153,15 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             const formData = new FormData()
             formData.append('product_id', product.id)
             formData.append('image', image)
-            formData.append('is_important', 0)
+            formData.append('is_important', newImportantImage == image ? 1 : 0)
             await createProductImage(formData)
         }
+      }
+
+      /* Si alguna imagen existente se ha seleccionado como destacada */
+
+      if (importantImageId != null) {
+        await updateProductImage(importantImageId, {product_id: product.id, is_important: 1})
       }
 
       if (imagesToDelete.length > 0) {
@@ -257,7 +279,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
 
             {/* Se muestra un div para subir la imagen */}
             <input type="file" multiple name="images" id="images" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
-            <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
+            <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer transition-all hover:bg-primary/20' onClick={() => fileInputRef.current.click()}>
                 <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
                   <HiPhoto className="size-9" />
                   <p>Añadir nueva imagen</p>
@@ -267,22 +289,25 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Se muestra la nueva imagen seleccionada */}
             {form.images.length > 0 && (
               form.images.map((image, index) => (
-                <div key={index} className="relative w-full max-w-60 aspect-square">
-                  <img key={index} src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300" />
+                <div key={index} onClick={(e) => { setNewImportantImage(image); setImportantImageId(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square">
+                  <img src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" />
 
                   {/* Boton para eliminar las imagenes que aun no se han subido */}
-                  <button type="button" onClick={() => removeNewImage(index)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                  <button type="button" onClick={(e) => { e.stopPropagation(); removeNewImage(index, image) }} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                  {newImportantImage === image && <label htmlFor={`is_important_${index}`} className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
                 </div>
               )))}
 
             {/* Se muestran las imagenes subidas del producto */}
             {initialData?.images?.length > 0 ?
               initialData.images.filter(image => !imagesToDelete.includes(image.id)).map((image, index) => (
-                <div key={index} className="relative w-full max-w-60 aspect-square">
-                  <img key={image.id} src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300" alt="imagen"/>
+                <div key={index} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square">
+                  <img src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" alt="imagen"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <button type="button" onClick={() => removeExistingImage(image.id)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                  {/* Para destacar una imagen */}
+                  {(importantImageId === image.id ) && <label htmlFor={`is_important_${index}`} className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
                 </div>
               ))
             : ""}

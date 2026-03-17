@@ -30,13 +30,13 @@ export default function SideBarDashboard({ userRole }) {
       <HiOutlineTag className="size-6 text-white dark:text-black" />
     ) },
     // Tipus de Característiques - anidat dins Productes
-    { to: '/admin/feature-types', label: 'Característiques - Tipus', parent: 'Productes', icon: (
+    { to: '/admin/features-manager', label: 'Característiques', parent: 'Productes', icon: (
       <HiOutlineSwatch className="size-6 text-white dark:text-black" />
     ) },
-    // Característiques - anidat dins Productes
-    { to: '/admin/features', label: 'Característiques - Valors', parent: 'Productes', icon: (
-      <HiOutlineViewColumns className="size-6 text-white dark:text-black" />
-    ) },
+    // Característiques - anidat dins Productes (mantener para compatibilidad)
+    // { to: '/admin/features', label: 'Característiques - Valors', parent: 'Productes', icon: (
+    //   <HiOutlineViewColumns className="size-6 text-white dark:text-black" />
+    // ) },
     // Packs - anidat dins Productes
     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
       <HiOutlineCube className="size-6 text-white dark:text-black" />

@@ -122,12 +122,14 @@ function AdminShowProduct() {
               {product.features?.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.entries(
-                    product.features.reduce((acc, feature) => {
-                      const typeName = feature.type?.name || "Sense tipus";
-                      if (!acc[typeName]) acc[typeName] = [];
-                      acc[typeName].push(feature.value);
-                      return acc;
-                    }, {})
+                    product.features
+                      .filter(feature => feature.type)
+                      .reduce((acc, feature) => {
+                        const typeName = feature.type.name;
+                        if (!acc[typeName]) acc[typeName] = [];
+                        acc[typeName].push(feature.value);
+                        return acc;
+                      }, {})
                   ).map(([typeName, values]) => (
                     <div key={typeName} className="flex flex-col gap-1">
                       <h4 className="font-bold text-primary text-sm uppercase tracking-wider">{typeName}</h4>

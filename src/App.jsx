@@ -40,9 +40,7 @@ import AdminPacksList from './pages/packs/AdminPacksList'
 import AdminShowPack from './pages/packs/AdminShowPack'
 import CreatePack from './pages/packs/CreatePack'
 import EditPack from './pages/packs/EditPack'
-import AdminFeaturesList from './pages/features/AdminFeaturesList'
-import CreateFeature from './pages/features/CreateFeature'
-import EditFeature from './pages/features/EditFeature'
+import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
 import AdminFeatureTypesList from './pages/featureTypes/AdminFeatureTypesList'
 import CreateFeatureType from './pages/featureTypes/CreateFeatureType'
 import EditFeatureType from './pages/featureTypes/EditFeatureType'
@@ -189,22 +187,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='/admin/features' element={
-          <ProtectedRoute requiredRole='admin'>
-            <AdminFeaturesList />
-          </ProtectedRoute>
-        } />
-        <Route path='/admin/features/new' element={
-          <ProtectedRoute requiredRole='admin'>
-            <CreateFeature />
-          </ProtectedRoute>
-        } />
-        <Route path='/admin/features/:id/edit' element={
-          <ProtectedRoute requiredRole='admin'>
-            <EditFeature />
-          </ProtectedRoute>
-        } />
-
         <Route path='/admin/feature-types' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminFeatureTypesList />
@@ -218,6 +200,12 @@ function App() {
         <Route path='/admin/feature-types/:id/edit' element={
           <ProtectedRoute requiredRole='admin'>
             <EditFeatureType />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/features-manager' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminFeaturesManager />
           </ProtectedRoute>
         } />
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
-import { getProducts } from '../../api/products_api';
+import { getProductsWithTrashed } from '../../api/products_api';
 import { createPack, updatePack } from '../../api/packs_api';
 import { createPackImage, deletePackImage } from '../../api/pack_images_api'; // Importamos la nueva API
 import LoadingAnimation from '../LoadingAnimation';
@@ -34,7 +34,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
   })
 
   useEffect(() => {
-    getProducts()
+    getProductsWithTrashed()
       .then(response => setProducts(response.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false))
@@ -191,10 +191,10 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
         <div className='flex flex-col gap-4 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <h3 className="text-[20px] font-semibold">Productos incluidos</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-1">
-            {products.map(product => (
+            {products.filter(p => !p.deleted_at).map(product => (
               <div key={product.id} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${form.product_ids.includes(product.id) ? 'border-primary bg-primary/5' : 'border-base-300'}`} onClick={() => handleProductToggle(product.id)}>
                 <input type="checkbox" checked={form.product_ids.includes(product.id)} className="checkbox checkbox-primary checkbox-sm" />
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   <span className="font-medium text-sm line-clamp-1">{product.name}</span>
                   <span className="text-xs text-base-content/50">{product.price}€</span>
                 </div>

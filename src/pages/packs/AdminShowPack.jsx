@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getPack, restorePack } from "../../api/packs_api"
+import { getPacksWithTrashed, restorePack } from "../../api/packs_api"
 import { useNavigate, useParams } from "react-router-dom"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import Notifications from "../../components/Notifications"
@@ -14,15 +14,20 @@ function AdminShowPack() {
   const {id} = useParams()
 
   useEffect(() => {
-    getPack(id)
+    getPacksWithTrashed()
     .then(response => {
-      const data = response.data;
-      // Verificar si el elemento está eliminado (softdeleted)
-      if (data.deleted_at) {
-        setError("Aquest pack està eliminat.");
+      const pack = response.data.find(p => p.id === parseInt(id));
+      if (!pack) {
+        setError("Pack no trobat");
         setPack(null);
+        return;
+      }
+      // Verificar si el elemento está eliminado (softdeleted)
+      if (pack.deleted_at) {
+        setError("Aquest pack està eliminat.");
+        setPack(pack);
       } else {
-        setPack(data);
+        setPack(pack);
       }
     })
     .catch(error => {
@@ -39,9 +44,10 @@ function AdminShowPack() {
     setLoading(true)
     restorePack(pack.id)
     .then(() => {
-      getPack(id)
+      getPacksWithTrashed()
       .then(response => {
-        setPack(response.data);
+        const restoredPack = response.data.find(p => p.id === parseInt(id));
+        setPack(restoredPack);
         setError(null);
       })
     })
@@ -108,9 +114,9 @@ function AdminShowPack() {
 
             <div className="simple-container">
               <h3 className="text-[18px] font-semibold mb-4">Productes inclosos</h3>
-              {pack.products?.length > 0 ? (
+              {pack.products?.filter(p => !p.deleted_at).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {pack.products.map(product => (
+                  {pack.products.filter(p => !p.deleted_at).map(product => (
                     <div key={product.id} className="flex items-center gap-4 p-3 border border-base-300 rounded-lg bg-base-100">
                       <div className="flex flex-col">
                         <p className="font-semibold">{product.name}</p>

@@ -37,7 +37,7 @@ function Products() {
 
 
   return loading ? <LoadingAnimation /> : (
-    <div className='bg-base-200 flex flex-col items-center justify-center'>
+    <div className='flex flex-col items-center justify-center'>
       <div className="w-full max-w-390 px-4">
         <div className="px-0 py-12 sm:py-16 lg:px-4">
           <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">

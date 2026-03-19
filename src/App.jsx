@@ -8,6 +8,7 @@ import { useAuth } from './context/AuthContext'
 
 // Layout
 import LayoutDashboard from './components/layout/LayoutDashboard'
+import LayoutShop from './components/layout/LayoutShop'
 
 // Styles
 import './App.css'
@@ -85,16 +86,19 @@ function App() {
 
     <Routes>
       {/* RUTES PÚBLIQUES - Tienda */}
-      <Route path="/" element={<Shop />} />
-      <Route path="/products" element={<Products />} />
-      <Route path="/categories" element={<Categories />} />
-      <Route path="/categories/:id" element={<CategoriesShow />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/verify-email" element={<VerifyEmail />} />
-      <Route path="/resend-verification" element={<ResendVerification />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route element={<LayoutShop />}>
+        <Route path="/" element={<Shop />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/categories/:id" element={<CategoriesShow />} />
+      </Route>
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/resend-verification" element={<ResendVerification />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Rutas con Layout (Topbar + Sidebar) */}
       <Route element={<LayoutDashboard />}>
@@ -103,7 +107,7 @@ function App() {
             <div className="p-4"><h1 className="text-2xl font-bold">Dashboard</h1><p>Properament...</p></div>
           </ProtectedRoute>
         } />
-        
+
         <Route path="/services" element={<div className="p-4"><h1 className="text-2xl font-bold">Serveis</h1><p>Properament...</p></div>} />
         <Route path="/products" element={<div className="p-4"><h1 className="text-2xl font-bold">Productes</h1><p>Properament...</p></div>} />
         <Route path="/categories" element={<div className="p-4"><h1 className="text-2xl font-bold">Categories</h1><p>Properament...</p></div>} />

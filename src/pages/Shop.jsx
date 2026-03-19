@@ -5,7 +5,6 @@ import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'
 import { useQuery } from '@tanstack/react-query'
 
  // Se obtiene los productos y categorias importantes
@@ -30,35 +29,12 @@ function usePersistedQuery(key, fetchFn) {
 
 function Shop() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
   // Se obtiene el data de lo que retorna el usePersistedQuery
   const { data: importantProducts = [] } = usePersistedQuery('importantProducts', getImportantProducts);
   const { data: importantCategories = [] } = usePersistedQuery('importantCategories', getImportantCategories);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-base-200 pt-4">
-      {/* Botones de autenticacion temporales */}
-      <div className="flex items-center gap-2 mb-4 ml-auto mr-4">
-        {user 
-          ? (
-            <>
-              <button className="btn btn-sm btn-primary" onClick={() => navigate('/dashboard')}>
-                Panell d'Administració
-              </button>
-              <button className="btn btn-sm btn-error" onClick={() => {
-                logout()
-                navigate('/')
-              }}>
-                Tancar Sessió
-              </button>
-            </>
-          ) : (
-            <button className="btn btn-sm btn-primary" onClick={() => navigate('/login')}>
-              Iniciar Sessió
-            </button>
-          )}
-      </div>
-
+    <div className="flex flex-col items-center justify-center gap-4 pt-4">
       <div className='flex flex-col items-center justify-center'>
         <div className="w-full max-w-390 px-4 py-6">
           <div className="grid gap-10 bg-base-200 lg:grid-cols-2 lg:items-center">
@@ -88,12 +64,7 @@ function Shop() {
             </div>
 
             <div className="w-full lg:justify-self-end">
-              <img 
-                src="http://127.0.0.1:8000/storage/images/imagen_principal.png" 
-                alt="Cerrajero trabajando en una puerta" 
-                fetchPriority="high"
-                className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"
-              />
+              <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" fetchPriority="high" className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"/>
             </div>
           </div>
 

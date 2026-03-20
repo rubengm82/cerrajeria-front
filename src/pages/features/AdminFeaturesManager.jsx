@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { 
   getFeatureTypesWithTrashed, 
@@ -48,7 +48,7 @@ function AdminFeaturesManager() {
     }
   }, [locationState])
 
-  const fetchFeatureTypes = () => {
+  const fetchFeatureTypes = useCallback(() => {
     getFeatureTypesWithTrashed()
       .then(response => {
         setFeatureTypes(response.data)
@@ -64,11 +64,11 @@ function AdminFeaturesManager() {
         setFeatureTypes([])
       })
       .finally(() => setLoading(false))
-  }
+  }, [expandedTypes])
 
   useEffect(() => {
     fetchFeatureTypes()
-  }, [])
+  }, [fetchFeatureTypes])
 
   const toggleType = (typeId) => {
     setExpandedTypes(prev => ({

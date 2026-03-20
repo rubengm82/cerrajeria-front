@@ -74,13 +74,15 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     fetchData()
   }, [])
 
-  // Agrupar características por tipo
-  const groupedFeatures = availableFeatures.reduce((acc, feature) => {
-    const typeName = feature.type?.name || "Sin tipo";
-    if (!acc[typeName]) acc[typeName] = [];
-    acc[typeName].push(feature);
-    return acc;
-  }, {});
+  // Agrupar características por tipo (solo las que tienen tipo definido)
+  const groupedFeatures = availableFeatures
+    .filter(feature => feature.type?.name) // Filtrar solo las que tienen tipo
+    .reduce((acc, feature) => {
+      const typeName = feature.type.name;
+      if (!acc[typeName]) acc[typeName] = [];
+      acc[typeName].push(feature);
+      return acc;
+    }, {});
 
   const removeNewImage = (indexToRemove, image) => {
     if (newImportantImage == image) {
@@ -227,7 +229,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         {/* Características */}
         <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <h3 className="text-[20px] font-semibold">Características del producto</h3>
-          <p className='text-sm text-base-content/60 -mt-4'>Selecciona las opciones que definen a este producto.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {Object.keys(groupedFeatures).length > 0 ? Object.entries(groupedFeatures).map(([typeName, features]) => (
@@ -244,7 +245,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
               </div>
             )) : (
               <p className="col-span-2 text-center py-4 text-md rounded">
-                No hay características disponibles. <Link to="/admin/features/new" className="text-primary underline">Crear una</Link>
+                No hay características disponibles.
               </p>
             )}
           </div>

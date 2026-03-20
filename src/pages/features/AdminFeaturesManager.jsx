@@ -263,10 +263,6 @@ function AdminFeaturesManager() {
         </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 w-full mb-5">
-        <input type="search" name="search" id="search" placeholder='Buscar per tipus o valor...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
-      </div>
-
       {featureTypes.length === 0 ? (
         <div className="text-center py-10 bg-base-100 rounded-lg border border-base-300">
           <p className="text-base-content/60 mb-4">Actualment no hi ha tipus de característiques creats</p>

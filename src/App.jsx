@@ -42,9 +42,6 @@ import AdminShowPack from './pages/packs/AdminShowPack'
 import CreatePack from './pages/packs/CreatePack'
 import EditPack from './pages/packs/EditPack'
 import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
-import AdminFeatureTypesList from './pages/featureTypes/AdminFeatureTypesList'
-import CreateFeatureType from './pages/featureTypes/CreateFeatureType'
-import EditFeatureType from './pages/featureTypes/EditFeatureType'
 import AdminDashboard from './pages/admin/AdminDashboard'
 
 // Pages - Errors
@@ -188,22 +185,6 @@ function App() {
         <Route path='/admin/categories/:id/edit' element={
           <ProtectedRoute requiredRole='admin'>
             <EditCategory />
-          </ProtectedRoute>
-        } />
-
-        <Route path='/admin/feature-types' element={
-          <ProtectedRoute requiredRole='admin'>
-            <AdminFeatureTypesList />
-          </ProtectedRoute>
-        } />
-        <Route path='/admin/feature-types/new' element={
-          <ProtectedRoute requiredRole='admin'>
-            <CreateFeatureType />
-          </ProtectedRoute>
-        } />
-        <Route path='/admin/feature-types/:id/edit' element={
-          <ProtectedRoute requiredRole='admin'>
-            <EditFeatureType />
           </ProtectedRoute>
         } />
 

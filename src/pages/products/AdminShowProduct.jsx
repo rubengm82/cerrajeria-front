@@ -119,27 +119,29 @@ function AdminShowProduct() {
             {/* Características */}
             <div className="simple-container">
               <h3 className="text-[18px] font-semibold mb-4">Característiques</h3>
-              {product.features?.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(
-                    product.features
-                      .filter(feature => feature.type)
-                      .reduce((acc, feature) => {
-                        const typeName = feature.type.name;
-                        if (!acc[typeName]) acc[typeName] = [];
-                        acc[typeName].push(feature.value);
-                        return acc;
-                      }, {})
-                  ).map(([typeName, values]) => (
-                    <div key={typeName} className="flex flex-col gap-1">
-                      <h4 className="font-bold text-primary text-sm uppercase tracking-wider">{typeName}</h4>
-                      <p className="text-base-content font-medium">{values.join(", ")}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-base-400 italic">Aquest producte no té característiques assignades</p>
-              )}
+              {(() => {
+                const featuresWithType = product.features?.filter(feature => feature.type) || [];
+                const groupedFeatures = featuresWithType.reduce((acc, feature) => {
+                  const typeName = feature.type.name;
+                  if (!acc[typeName]) acc[typeName] = [];
+                  acc[typeName].push(feature.value);
+                  return acc;
+                }, {});
+                const hasFeatures = Object.keys(groupedFeatures).length > 0;
+
+                return hasFeatures ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {Object.entries(groupedFeatures).map(([typeName, values]) => (
+                      <div key={typeName} className="flex flex-col gap-1">
+                        <h4 className="font-bold text-primary text-sm uppercase tracking-wider">{typeName}</h4>
+                        <p className="text-base-content font-medium">{values.join(", ")}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-base-400 italic">Aquest producte no té característiques assignades</p>
+                );
+              })()}
             </div>
           </div>
 

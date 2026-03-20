@@ -113,17 +113,21 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
           </div>
 
         {/* Imagenes */}
-          <div className="flex items-center justify-between md:col-span-3">
-            <h3 className="text-[20px] font-semibold">Imágenes de la categoría</h3>
-            <button type="button" onClick={() => fileInputRef.current.click()} className="btn btn-primary btn-sm gap-2">
-              <HiPhoto className="size-5" />
-              Añadir imagen
-            </button>
-          </div>
+          <h3 className="text-[20px] font-semibold md:col-span-3">Imágenes de la categoría</h3>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
 
-            {/* Input file oculto */}
-            <input type="file" name="image" id="image" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
+            {/* Se muestra un div para subir la imagen solo si no hay imágenes */}
+            {!form.image && (!initialData?.image || existingImageRemoved) && (
+              <>
+                <input type="file" name="image" id="image" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
+                <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
+                    <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
+                      <HiPhoto className="size-9" />
+                      <p>Añadir nueva imagen</p>
+                    </div>
+                </div>
+              </>
+            )}
 
             {/* Se muestra la nueva imagen seleccionada */}
             {form.image && (

@@ -3,6 +3,7 @@ import { createCategory, updateCategory } from '../../api/categories_api';
 import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
+import ConfirmableModal from '../ConfirmableModal';
 import { HiArrowLeft, HiPhoto } from 'react-icons/hi2';
 
 function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
@@ -112,17 +113,17 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
           </div>
 
         {/* Imagenes */}
-          <h3 className="text-[20px] font-semibold md:col-span-3">Imagenes del producto</h3>
+          <div className="flex items-center justify-between md:col-span-3">
+            <h3 className="text-[20px] font-semibold">Imágenes de la categoría</h3>
+            <button type="button" onClick={() => fileInputRef.current.click()} className="btn btn-primary btn-sm gap-2">
+              <HiPhoto className="size-5" />
+              Añadir imagen
+            </button>
+          </div>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
 
-            {/* Se muestra un div para subir la imagen */}
+            {/* Input file oculto */}
             <input type="file" name="image" id="image" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
-            <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
-                <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
-                  <HiPhoto className="size-9" />
-                  <p>Añadir nueva imagen</p>
-                </div>
-            </div>
 
             {/* Se muestra la nueva imagen seleccionada */}
             {form.image && (
@@ -130,7 +131,13 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
                 <img src={URL.createObjectURL(form.image)} alt='Nueva imagen' className="w-full h-full object-cover rounded-lg border border-base-300" />
 
                 {/* Boton para eliminar las imagenes que aun no se han subido */}
-                <button type="button" onClick={removeNewImage} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                <ConfirmableModal
+                  title="Eliminar imagen"
+                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  onConfirm={removeNewImage}
+                >
+                  <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
+                </ConfirmableModal>
               </div>
             )}
 
@@ -140,7 +147,13 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
                   <img src={`http://127.0.0.1:8000/storage/${initialData.image}`} className="w-full h-full object-cover rounded-lg border border-base-300"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
-                  <button type="button" onClick={removeExistingImage} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
+                  <ConfirmableModal
+                    title="Eliminar imagen"
+                    message="¿Estás seguro de que quieres eliminar esta imagen?"
+                    onConfirm={removeExistingImage}
+                  >
+                    <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
+                  </ConfirmableModal>
                 </div>
               }
           </div>

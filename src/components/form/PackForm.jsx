@@ -5,6 +5,7 @@ import { createPack, updatePack } from '../../api/packs_api';
 import { createPackImage, deletePackImage } from '../../api/pack_images_api'; // Importamos la nueva API
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
+import ConfirmableModal from '../ConfirmableModal';
 import { HiArrowLeft, HiPhoto } from 'react-icons/hi2';
 
 function PackForm({ initialData, submitText, title, subtitle, backLink }) {
@@ -158,22 +159,28 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Imágenes */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold md:col-span-3">Imágenes del pack</h3>
+          <div className="flex items-center justify-between md:col-span-3">
+            <h3 className="text-[20px] font-semibold">Imágenes del pack</h3>
+            <button type="button" onClick={() => fileInputRef.current.click()} className="btn btn-primary btn-sm gap-2">
+              <HiPhoto className="size-5" />
+              Añadir imagen
+            </button>
+          </div>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-items-center md:justify-items-start'>
 
             <input type="file" multiple name="images" id="images" accept="image/*" onChange={handleChange} ref={fileInputRef} className="hidden"/>
-            <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
-                <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
-                  <HiPhoto className="size-9" />
-                  <p>Añadir imagen</p>
-                </div>
-            </div>
 
             {/* Nuevas imágenes */}
             {form.images.map((image, index) => (
               <div key={index} className="relative w-full max-w-60 aspect-square">
                 <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-cover rounded-lg border border-base-300" />
-                <button type="button" onClick={() => removeNewImage(index)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</button>
+                <ConfirmableModal
+                  title="Eliminar imagen"
+                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  onConfirm={() => removeNewImage(index)}
+                >
+                  <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
+                </ConfirmableModal>
               </div>
             ))}
 
@@ -181,7 +188,13 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
             {initialData?.images?.filter(img => !imagesToDelete.includes(img.id)).map((image) => (
               <div key={image.id} className="relative w-full max-w-60 aspect-square">
                 <img src={`http://127.0.0.1:8000/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300"/>
-                <button type="button" onClick={() => removeExistingImage(image.id)} className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</button>
+                <ConfirmableModal
+                  title="Eliminar imagen"
+                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  onConfirm={() => removeExistingImage(image.id)}
+                >
+                  <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
+                </ConfirmableModal>
               </div>
             ))}
           </div>

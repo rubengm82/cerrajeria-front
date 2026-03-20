@@ -6,6 +6,7 @@ import { useNavigate, Link } from "react-router-dom";
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
 import { HiArrowLeft, HiPhoto } from 'react-icons/hi2';
+import MultiSelectFeatures from '../MultiSelectFeatures';
 
 function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
   const navigate = useNavigate();
@@ -74,15 +75,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     fetchData()
   }, [])
 
-  // Agrupar características por tipo (solo las que tienen tipo definido)
-  const groupedFeatures = availableFeatures
-    .filter(feature => feature.type?.name) // Filtrar solo las que tienen tipo
-    .reduce((acc, feature) => {
-      const typeName = feature.type.name;
-      if (!acc[typeName]) acc[typeName] = [];
-      acc[typeName].push(feature);
-      return acc;
-    }, {});
+
 
   const removeNewImage = (indexToRemove, image) => {
     if (newImportantImage == image) {
@@ -110,16 +103,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     }
   }
 
-  const handleFeatureChange = (featureId) => {
-    setForm(current => {
-      const ids = [...current.feature_ids];
-      if (ids.includes(featureId)) {
-        return { ...current, feature_ids: ids.filter(id => id !== featureId) };
-      } else {
-        return { ...current, feature_ids: [...ids, featureId] };
-      }
-    });
-  }
+
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -229,26 +213,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         {/* Características */}
         <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <h3 className="text-[20px] font-semibold">Características del producto</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {Object.keys(groupedFeatures).length > 0 ? Object.entries(groupedFeatures).map(([typeName, features]) => (
-              <div key={typeName} className="flex flex-col gap-2">
-                <h4 className="font-bold text-primary border-b border-primary/20 pb-1 mb-2">{typeName}</h4>
-                <div className="flex flex-wrap gap-x-6 gap-y-2">
-                  {features.map(feature => (
-                    <label key={feature.id} className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors">
-                      <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={form.feature_ids.includes(feature.id)} onChange={() => handleFeatureChange(feature.id)}/>
-                      <span className="text-sm">{feature.value}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )) : (
-              <p className="col-span-2 text-center py-4 text-md rounded">
-                No hay características disponibles.
-              </p>
-            )}
-          </div>
+          
+          <MultiSelectFeatures
+            features={availableFeatures}
+            selectedIds={form.feature_ids}
+            onChange={(ids) => setForm(current => ({ ...current, feature_ids: ids }))}
+            label="Selecciona las características del producto"
+          />
         </div>
 
         {/* Precio y stock */}

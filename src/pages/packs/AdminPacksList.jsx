@@ -111,11 +111,15 @@ function AdminPacksList() {
                 <td className='border-base-300'>
                   <div className="flex items-center gap-3">
                     <div className="avatar">
-                      <div className={`mask h-12 w-12 rounded-lg ${pack.images?.[0] ? "" : "flex items-center justify-center bg-primary/15"}`}>
-                        {pack.images?.[0] ?
-                          <img src={`http://127.0.0.1:8000/storage/${pack.images[0].path}`} alt="Pack" /> 
-                          : <HiPhoto className="size-6 text-base-400" />
-                        }
+                      <div className={`mask h-12 w-12 rounded-lg ${pack.images?.length ? "" : "flex items-center justify-center bg-primary/15"}`}>
+                        {(() => {
+                          // Buscar imagen principal primero
+                          const importantImage = pack.images?.find(img => img.is_important == 1)
+                          const displayImage = importantImage || pack.images?.[0]
+                          return displayImage ?
+                            <img src={`http://127.0.0.1:8000/storage/${displayImage.path}`} alt="Pack" /> 
+                            : <HiPhoto className="size-6 text-base-400" />
+                        })()}
                       </div>
                     </div>
                   </div>

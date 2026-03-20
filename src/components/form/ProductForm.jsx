@@ -96,6 +96,10 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       setForm(current => ({
         ...current, images: [...current.images, ...newFiles]
       }))
+      // Si no hay imagen principal y se añaden nuevas imágenes, la primera será principal
+      if (newImportantImage == null && importantImageId == null && newFiles.length > 0) {
+        setNewImportantImage(newFiles[0])
+      }
       event.target.value = null
     } else {
       setForm(current => ({
@@ -135,6 +139,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       }
       const product = response.data
 
+      /* Si se suben nuevas imágenes y alguna se marca como principal, desmarcar las existentes */
+      if (newImportantImage != null && initialData?.images?.length > 0) {
+        for (const image of initialData.images) {
+          await updateProductImage(image.id, { product_id: product.id, is_important: 0 })
+        }
+      }
+
       if (images.length > 0) {
         for (const image of images) {
             const formData = new FormData()
@@ -146,9 +157,15 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       }
 
       /* Si alguna imagen existente se ha seleccionado como destacada */
-
       if (importantImageId != null) {
-        await updateProductImage(importantImageId, {product_id: product.id, is_important: 1})
+        // Primero desmarcar todas las imágenes existentes del producto
+        if (initialData?.images?.length > 0) {
+          for (const image of initialData.images) {
+            await updateProductImage(image.id, { product_id: product.id, is_important: 0 })
+          }
+        }
+        // Luego marcar la imagen seleccionada como principal
+        await updateProductImage(importantImageId, { product_id: product.id, is_important: 1 })
       }
 
       if (imagesToDelete.length > 0) {

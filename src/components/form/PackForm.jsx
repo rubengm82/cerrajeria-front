@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from "react-router-dom";
 import { getProductsWithTrashed } from '../../api/products_api';
 import { createPack, updatePack } from '../../api/packs_api';
-import { createPackImage, deletePackImage } from '../../api/pack_images_api'; // Importamos la nueva API
+import { createPackImage, deletePackImage, updatePackImage } from '../../api/pack_images_api';
 import LoadingAnimation from '../LoadingAnimation';
 import Notifications from '../Notifications';
 import ConfirmableModal from '../ConfirmableModal';
@@ -15,6 +15,14 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
   const [loading, setLoading] = useState(true)
   const [errors, setErrors] = useState({})
   const [imagesToDelete, setImagesToDelete] = useState([])
+  const [newImportantImage, setNewImportantImage] = useState(null)
+  const [importantImageId, setImportantImageId] = useState(() => {
+    if (initialData?.images?.length > 0) {
+      const importantImage = initialData.images.find((image) => image.is_important == 1)
+      return importantImage ? importantImage.id : null
+    }
+    return null
+  })
   const [form, setForm] = useState(() => {
     if (initialData) {
       return {
@@ -48,6 +56,10 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
       setForm(current => ({
         ...current, images: [...current.images, ...newFiles]
       }))
+      // Si no hay imagen principal y se añaden nuevas imágenes, la primera será principal
+      if (newImportantImage == null && importantImageId == null && newFiles.length > 0) {
+        setNewImportantImage(newFiles[0])
+      }
       event.target.value = null
     } else {
       setForm(current => ({
@@ -56,7 +68,10 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
     }
   }
 
-  const removeNewImage = (indexToRemove) => {
+  const removeNewImage = (indexToRemove, image) => {
+    if (newImportantImage == image) {
+      setNewImportantImage(null)
+    }
     setForm(current => ({...current, images: current.images.filter((_, index) => index !== indexToRemove)}))
   }
 
@@ -94,15 +109,34 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
 
       const pack = response.data
 
+      /* Si se suben nuevas imágenes y alguna se marca como principal, desmarcar las existentes */
+      if (newImportantImage != null && initialData?.images?.length > 0) {
+        for (const image of initialData.images) {
+          await updatePackImage(image.id, { pack_id: pack.id, is_important: 0 })
+        }
+      }
+
       // Subir nuevas imágenes
       if (images.length > 0) {
         for (const image of images) {
             const formData = new FormData()
             formData.append('pack_id', pack.id)
             formData.append('image', image)
-            formData.append('is_important', 0)
+            formData.append('is_important', newImportantImage == image ? 1 : 0)
             await createPackImage(formData)
         }
+      }
+
+      /* Si alguna imagen existente se ha seleccionado como destacada */
+      if (importantImageId != null) {
+        // Primero desmarcar todas las imágenes existentes del pack
+        if (initialData?.images?.length > 0) {
+          for (const image of initialData.images) {
+            await updatePackImage(image.id, { pack_id: pack.id, is_important: 0 })
+          }
+        }
+        // Luego marcar la imagen seleccionada como principal
+        await updatePackImage(importantImageId, { pack_id: pack.id, is_important: 1 })
       }
 
       // Eliminar imágenes marcadas
@@ -172,22 +206,23 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
 
             {/* Nuevas imágenes */}
             {form.images.map((image, index) => (
-              <div key={index} className="relative w-full max-w-60 aspect-square">
-                <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-cover rounded-lg border border-base-300" />
+              <div key={index} onClick={(e) => { setNewImportantImage(image); setImportantImageId(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square cursor-pointer">
+                <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90" />
                 <ConfirmableModal
                   title="Eliminar imagen"
                   message="¿Estás seguro de que quieres eliminar esta imagen?"
-                  onConfirm={() => removeNewImage(index)}
+                  onConfirm={() => removeNewImage(index, image)}
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
                 </ConfirmableModal>
+                {newImportantImage === image && <label className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
               </div>
             ))}
 
             {/* Imágenes existentes */}
             {initialData?.images?.filter(img => !imagesToDelete.includes(img.id)).map((image) => (
-              <div key={image.id} className="relative w-full max-w-60 aspect-square">
-                <img src={`http://127.0.0.1:8000/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300"/>
+              <div key={image.id} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square cursor-pointer">
+                <img src={`http://127.0.0.1:8000/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90"/>
                 <ConfirmableModal
                   title="Eliminar imagen"
                   message="¿Estás seguro de que quieres eliminar esta imagen?"
@@ -195,6 +230,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
                 </ConfirmableModal>
+                {(importantImageId === image.id) && <label className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
               </div>
             ))}
           </div>

@@ -3,11 +3,11 @@ import TopBarShop from './TopBarShop'
 
 export default function LayoutShop() {
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="sticky top-0 z-50">
+    <div className="shop-layout bg-base-200">
+      <div className="shop-layout__top">
         <TopBarShop />
       </div>
-      <main>
+      <main className="shop-layout__main">
         <Outlet />
       </main>
     </div>

@@ -11,13 +11,13 @@
   }
 
   &__body {
-    padding: 3rem 0;
+    padding: clamp(3rem, 5vw, 4rem) 0;
   }
 
   &__title {
     margin-top: 0.25rem;
     margin-bottom: 2.5rem;
-    font-size: 2.25rem;
+    font-size: clamp(1.875rem, 5vw, 2.25rem);
     font-weight: 500;
     letter-spacing: -0.025em;
   }
@@ -25,6 +25,7 @@
 
 .categories-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 1.25rem;
 }
 
@@ -32,26 +33,4 @@
   grid-column: 1 / -1;
   font-size: 1.5rem;
   font-weight: 600;
-}
-
-@media (min-width: 640px) {
-  .categories-page {
-    &__body {
-      padding: 4rem 0;
-    }
-
-    &__title {
-      font-size: 1.875rem;
-    }
-  }
-
-  .categories-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .categories-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }

@@ -1,0 +1,13 @@
+.shop-layout {
+  min-height: 100vh;
+
+  &__top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  &__main {
+    width: 100%;
+  }
+}

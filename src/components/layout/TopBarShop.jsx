@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { HiMagnifyingGlass } from "react-icons/hi2";
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
@@ -12,14 +11,14 @@ export default function TopBarShop() {
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm px-4 md:px-8">
-      <div className="flex-1">
-        <Link to="/" className="btn btn-ghost text-xl font-bold text-primary">
+    <div className="navbar shop-topbar bg-base-100">
+      <div className="shop-topbar__brand">
+        <Link to="/" className="btn btn-ghost shop-topbar__logo text-primary">
           Cerrajería ABP
         </Link>
       </div>
 
-      <div className="flex-none gap-4">
+      <div className="shop-topbar__actions">
         {!user ? (
           <Link to="/login" className="btn btn-primary btn-sm md:btn-md">
             Iniciar Sessió
@@ -27,24 +26,24 @@ export default function TopBarShop() {
         ) : (
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar placeholder">
-              <div className="bg-primary text-primary-content rounded-full w-10 flex items-center justify-center">
-                <span className="text-lg">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+              <div className="shop-topbar__avatar bg-primary text-primary-content">
+                <span className="shop-topbar__avatar-letter">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
               </div>
             </div>
 
-            <ul tabIndex={0} className="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+            <ul tabIndex={0} className="menu menu-sm dropdown-content shop-topbar__menu bg-base-100">
               <li className="menu-title"><span>{user?.name || 'Usuari'}</span></li>
               <li><a>{user?.email || 'email@exemple.com'}</a></li>
 
               {(user?.role === 'admin' || user?.role === 1) && (
-                <li className="mt-2">
-                  <Link to="/admin/dashboard" className="bg-primary text-primary-content hover:bg-primary-focus">
+                <li className="shop-topbar__menu-item">
+                  <Link to="/admin/dashboard" className="shop-topbar__admin-link bg-primary text-primary-content">
                     Panell d'Administració
                   </Link>
                 </li>
               )}
 
-              <li className="border-t border-base-300 mt-2 pt-2">
+              <li className="shop-topbar__logout border-base-300">
                 <button onClick={handleLogout} className="text-error">
                   Tancar Sessió
                 </button>

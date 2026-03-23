@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
+import '../../scss/main_shop.scss'
 
  // Se obtiene los productos y categorias importantes
 function usePersistedQuery(key, fetchFn) {
@@ -34,133 +35,135 @@ function Shop() {
   const { data: importantCategories = [] } = usePersistedQuery('importantCategories', getImportantCategories);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 pt-4">
-      <div className='flex flex-col items-center justify-center'>
-        <div className="w-full max-w-390 px-4 py-6">
-          <div className="grid gap-10 bg-base-200 lg:grid-cols-2 lg:items-center">
-            <div className="max-w-4xl pt-4 lg:pl-10 lg:pt-8">
-              <h1 className="max-w-4xl text-[40px] leading-none font-black tracking-tight sm:text-6xl lg:text-7xl">
-                <span className="block xl:whitespace-nowrap">
+    <div className="shop-home">
+      <div className='shop-home__top'>
+        <div className="shop-home__container shop-home__container--hero">
+          <div className="hero-box bg-base-200">
+            <div className="hero-box__content">
+              <h1 className="hero-box__title">
+                <span className="hero-box__line hero-box__line--nowrap">
                   El mejor <span className="text-primary">servicio</span>
                 </span>
-                <span className="block">en un solo lugar</span>
+                <span className="hero-box__line">en un solo lugar</span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-6 md:leading-8 text-base-400 sm:text-2xl">
+              <p className="hero-box__text text-base-400">
                 Descubre nuestra seleccion de herramientas y materiales de ferreteria profesional. Calidad garantizada al mejor precio
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link to='/products' type="button" className="btn btn-primary h-12">
+              <div className="hero-box__actions">
+                <Link to='/products' type="button" className="btn btn-primary hero-box__button">
                   <p>Ver productos</p>
-                  <HiArrowRight className="h-5 w-5" />
+                  <HiArrowRight className="shop-icon" />
                 </Link>
 
-                <Link to='/categories' type="button" className="btn btn-secondary h-12">
+                <Link to='/categories' type="button" className="btn btn-secondary hero-box__button">
                   <p>Ver categorias</p>
-                  <HiArrowRight className="h-5 w-5" />
+                  <HiArrowRight className="shop-icon" />
                 </Link>
               </div>
             </div>
 
-            <div className="w-full lg:justify-self-end">
-              <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" fetchPriority="high" className="block h-72 rounded-lg w-full max-w-full object-cover sm:h-80 lg:h-96"/>
+            <div className="hero-box__image-wrap">
+              <img src="http://127.0.0.1:8000/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" fetchPriority="high" className="hero-box__image"/>
             </div>
           </div>
 
-          <div className="mt-8 grid overflow-hidden border-y border-base-300 bg-base-100 md:grid-cols-3">
-            <div className="flex items-center gap-5 border-b border-base-300 px-6 py-7 md:border-r md:border-b-0 md:px-10 lg:gap-6">
-              <FiTruck className="h-9 w-9 shrink-0 text-primary" strokeWidth={1.8} />
+          <div className="feature-list bg-base-100 border-base-300">
+            <div className="feature-list__item feature-list__item--line border-base-300">
+              <FiTruck className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">Envio gratuito</h2>
-                <p className="mt-1 text-sm text-base-300">En pedidos de mas de 60 €</p>
+                <h2 className="feature-list__title">Envio gratuito</h2>
+                <p className="feature-list__text text-base-300">En pedidos de mas de 60 €</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-5 border-b border-base-300 px-6 py-7 md:border-r md:border-b-0 md:px-10 lg:gap-6">
-              <FiShield className="h-9 w-9 shrink-0 text-primary" strokeWidth={1.8} />
+            <div className="feature-list__item feature-list__item--line border-base-300">
+              <FiShield className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">Garantia de calidad</h2>
-                <p className="mt-1 text-sm text-base-300">Todos los productos de alta calidad</p>
+                <h2 className="feature-list__title">Garantia de calidad</h2>
+                <p className="feature-list__text text-base-300">Todos los productos de alta calidad</p>
               </div>
             </div>
-            <div className="flex items-center gap-5 px-6 py-7 md:px-10 lg:gap-6">
-              <FiHeadphones className="h-9 w-9 shrink-0 text-primary" strokeWidth={1.8} />
+
+            <div className="feature-list__item">
+              <FiHeadphones className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="text-lg font-semibold tracking-tight">Atencion experta</h2>
-                <p className="mt-1 text-sm text-base-300">Atencion profesional de calidad</p>
+                <h2 className="feature-list__title">Atencion experta</h2>
+                <p className="feature-list__text text-base-300">Atencion profesional de calidad</p>
               </div>
             </div>
           </div>
 
-          <div className="px-0 py-12 sm:py-16 lg:px-4">
-            <div className="flex items-end justify-between gap-4">
+          <div className="shop-section shop-section--products">
+            <div className="section-head">
               <div>
-                <p className="text-lg font-medium uppercase tracking-wide text-primary">Lo mas destacado</p>
-                <h2 className="mt-1 text-3xl font-medium tracking-tight sm:text-3xl">Productos Destacados</h2>
+                <p className="section-head__tag text-primary">Lo mas destacado</p>
+                <h2 className="section-head__title">Productos Destacados</h2>
               </div>
 
-              <button onClick={() => navigate("/products")} type="button" className="hidden items-center gap-2 text-lg font-medium text-primary md:flex">
+              <button onClick={() => navigate("/products")} type="button" className="section-link section-link--desktop text-primary">
                 Ver todos
-                <HiArrowRight className="h-5 w-5" />
+                <HiArrowRight className="shop-icon" />
               </button>
             </div>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+
+            <div className="products-grid">
               { importantProducts.length > 0 ? importantProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               )) :
-              <p className='col-span-full font-semibold text-2xl'>Actualmente no hay productos destacados</p>
+              <p className='shop-empty'>Actualmente no hay productos destacados</p>
               }
             </div>
 
-            <button type="button" className="mt-6 flex items-center gap-2 text-lg font-medium text-primary md:hidden">
+            <button onClick={() => navigate("/products")} type="button" className="section-link section-link--mobile text-primary">
               Ver todos
-              <HiArrowRight className="h-5 w-5" />
+              <HiArrowRight className="shop-icon" />
             </button>
           </div>
         </div>
       </div>
       {/* Banner naranja */}
-      <div className='w-full bg-primary py-10 flex items-center justify-center shadow-lg'>
-        <h3 className='text-base-100 text-lg md:text-2xl italic font-sans text-center'>La llave de tu tranquilidad, a un solo clic</h3>
+      <div className='promo-banner bg-primary'>
+        <h3 className='promo-banner__text text-base-100'>La llave de tu tranquilidad, a un solo clic</h3>
       </div>
 
       {/* Categorias */}
-      <div className='flex flex-col items-center justify-center w-full px-4 py-6'>
-        <div className="w-full max-w-390 px-0 py-12 sm:py-16 lg:px-4">
-          <div className="flex items-end justify-between gap-4">
+      <div className='shop-home__categories'>
+        <div className="shop-home__container shop-home__container--categories">
+          <div className="section-head">
             <div>
-              <p className="text-lg font-medium uppercase tracking-wide text-primary">Explora nuestro catalogo</p>
-              <h2 className="mt-1 text-3xl font-medium tracking-tight sm:text-3xl">Categorias principales</h2>
+              <p className="section-head__tag text-primary">Explora nuestro catalogo</p>
+              <h2 className="section-head__title">Categorias principales</h2>
             </div>
 
-            <button type="button" className="hidden items-center gap-2 text-lg font-medium text-primary md:flex">
+            <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--desktop text-primary">
               Ver todas
-              <HiArrowRight className="h-5 w-5" />
+              <HiArrowRight className="shop-icon" />
             </button>
           </div>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="categories-grid">
             {importantCategories.length > 0 ? importantCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
-              <p className="col-span-full text-2xl font-semibold">Actualmente no hay categorias destacadas</p>
+              <p className="shop-empty">Actualmente no hay categorias destacadas</p>
             )}
           </div>
 
-          <button type="button" className="mt-6 flex items-center gap-2 text-lg font-medium text-primary md:hidden">
+          <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--mobile text-primary">
             Ver todas
-            <HiArrowRight className="h-5 w-5" />
+            <HiArrowRight className="shop-icon" />
           </button>
         </div>
       </div>
 
       {/* Banner naranja de contacto */}
-      <div className='w-full bg-primary py-10 flex flex-col items-center justify-center gap-5 shadow-lg mb-10'>
-        <h3 className='text-base-100 text-2xl md:text-3xl font-bold text-center'>Contacta con nosotros ahora</h3>
-        <p className='text-base-100 text-lg w-90 text-center'>Contacta con nosotros ahora, somos especialistas en cerrajeria</p>
+      <div className='contact-banner bg-primary'>
+        <h3 className='contact-banner__title text-base-100'>Contacta con nosotros ahora</h3>
+        <p className='contact-banner__text text-base-100'>Contacta con nosotros ahora, somos especialistas en cerrajeria</p>
 
-        <button className='btn btn-secondary text-md rounded-full'>Contacta con nosotros ahora</button>
+        <button className='btn btn-secondary contact-banner__button'>Contacta con nosotros ahora</button>
       </div>
 
     </div>

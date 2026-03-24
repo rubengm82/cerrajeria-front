@@ -1,6 +1,4 @@
 .shop-topbar {
-  padding: 0 1rem;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
 
   &__brand {
     flex: 1;
@@ -17,25 +15,15 @@
     flex: none;
   }
 
-  &__avatar {
-    display: flex;
-    width: 2.5rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9999px;
-  }
-
   &__avatar-letter {
     font-size: 1.125rem;
   }
 
   &__menu {
     z-index: 1;
-    width: 13rem;
-    margin-top: 0.75rem;
-    padding: 0.5rem;
-    border-radius: var(--radius-box);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  &__menu:hover {
+    padding: 1px;
   }
 
   &__menu-item {
@@ -54,6 +42,13 @@
     margin-top: 0.5rem;
     padding-top: 0.5rem;
     border-top-width: 1px;
+  }
+}
+
+.shop-tobar-end {
+  &__icon {
+    width: 11.5rem;
+    height: 11s.5rem;
   }
 }
 

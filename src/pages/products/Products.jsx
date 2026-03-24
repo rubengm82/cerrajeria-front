@@ -4,6 +4,7 @@ import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
 import { HiOutlineAdjustmentsHorizontal, HiMagnifyingGlass, HiXMark, HiOutlineFunnel } from "react-icons/hi2";
 import { getCategories } from "../../api/categories_api";
+import { getFeatures, getFeatureTypes } from "../../api/features_api";
 import '../../../scss/main_shop.scss'
 
 function Products() {
@@ -11,17 +12,25 @@ function Products() {
   const [loading, setLoading] = useState(true)
   const [categories, setCategories] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [features, setFeatures] = useState([])
+  const [selectedFeatures, setSelectedFeatures] = useState([])
+  const [featuresTypes, setFeaturesTypes] = useState([])
+  const [selectedFeaturesTypes, setSelectedFeaturesTypes] = useState([])
 
   useEffect(() => {
-    Promise.all([getProducts(), getCategories()])
-      .then(([productsResponse, categoriesResponse]) => {
+    Promise.all([getProducts(), getCategories(), getFeatures(), getFeatureTypes()])
+      .then(([productsResponse, categoriesResponse, featuresResponse, featuresTypesResponse]) => {
         setProducts(productsResponse.data)
         setCategories(categoriesResponse.data)
+        setFeatures(featuresResponse.data)
+        setFeaturesTypes(featuresTypesResponse.data)
       })
       .catch(error => {
           console.error(error)
           setProducts([])
           setCategories([])
+          setFeatures([])
+          setFeaturesTypes([])
       })
       .finally(() => {
         setLoading(false)
@@ -36,8 +45,17 @@ function Products() {
     )
   }
 
+  const toggleFeatureTypes = (featureTypeName) => {
+    setSelectedFeaturesTypes((currentFeatureTypes) =>
+      currentFeatureTypes.includes(featureTypeName)
+        ? currentFeatureTypes.filter((name) => name !== featureTypeName)
+        : [...currentFeatureTypes, featureTypeName]
+    )
+  }
+
   const filteredProducts = products.filter((product) => (
-    selectedCategories.length === 0 || selectedCategories.includes(product.category?.name)
+    (selectedCategories.length === 0 || selectedCategories.includes(product.category?.name)) &&
+    (selectedFeaturesTypes.length === 0 || product.features?.some(feature => selectedFeaturesTypes.includes(feature.type?.name)))
   ))
 
   return loading ? <LoadingAnimation /> : (
@@ -92,6 +110,10 @@ function Products() {
                 </div>
 
                 <div className="filters-box__content">
+                  <label className="input filters-box__search">
+                    <HiMagnifyingGlass className="filters-box__icon text-base-300" />
+                    <input type="search" placeholder="Buscar categoria.." />
+                  </label>
                   <div className="collapse collapse-arrow filters-box__section border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title filters-box__section-title">
@@ -99,11 +121,6 @@ function Products() {
                     </div>
 
                     <div className="collapse-content filters-box__section-body">
-                      <label className="input filters-box__search">
-                        <HiMagnifyingGlass className="filters-box__icon text-base-300" />
-                        <input type="search" placeholder="Buscar categoria.." />
-                      </label>
-
                       <div className="filters-box__list">
                         {categories.map((category) => (
                           <label key={category.name} className="filters-box__item">
@@ -120,6 +137,32 @@ function Products() {
                       </div>
                     </div>
                   </div>
+
+                  <div className="collapse collapse-arrow filters-box__section border-base-300">
+                    <input type="checkbox" defaultChecked />
+                    <div className="collapse-title filters-box__section-title">
+                      <h4 className="filters-box__label">Característiques</h4>
+                    </div>
+
+                    <div className="collapse-content filters-box__section-body">
+                      <div className="filters-box__list">
+                        {featuresTypes.map((featureType) => (
+                          <label key={featureType.name} className="filters-box__item">
+                            <input
+                              type="checkbox"
+                              className="checkbox checkbox-md border-base-300"
+                              checked={selectedFeaturesTypes.includes(featureType.name)}
+                              onChange={() => toggleFeatureTypes(featureType.name)
+                              }
+                            />
+                            <span className="filters-box__item-name">{featureType.name}</span>
+                            <span className="filters-box__item-count text-base-400">({featureType.products_count})</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>

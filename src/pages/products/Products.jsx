@@ -15,7 +15,6 @@ function Products() {
   const [features, setFeatures] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [featuresTypes, setFeaturesTypes] = useState([])
-  const [selectedFeaturesTypes, setSelectedFeaturesTypes] = useState([])
 
   useEffect(() => {
     Promise.all([getProducts(), getCategories(), getFeatures(), getFeatureTypes()])
@@ -52,18 +51,9 @@ function Products() {
         : [...currentFeature, featureValue]
     )
   }
-  
-  const toggleFeatureTypes = (featureTypeName) => {
-    setSelectedFeaturesTypes((currentFeatureTypes) =>
-      currentFeatureTypes.includes(featureTypeName)
-        ? currentFeatureTypes.filter((name) => name !== featureTypeName)
-        : [...currentFeatureTypes, featureTypeName]
-    )
-  }
 
   const filteredProducts = products.filter((product) => (
     (selectedCategories.length === 0 || selectedCategories.includes(product.category?.name)) &&
-    (selectedFeaturesTypes.length === 0 || product.features?.some(feature => selectedFeaturesTypes.includes(feature.type?.name))) &&
     (selectedFeatures.length === 0 || product.features?.some(feature => selectedFeatures.includes(feature.value)))
   ))
 
@@ -74,7 +64,7 @@ function Products() {
         <div className="products-page__body">
           <div className="products-top">
             <div>
-              <p className="products-top__tag text-primary">Catalogo</p>
+              <p className="products-top__tag text-primary">Catàleg</p>
               <h2 className="products-top__title">Productes</h2>
             </div>
 
@@ -84,7 +74,7 @@ function Products() {
               </p>
 
               <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()}>
-                <HiOutlineAdjustmentsHorizontal className="filters-box__icon" />
+                <HiOutlineAdjustmentsHorizontal className="filters-box__icon " />
                 Filtres
               </button>
             </div>
@@ -120,14 +110,14 @@ function Products() {
                 </div>
 
                 <div className="filters-box__content">
-                  <label className="input filters-box__search">
+                  {/* <label className="input filters-box__search">
                     <HiMagnifyingGlass className="filters-box__icon text-base-300" />
-                    <input type="search" placeholder="Buscar categoria.." />
-                  </label>
+                    <input type="search" placeholder="Buscar..." />
+                  </label> */}
                   <div className="collapse collapse-arrow filters-box__section border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title filters-box__section-title">
-                      <h4 className="filters-box__label">Categories</h4>
+                      <h4 className="filters-box__label text-primary">Categories</h4>
                     </div>
 
                     <div className="collapse-content filters-box__section-body">
@@ -136,11 +126,11 @@ function Products() {
                           <label key={category.name} className="filters-box__item">
                             <input
                               type="checkbox"
-                              className="checkbox checkbox-md border-base-300"
+                              className="checkbox checkbox-sm border-base-300"
                               checked={selectedCategories.includes(category.name)}
                               onChange={() => toggleCategory(category.name)}
                             />
-                            <span className="filters-box__item-name">{category.name}</span>
+                            <span className="filters-box__item-name">{category.name.charAt(0).toUpperCase() + category.name.slice(1)}</span>
                             <span className="filters-box__item-count text-base-400">({category.products?.length})</span>
                           </label>
                         ))}
@@ -148,77 +138,52 @@ function Products() {
                     </div>
                   </div>
 
-                  {/* <div className="collapse collapse-arrow filters-box__section border-base-300">
+                  {/* 1. Título principal "Características" */}
+                  <div className="collapse collapse-arrow filters-box__section border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title filters-box__section-title">
-                      <h4 className="filters-box__label">Característiques</h4>
+                      <h4 className="filters-box__label text-primary">Característiques</h4>
                     </div>
 
                     <div className="collapse-content filters-box__section-body">
-                      <div className="filters-box__list">
-                        {featuresTypes.map((featureType) => (
-                          <label key={featureType.name} className="filters-box__item">
-                            <input
-                              type="checkbox"
-                              className="checkbox checkbox-md border-base-300"
-                              checked={selectedFeaturesTypes.includes(featureType.name)}
-                              onChange={() => toggleFeatureTypes(featureType.name)
-                              }
-                            />
-                            <span className="filters-box__item-name">{featureType.name}</span>
-                            <span className="filters-box__item-count text-base-400">({featureType.products_count})</span>
-                          </label>
-                        ))}
-                      </div>
+                      {/* 2. Iterar por cada FeatureType */}
+                      {featuresTypes.map((featureType) => (
+                        <div key={featureType.name} className="filters-box__type-group">
+                          
+                          {/* 3. Nombre del tipo como subtítulo */}
+                          <div className="divider">{featureType.name.charAt(0).toUpperCase() + featureType.name.slice(1)}</div>
+                          
+                          {/* 4. Los valores (features) como checkboxes */}
+                          <div className="filters-box__list">
+                            {featureType.features?.map((feature) => {
+                               const featureWithCount = features.find(f => f.value === feature.value);
+                               const productsCount = featureWithCount?.products_count || 0;
+                               return (
+                              <label key={feature.value} className="filters-box__item">
+                                <input
+                                  type="checkbox"
+                                  className="checkbox checkbox-sm border-base-300"
+                                  checked={selectedFeatures.includes(feature.value)}
+                                  onChange={() => toggleFeature(feature.value)}
+                                />
+                                <span className="filters-box__item-name">{feature.value.charAt(0).toUpperCase() + feature.value.slice(1)}</span>
+                                <span className="filters-box__item-count text-base-400">
+                                  ({productsCount})
+                                </span>
+                              </label>
+                            );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div> */}
-
-
-                  {/* 1. Título principal "Características" */}
-<div className="collapse collapse-arrow filters-box__section border-base-300">
-  <input type="checkbox" defaultChecked />
-  <div className="collapse-title filters-box__section-title">
-    <h4 className="filters-box__label">Característiques</h4>
-  </div>
-
-  <div className="collapse-content filters-box__section-body">
-    
-    {/* 2. Iterar por cada FeatureType */}
-    {featuresTypes.map((featureType) => (
-      <div key={featureType.name} className="filters-box__type-group">
-        
-        {/* 3. Nombre del tipo como subtítulo */}
-        <h5 className="filters-box__type-title">{featureType.name}</h5>
-        
-        {/* 4. Los valores (features) como checkboxes */}
-        <div className="filters-box__list">
-          {featureType.features?.map((feature) => (
-            <label key={feature.value} className="filters-box__item">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-md border-base-300"
-                checked={selectedFeatures.includes(feature.value)}
-                onChange={() => toggleFeature(feature.value)}
-              />
-              <span className="filters-box__item-name">{feature.value}</span>
-              <span className="filters-box__item-count text-base-400">
-                ({feature.products_count})
-              </span>
-            </label>
-          ))}
-        </div>
-        
-      </div>
-    ))}
-    
-  </div>
-</div>
-
-
+                    
+                  </div>
                 </div>
               </div>
             </div>
           </dialog>
+
         </div>
       </div>
     </div>

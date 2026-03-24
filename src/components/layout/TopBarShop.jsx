@@ -1,20 +1,14 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
-
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
 
   return (
     <div className="navbar shop-topbar bg-base-100">
       <div className="shop-topbar__brand">
-        <Link to="/" className="btn btn-ghost shop-topbar__logo text-primary">
-          Cerrajería ABP
+        <Link to="/" className="shop-topbar__logo link link-hover text-primary">
+          Serralleria Solidària
         </Link>
       </div>
 
@@ -43,8 +37,8 @@ export default function TopBarShop() {
                 </li>
               )}
 
-              <li className="shop-topbar__logout border-base-300">
-                <button onClick={handleLogout} className="text-error">
+              <li className="border-t border-base-300 mt-2 pt-2">
+                <button onClick={logout} className="btn btn-ghost text-base-content">
                   Tancar Sessió
                 </button>
               </li>

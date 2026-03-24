@@ -52,6 +52,11 @@ function Products() {
     )
   }
 
+  const clearFilters = () => {
+    setSelectedCategories([])
+    setSelectedFeatures([])
+  }
+
   const filteredProducts = products.filter((product) => (
     (selectedCategories.length === 0 || selectedCategories.includes(product.category?.name)) &&
     (selectedFeatures.length === 0 || product.features?.some(feature => selectedFeatures.includes(feature.value)))
@@ -74,7 +79,7 @@ function Products() {
               </p>
 
               <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()}>
-                <HiOutlineAdjustmentsHorizontal className="filters-box__icon " />
+                <HiOutlineAdjustmentsHorizontal className="filters-box__icon" />
                 Filtres
               </button>
             </div>
@@ -101,6 +106,12 @@ function Products() {
                     <h3 className="filters-box__title">Filtres</h3>
                   </div>
                   <div className="modal-action filters-box__modal-close">
+                    <button 
+                      onClick={clearFilters} 
+                      className="btn btn-ghost btn-sm mr-2"
+                    >
+                      Sense filtres
+                    </button>
                     <form method="dialog">
                       <button>
                         <HiXMark className="filters-box__icon filters-box__close-icon" />

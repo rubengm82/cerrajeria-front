@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { HiOutlineShoppingCart, HiOutlineUserCircle } from "react-icons/hi2";
+import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
+
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
@@ -12,52 +13,44 @@ export default function TopBarShop() {
   }
 
   return (
-<div className="navbar bg-base-100 shadow-sm">
-  <div className="navbar-start">
-    <div className="dropdown">
-      <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
+<div className="drawer">
+  <input id="shop-drawer" type="checkbox" className="drawer-toggle" />
+
+  <div className="drawer-content">
+    <div className="navbar bg-base-100 shadow-sm">
+      <div className="navbar-start">
+        <label htmlFor="shop-drawer" aria-label="open sidebar" className="btn btn-square btn-ghost lg:hidden">
+          <HiOutlineBars3 className="shop-tobar-end__icon" />
+        </label>
+        <a className="btn btn-ghost text-xl">Logo</a>
       </div>
-      <ul
-        tabIndex="-1"
-        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-        <li><a>Item 1</a></li>
-        <li>
-          <a>Parent</a>
-          <ul className="p-2">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </li>
-        <li><a>Item 3</a></li>
-      </ul>
+      <div className="navbar-center hidden lg:flex shop-topbar">
+        <ul className="menu menu-horizontal px-1 shop-topbar__menu">
+          <li className="shop-topbar__menu-item"><Link to={"/"} className="shop-topbar__menu-link">Inici</Link></li>
+          <li className="shop-topbar__menu-item"><Link to={"/products"} className="shop-topbar__menu-link">Productes</Link></li>
+          <li className="shop-topbar__menu-item"><Link to={"/"} className="shop-topbar__menu-link">Packs</Link></li>
+          <li className="shop-topbar__menu-item"><Link to={"/categories"} className="shop-topbar__menu-link">Categories</Link></li>
+        </ul>
+      </div>
+      <div className="navbar-end shop-tobar-end">
+        <Link to={"/#Carrito"}>
+          <HiOutlineShoppingCart className="shop-tobar-end__icon" />
+        </Link>
+        <Link to={"/#Carrito"}>
+          <HiOutlineUserCircle className="shop-tobar-end__icon" />
+        </Link>
+      </div>
     </div>
-    <a className="btn btn-ghost text-xl">Logo</a>
   </div>
-  <div className="navbar-center hidden lg:flex shop-topbar">
-    <ul className="menu menu-horizontal px-1 shop-topbar__menu">
-      <li>
-        <Link to={"/"}>Inici</Link>
-      </li>
-      <li>
-        <details>
-          <summary>Productos</summary>
-          <ul className="p-2 bg-base-100 w-40 z-1">
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
-      </li>
-      <li><a>Categorias</a></li>
+
+  <div className="drawer-side">
+    <label htmlFor="shop-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+    <ul className="menu min-h-full w-80 bg-base-200 p-4">
+      <li className="shop-topbar__menu-item"><Link to={"/"} className="shop-topbar__menu-link">Inici</Link></li>
+      <li className="shop-topbar__menu-item"><Link to={"/products"} className="shop-topbar__menu-link">Productes</Link></li>
+      <li className="shop-topbar__menu-item"><Link to={"/"} className="shop-topbar__menu-link">Packs</Link></li>
+      <li className="shop-topbar__menu-item"><Link to={"/categories"} className="shop-topbar__menu-link">Categories</Link></li>
     </ul>
-  </div>
-  <div className="navbar-end shop-tobar-end">
-    <Link to={"/#Carrito"}>
-      <HiOutlineUserCircle className='shop-tobar-end__icon'/>
-    </Link>
-    <Link to={"/#Carrito"}>
-      <HiOutlineShoppingCart />
-    </Link>
   </div>
 </div>
   )

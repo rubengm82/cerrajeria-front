@@ -22,12 +22,15 @@
   &__menu {
     z-index: 1;
   }
-  &__menu:hover {
-    padding: 1px;
-  }
 
-  &__menu-item {
-    margin-top: 0.5rem;
+  &__menu-link {
+    transition: transform 150ms ease-in-out, color 150ms ease-in-out;
+
+    &:hover {
+      background-color: transparent;
+      color: var(--color-primary);
+      transform: translateY(-0.125rem);
+    }
   }
 
   &__admin-link {
@@ -46,9 +49,12 @@
 }
 
 .shop-tobar-end {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
   &__icon {
-    width: 11.5rem;
-    height: 11s.5rem;
+    width: 1.8rem;
+    height: 1.8rem;
   }
 }
 

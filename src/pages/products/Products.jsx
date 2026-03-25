@@ -15,6 +15,14 @@ function Products() {
   const [features, setFeatures] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [featuresTypes, setFeaturesTypes] = useState([])
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setTimeout(() => {
+      document.getElementById('product-view-modal').showModal();
+    }, 0);
+  };
 
   useEffect(() => {
     Promise.all([getProducts(), getCategories(), getFeatures(), getFeatureTypes()])
@@ -90,7 +98,7 @@ function Products() {
               <div className="products-list">
                 { filteredProducts.length > 0 ?
                   filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} onView={openProductModal} />
                   )) :
                 <p className='products-empty'>Actualment no hi ha productes</p>}
               </div>
@@ -197,6 +205,20 @@ function Products() {
 
         </div>
       </div>
+
+      {/* Modal de ver producto */}
+      <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <h3 className="font-bold text-lg">Detalles del producto</h3>
+          <p className="py-4">Modal vacío - Aquí podrás añadir los detalles del producto: {selectedProduct?.name}</p>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
     )
 }

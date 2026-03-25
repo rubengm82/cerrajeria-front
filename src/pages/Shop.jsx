@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react';
 import '../../scss/main_shop.scss'
 
  // Se obtiene los productos y categorias importantes
@@ -33,6 +34,16 @@ function Shop() {
   // Se obtiene el data de lo que retorna el usePersistedQuery
   const { data: importantProducts = [] } = usePersistedQuery('importantProducts', getImportantProducts);
   const { data: importantCategories = [] } = usePersistedQuery('importantCategories', getImportantCategories);
+
+  // Estado para el modal de ver producto
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setTimeout(() => {
+      document.getElementById('product-view-modal').showModal();
+    }, 0);
+  };
 
   return (
     <div className="shop-home">
@@ -110,7 +121,7 @@ function Shop() {
 
             <div className="products-grid">
               { importantProducts.length > 0 ? importantProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
               <p className='shop-empty'>Actualmente no hay productos destacados</p>
               }
@@ -157,6 +168,20 @@ function Shop() {
           </button>
         </div>
       </div>
+
+      {/* Modal de ver producto */}
+      <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle">
+        <div className="modal-box">
+          <form method="dialog">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          </form>
+          <h3 className="font-bold text-lg">Detalles del producto</h3>
+          <p className="py-4">Modal vacío - Aquí podrás añadir los detalles del producto: {selectedProduct?.name}</p>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
 
       {/* Banner naranja de contacto */}
       <div className='contact-banner bg-primary'>

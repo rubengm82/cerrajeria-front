@@ -34,7 +34,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
 
   return (
     <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open>
-      <div className="modal-box product-detail-modal__content">
+      <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
           <button 
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"

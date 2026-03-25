@@ -1,13 +1,28 @@
 .product-detail-modal {
+  &[open] {
+    width: 100%;
+    max-width: 56rem;
+    padding: 0;
+
+    @media (min-width: 640px) {
+      width: 90vw;
+    }
+  }
+
   &__content {
     display: flex;
     flex-direction: column;
     gap: clamp(1rem, 3vw, 1.5rem);
     padding: clamp(0.5rem, 2vw, 1rem);
+    max-width: 56rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 0 auto;
 
     @media (min-width: 640px) {
       flex-direction: row;
       gap: clamp(1.5rem, 4vw, 2rem);
+      max-height: 80vh;
     }
   }
 
@@ -23,6 +38,7 @@
     border-radius: 1rem;
     overflow: hidden;
     background: oklch(97% 0 0);
+    border: 1px solid oklch(85% 0 0);
   }
 
   &__carousel-item {
@@ -49,12 +65,8 @@
     border-radius: 0.5rem;
     overflow: hidden;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 1px solid oklch(85% 0 0);
     transition: all 0.3s ease;
-
-    &.active {
-      border-color: var(--color-primary);
-    }
 
     img {
       width: 100%;

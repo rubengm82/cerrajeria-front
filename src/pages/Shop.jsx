@@ -4,6 +4,7 @@ import { getImportantProducts } from '../api/products_api'
 import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
+import ProductDetailModal from '../components/ProductDetailModal'
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
@@ -37,12 +38,16 @@ function Shop() {
 
   // Estado para el modal de ver producto
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openProductModal = (product) => {
     setSelectedProduct(product);
-    setTimeout(() => {
-      document.getElementById('product-view-modal').showModal();
-    }, 0);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
   };
 
   return (
@@ -170,18 +175,12 @@ function Shop() {
       </div>
 
       {/* Modal de ver producto */}
-      <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle">
-        <div className="modal-box">
-          <form method="dialog">
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-          </form>
-          <h3 className="font-bold text-lg">Detalles del producto</h3>
-          <p className="py-4">Modal vacío - Aquí podrás añadir los detalles del producto: {selectedProduct?.name}</p>
-        </div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+      <ProductDetailModal 
+        key={selectedProduct?.id || 'no-product'}
+        product={selectedProduct} 
+        isOpen={isModalOpen} 
+        onClose={closeProductModal}
+      />
 
       {/* Banner naranja de contacto */}
       <div className='contact-banner bg-primary'>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { getFeatureTypes } from "../api/features_api"
+import {HiXMark } from 'react-icons/hi2'
 
 function ProductDetailModal({ product, isOpen, onClose }) {
   const [featuresTypes, setFeaturesTypes] = useState([])
@@ -17,7 +18,6 @@ function ProductDetailModal({ product, isOpen, onClose }) {
       const feature = product?.features?.find(f => f.id === featureId)
       if (!feature) return prev
       const typeId = feature.pivot?.feature_type_id
-      
       return {
         ...prev,
         [typeId]: prev[typeId] === featureId ? null : featureId
@@ -36,11 +36,8 @@ function ProductDetailModal({ product, isOpen, onClose }) {
     <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open>
       <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
-          <button 
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
-            onClick={onClose}
-          >
-            ✕
+          <button className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
+            <HiXMark className="size-6" />
           </button>
         </form>
 
@@ -148,12 +145,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
           {/* Cantidad */}
           <div className="product-detail-modal__quantity">
             <span className="product-detail-modal__quantity-label">Quantitat:</span>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={handleQuantityChange}
-              className="input input-bordered w-20"
+            <input type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered w-20"
             />
           </div>
 
@@ -168,9 +160,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
           </div>
         </div>
 
-        <form method="dialog" className="modal-backdrop">
-          <button onClick={onClose}>close</button>
-        </form>
+
       </div>
     </dialog>
   )

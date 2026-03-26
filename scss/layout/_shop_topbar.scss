@@ -51,10 +51,22 @@
 .shop-tobar-end {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: clamp(1.5rem, 2vw, 2.5rem);
+
   &__icon {
+    cursor: pointer;
     width: 1.8rem;
     height: 1.8rem;
+  }
+  &__icon:hover {
+    color: var(--color-primary);
+    transition:color 150ms ease-in-out;
+
+  }
+
+  &__dropdown-button {
+    display: flex;
+    align-items: center;
   }
 }
 

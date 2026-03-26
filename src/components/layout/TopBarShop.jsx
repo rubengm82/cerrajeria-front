@@ -36,8 +36,24 @@ export default function TopBarShop() {
         <Link to={"/#Carrito"}>
           <HiOutlineShoppingCart className="shop-tobar-end__icon" />
         </Link>
+
+        {/* Desplegable del usuario */}
+        <div className="dropdown dropdown-end">
+          <button tabIndex={0} className='shop-tobar-end__dropdown-button'>
+            <HiOutlineUserCircle className="shop-tobar-end__icon" />
+          </button>
+          {user ?
+          <ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm gap-2">
+            <li><Link to={"/login"} className='btn btn-primary'>Panell d'administració</Link></li>
+            <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
+          </ul>
+          :
+          <ul tabIndex="-1" className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+            <li><Link to={"/login"} className='btn btn-primary'>Inicia sessió</Link></li>
+          </ul>
+          }
+        </div>
         <Link to={"/#Carrito"}>
-          <HiOutlineUserCircle className="shop-tobar-end__icon" />
         </Link>
       </div>
     </div>

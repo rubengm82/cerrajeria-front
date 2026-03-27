@@ -16,7 +16,7 @@ function SignIn() {
     setError('')
     
     login(email, password)
-      .then(() => navigate('/dashboard'))
+      .then(() => navigate('/'))
       .catch((err) => {
         // Verificar si el error es por email no verificado
         if (err.response?.status === 403 && err.response?.data?.email_verified === false) {

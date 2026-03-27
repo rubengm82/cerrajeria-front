@@ -42,6 +42,10 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
+    // Rutas públicas que no requieren autenticación
+    const publicRoutes = ['/', '/products', '/categories', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification']
+    const isPublicRoute = publicRoutes.some(route => currentPath === route || currentPath.startsWith('/categories/'))
+
     // Guardar el código de error en sessionStorage para mostrar la página correcta
     if (status) {
       sessionStorage.setItem('httpErrorCode', status.toString())
@@ -61,9 +65,11 @@ api.interceptors.response.use(
           window.location.href = '/error503'
           break
         case 401:
-          // Eliminar token y redirigir a login
-          localStorage.removeItem('token')
-          window.location.href = '/login'
+          // Solo redirigir a login si NO estamos en una ruta pública
+          if (!isPublicRoute) {
+            localStorage.removeItem('token')
+            window.location.href = '/login'
+          }
           break
         default:
           break

@@ -24,9 +24,13 @@ function usePersistedQuery(key, fetchFn) {
     // Los datos iniciales son del cache si es que existen
     initialData: () => {
       const cached = sessionStorage.getItem(cacheKey);
-      return cached ? JSON.parse(cached) : undefined;
+      if (cached) {
+        return JSON.parse(cached);
+      }
+      return null; // Return null instead of undefined
     },
     staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 }
 
@@ -125,7 +129,7 @@ function Shop() {
             </div>
 
             <div className="products-grid">
-              { importantProducts.length > 0 ? importantProducts.map((product) => (
+              { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
                 <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
               <p className='shop-empty'>Actualmente no hay productos destacados</p>

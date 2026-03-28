@@ -1,50 +1,80 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
+
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
 
   return (
-    <div className="navbar shop-topbar bg-base-100">
-      <div className="shop-topbar__brand">
-        <Link to="/" className="shop-topbar__logo link link-hover text-primary">
-          Serralleria Solidària
-        </Link>
-      </div>
+    <div className="drawer">
+      <input id="shop-drawer" type="checkbox" className="drawer-toggle" />
 
-      <div className="shop-topbar__actions">
-        {!user ? (
-          <Link to="/login" className="btn btn-primary btn-sm md:btn-md">
-            Iniciar Sessió
-          </Link>
-        ) : (
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar placeholder">
-              <div className="shop-topbar__avatar bg-primary text-primary-content">
-                <span className="shop-topbar__avatar-letter">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
-              </div>
-            </div>
+      <div className="drawer-content">
+        <div className="navbar bg-base-100 shadow-sm">
+          <div className="navbar-start">
+            <label htmlFor="shop-drawer" aria-label="open sidebar" className="btn btn-square btn-ghost lg:hidden">
+              <HiOutlineBars3 className="shop-tobar-end__icon" />
+            </label>
+            <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold">
+              Serralleria Solidària
+            </Link>
+          </div>
 
-            <ul tabIndex={0} className="menu menu-sm dropdown-content shop-topbar__menu bg-base-100">
-              <li className="menu-title"><span>{user?.name || 'Usuari'}</span></li>
-              <li><a>{user?.email || 'email@exemple.com'}</a></li>
-
-              {(user?.role === 'admin' || user?.role === 1) && (
-                <li className="shop-topbar__menu-item">
-                  <Link to="/admin/dashboard" className="shop-topbar__admin-link bg-primary text-primary-content">
-                    Panell d'Administració
-                  </Link>
-                </li>
-              )}
-
-              <li className="border-t border-base-300 mt-2 pt-2">
-                <button onClick={logout} className="btn btn-ghost text-base-content">
-                  Tancar Sessió
-                </button>
-              </li>
+          <div className="navbar-center hidden lg:flex">
+            <ul className="menu menu-horizontal px-1">
+              <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
+              <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
+              <li><Link to="/" className="shop-topbar__menu-link">Packs</Link></li>
+              <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
             </ul>
           </div>
-        )}
+
+          <div className="navbar-end">
+            <Link to="/#Carrito" className="btn btn-ghost btn-circle">
+              <HiOutlineShoppingCart className="shop-tobar-end__icon" />
+            </Link>
+
+            {!user ? (
+              <Link to="/login" className="btn btn-primary btn-sm">
+                Iniciar Sessió
+              </Link>
+            ) : (
+              <div className="dropdown dropdown-end">
+                <button tabIndex={0} className='shop-tobar-end__dropdown-button btn btn-ghost btn-circle'>
+                  <HiOutlineUserCircle className="shop-tobar-end__icon" />
+                </button>
+                <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-sm gap-2">
+                  {(user?.role === 'admin' || user?.role === 1) && (
+                    <li><Link to="/admin/dashboard" className='btn btn-primary'>Panell d'administració</Link></li>
+                  )}
+                  <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="drawer-side">
+        <label htmlFor="shop-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <ul className="menu min-h-full w-80 bg-base-200 p-4">
+          <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
+          <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
+          <li><Link to="/" className="shop-topbar__menu-link">Packs</Link></li>
+          <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+          
+          {!user ? (
+            <li><Link to="/login" className="btn btn-primary mt-4">Iniciar Sessió</Link></li>
+          ) : (
+            <>
+              {(user?.role === 'admin' || user?.role === 1) && (
+                <li><Link to="/admin/dashboard" className="btn btn-primary mt-4">Panell d'Administració</Link></li>
+              )}
+              <li><button onClick={logout} className="btn btn-error mt-2">Tancar Sessió</button></li>
+            </>
+          )}
+        </ul>
       </div>
     </div>
   )

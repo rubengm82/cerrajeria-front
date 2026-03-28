@@ -54,7 +54,7 @@ export default function FooterShop() {
                 <span>Telèfon:</span> <a href="tel:+34600500517">+34 600 500 517</a>
               </li>
               <li>
-                <span className="link">Email:</span> <a href="mailto:empresa@serralleriasolidaria.cat">empresa@serralleriasolidaria.cat</a>
+                <span>Email:</span> <a href="mailto:empresa@serralleriasolidaria.cat">empresa@serralleriasolidaria.cat</a>
               </li>
             </ul>
           </div>

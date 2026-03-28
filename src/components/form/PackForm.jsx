@@ -177,17 +177,16 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
 
           <div className="w-full">
             <label className="label text-base-content" htmlFor="name">Nombre del pack *</label>
-            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del pack" className="input w-full" required/>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre del pack" className="input w-full" required/>
           </div>
 
           <div className="w-full">
             <label className="label text-base-content" htmlFor='total_price'>Precio Total(€) *</label>
-            <input type="number" name="total_price" id='total_price' value={form.total_price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>
-          </div>
+            <input type="number" name="total_price" id='total_price' autoComplete="off" value={form.total_price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>          </div>
 
           <div className="w-full col-span-1 md:col-span-2">
             <label className="label text-base-content" htmlFor='description'>Descripción</label>
-            <textarea name="description" id='description' value={form.description} onChange={handleChange} placeholder="Descripción..." className="textarea h-auto max-h-28 w-full"></textarea>
+            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripción..." className="textarea h-auto max-h-28 w-full"></textarea>
           </div>
         </div>
 
@@ -215,7 +214,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
                 </ConfirmableModal>
-                {newImportantImage === image && <label className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
+                {newImportantImage === image && <span className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</span> }
               </div>
             ))}
 
@@ -230,7 +229,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
                 </ConfirmableModal>
-                {(importantImageId === image.id) && <label className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
+                {(importantImageId === image.id) && <span className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</span> }
               </div>
             ))}
           </div>
@@ -241,13 +240,19 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
           <h3 className="text-[20px] font-semibold">Productos incluidos</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-1">
             {products.filter(p => !p.deleted_at).map(product => (
-              <div key={product.id} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${form.product_ids.includes(product.id) ? 'border-primary bg-primary/5' : 'border-base-300'}`} onClick={() => handleProductToggle(product.id)}>
-                <input type="checkbox" checked={form.product_ids.includes(product.id)} className="checkbox checkbox-primary checkbox-sm" />
+              <label key={product.id} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${form.product_ids.includes(product.id) ? 'border-primary bg-primary/5' : 'border-base-300'}`}>
+                <input 
+                  type="checkbox" 
+                  id={`product-${product.id}`}
+                  checked={form.product_ids.includes(product.id)} 
+                  onChange={() => handleProductToggle(product.id)}
+                  className="checkbox checkbox-primary checkbox-sm" 
+                />
                 <div className="flex flex-col flex-1">
                   <span className="font-medium text-sm line-clamp-1">{product.name}</span>
                   <span className="text-xs text-base-content/50">{product.price}€</span>
                 </div>
-              </div>
+              </label>
             ))}
           </div>
         </div>

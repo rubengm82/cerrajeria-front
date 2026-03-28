@@ -20,9 +20,9 @@ function ConfirmableModal({ title, message, onConfirm, children }) {
           <h3 className="font-bold text-lg">{title}</h3>
           <p className="py-4">{message}</p>
           <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Cancelar</button>
-            </form>
+            <div>
+              <button className="btn" onClick={() => dialogRef.current.close()}>Cancelar</button>
+            </div>
             <button className="btn btn-error" onClick={handleConfirm}>Confirmar</button>
           </div>
         </div>

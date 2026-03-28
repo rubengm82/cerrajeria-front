@@ -204,17 +204,17 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Nombre */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor="name">Nombre del producto *</label>
-            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full" required/>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full" required/>
           </div>
           {/* Codigo */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='code'>Código *</label>
-            <input type="text" name="code" id='code' value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full" required/>
+            <input type="text" name="code" id='code' autoComplete="off" value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full" required/>
           </div>
           {/* Descripcion */}
           <div className="w-full col-span-1 md:col-span-2">
             <label className="label text-base-content" htmlFor='description'>Descripción</label>
-            <textarea name="description" id='description' value={form.description} onChange={handleChange} placeholder="Descripción del producto" className="textarea h-auto max-h-28 w-full"></textarea>
+            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripción del producto" className="textarea h-auto max-h-28 w-full"></textarea>
           </div>
           {/* Categoria */}
           <div className="w-full col-span-1 md:col-span-2">
@@ -246,19 +246,19 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Precio */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='price'>Precio(€) *</label>
-            <input type="number" name="price" id='price' value={form.price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>
+            <input type="number" name="price" id='price' autoComplete="off" value={form.price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>
           </div>
 
           {/* Stock */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='stock'>Stock *</label>
-            <input type="number" name="stock" id='stock' value={form.stock} onChange={handleChange} placeholder="0" className="input w-full" required/>
+            <input type="number" name="stock" id='stock' autoComplete="off" value={form.stock} onChange={handleChange} placeholder="0" className="input w-full" required/>
           </div>
 
           {/* Descuento */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='discount'>Descuento (%):</label>
-            <input type="number" name="discount" id='discount' value={form.discount} onChange={handleChange} placeholder="0" className="input w-full"/>
+            <input type="number" name="discount" id='discount' autoComplete="off" value={form.discount} onChange={handleChange} placeholder="0" className="input w-full"/>
           </div>
         </div>
 
@@ -289,7 +289,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
                   >
                     <button type="button" className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
                   </ConfirmableModal>
-                  {newImportantImage === image && <label htmlFor={`is_important_${index}`} className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
+                  {newImportantImage === image && <span className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</span> }
                 </div>
               )))}
 
@@ -308,7 +308,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
                     <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
                   </ConfirmableModal>
                   {/* Para destacar una imagen */}
-                  {(importantImageId === image.id ) && <label htmlFor={`is_important_${index}`} className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</label> }
+                  {(importantImageId === image.id ) && <span className='text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2'>Principal</span> }
                 </div>
               ))
             : ""}
@@ -331,13 +331,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Precio instalación */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='installation_price'>Precio instalación(€)</label>
-            <input type="number" name="installation_price" id='installation_price' value={form.installation_price} onChange={handleChange} placeholder="0.00" className="input w-full" step="0.01"/>
+            <input type="number" name="installation_price" id='installation_price' autoComplete="off" value={form.installation_price} onChange={handleChange} placeholder="0.00" className="input w-full" step="0.01"/>
           </div>
 
           {/* Llaves extras */}
           <div className="w-full">
             <label className="label text-base-content" htmlFor='extra_keys'>Llaves extras(€)</label>
-            <input type="number" name="extra_keys" id='extra_keys' value={form.extra_keys} onChange={handleChange} placeholder="0" className="input w-full" step="0.01"/>
+            <input type="number" name="extra_keys" id='extra_keys' autoComplete="off" value={form.extra_keys} onChange={handleChange} placeholder="0" className="input w-full" step="0.01"/>
           </div>
         </div>
 

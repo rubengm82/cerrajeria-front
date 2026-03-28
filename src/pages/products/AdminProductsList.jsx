@@ -95,12 +95,12 @@ function AdminProductsList() {
           <input type="search" name="search" id="search" placeholder='Buscar producte per número, client...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
 
           <div className='flex flex-row gap-2 w-full md:w-[50%] lg:w-[30%]'>
-            <select name="status" id="status" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
+            <select name="status" id="status-category" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
                 <option value="Test1">Test1</option>
                 <option value="Test2">Test2</option>
             </select>
 
-            <select name="status" id="status" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
+            <select name="status" id="status-stock" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
                 <option value="Test1">Test1</option>
                 <option value="Test2">Test2</option>
             </select>

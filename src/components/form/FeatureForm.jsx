@@ -68,7 +68,7 @@ function FeatureForm({ initialData, submitText, title, subtitle, backLink }) {
       <form className='flex flex-col gap-5 p-6 bg-base-100 rounded-lg shadow-md border border-base-300' onSubmit={handleSubmit}>
         <div className="w-full">
           <label className="label text-base-content" htmlFor="type_id">Tipo de Característica *</label>
-          <select name="type_id" id="type_id" value={form.type_id} onChange={(e) => setForm({...form, type_id: e.target.value})} className="select select-bordered w-full" required>
+          <select name="type_id" id="type_id" autoComplete="off" value={form.type_id} onChange={(e) => setForm({...form, type_id: e.target.value})} className="select select-bordered w-full" required>
             <option value="" disabled>Selecciona un tipo (Ej: Material, Color, etc.)</option>
             {types.map(type => (
               <option key={type.id} value={type.id}>{type.name}</option>
@@ -78,7 +78,7 @@ function FeatureForm({ initialData, submitText, title, subtitle, backLink }) {
 
         <div className="w-full">
           <label className="label text-base-content" htmlFor="value">Valor *</label>
-          <input type="text" name="value" id='value' value={form.value} onChange={(e) => setForm({...form, value: e.target.value})} placeholder="Ej: Acero Inoxidable, Rojo, 10cm..." className="input input-bordered w-full" required/>
+          <input type="text" name="value" id='value' autoComplete="off" value={form.value} onChange={(e) => setForm({...form, value: e.target.value})} placeholder="Ej: Acero Inoxidable, Rojo, 10cm..." className="input input-bordered w-full" required/>
         </div>
 
         <div className='flex gap-2 justify-end mt-4'>

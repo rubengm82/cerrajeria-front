@@ -48,9 +48,9 @@ function MultiSelectFeatures({
 
   return (
     <div className="w-full" ref={dropdownRef}>
-      <label className="label text-base-content">
+      <div className="label text-base-content">
         <span className="label-text font-semibold">{label}</span>
-      </label>
+      </div>
       
       {/* Dropdown button */}
       <div className="relative">

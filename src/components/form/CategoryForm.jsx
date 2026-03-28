@@ -101,7 +101,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
           {/* Nombre */}
           <div className="w-full md:col-span-3">
             <label className="label text-base-content" htmlFor="name">Nombre de la categoria *</label>
-            <input type="text" name="name" id='name' value={form.name} onChange={handleChange} placeholder="Nombre de la categoria" className="input w-full" required/>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre de la categoria" className="input w-full" required/>
           </div>
 
           <div className="flex items-center justify-between md:col-span-3 w-full border border-base-300 p-3 rounded-lg">

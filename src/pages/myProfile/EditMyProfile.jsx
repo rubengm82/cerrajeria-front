@@ -249,13 +249,15 @@ function EditMyProfile() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Nom */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="name">
                 <span className="label-text">Nom *</span>
               </label>
               <input
                 type="text"
+                id="name"
                 name="name"
                 placeholder="Nom"
+                autoComplete="name"
                 className="input input-bordered w-full"
                 value={formData.name}
                 onChange={handleChange}
@@ -265,13 +267,13 @@ function EditMyProfile() {
 
             {/* Primer cognom */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="last_name_one">
                 <span className="label-text">Primer Cognom *</span>
               </label>
               <input
                 type="text"
-                name="last_name_one"
-                placeholder="Primer Cognom"
+                id="last_name_one"
+                autoComplete="additional-name"
                 className="input input-bordered w-full"
                 value={formData.last_name_one}
                 onChange={handleChange}
@@ -281,13 +283,13 @@ function EditMyProfile() {
 
             {/* Segon cognom */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="last_name_second">
                 <span className="label-text">Segon Cognom</span>
               </label>
               <input
                 type="text"
-                name="last_name_second"
-                placeholder="Segon Cognom"
+                id="last_name_second"
+                autoComplete="additional-name"
                 className="input input-bordered w-full"
                 value={formData.last_name_second}
                 onChange={handleChange}
@@ -296,13 +298,15 @@ function EditMyProfile() {
 
             {/* DNI */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="dni">
                 <span className="label-text">DNI</span>
               </label>
               <input
                 type="text"
+                id="dni"
                 name="dni"
                 placeholder="DNI"
+                autoComplete="off"
                 className="input input-bordered w-full"
                 value={formData.dni}
                 onChange={handleChange}
@@ -311,13 +315,15 @@ function EditMyProfile() {
 
             {/* Telèfon */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="phone">
                 <span className="label-text">Telèfon</span>
               </label>
               <input
                 type="tel"
+                id="phone"
                 name="phone"
                 placeholder="Telèfon"
+                autoComplete="tel"
                 className="input input-bordered w-full"
                 value={formData.phone}
                 onChange={handleChange}
@@ -326,13 +332,15 @@ function EditMyProfile() {
 
             {/* Email */}
             <div>
-              <label className="label">
+              <label className="label" htmlFor="email">
                 <span className="label-text">Email</span>
               </label>
               <input
                 type="email"
+                id="email"
                 name="email"
                 placeholder="Email"
+                autoComplete="email"
                 className="input input-bordered w-full"
                 value={formData.email}
                 onChange={handleChange}
@@ -348,13 +356,15 @@ function EditMyProfile() {
 
             {/* Adreça - Carrer/Porta */}
             <div className="md:col-span-2">
-              <label className="label">
+              <label className="label" htmlFor="address_street">
                 <span className="label-text">Carrer / Porta</span>
               </label>
               <input
                 type="text"
+                id="address_street"
                 name="address_street"
                 placeholder="Carrer, número de porta..."
+                autoComplete="street-address"
                 className="input input-bordered w-full"
                 value={formData.address_street}
                 onChange={handleChange}
@@ -364,11 +374,12 @@ function EditMyProfile() {
             {/* Piso, Escalera i Codi Postal */}
             <div className="md:col-span-2 grid grid-cols-3 gap-4">
               <div>
-                <label className="label">
+                <label className="label" htmlFor="address_floor">
                   <span className="label-text">Pis</span>
                 </label>
                 <input
                   type="text"
+                  id="address_floor"
                   name="address_floor"
                   placeholder="Pis (ex: 1r, 2n)"
                   className="input input-bordered w-full"
@@ -378,11 +389,12 @@ function EditMyProfile() {
               </div>
 
               <div>
-                <label className="label">
+                <label className="label" htmlFor="address_staircase">
                   <span className="label-text">Escalera</span>
                 </label>
                 <input
                   type="text"
+                  id="address_staircase"
                   name="address_staircase"
                   placeholder="Escalera (ex: A, B)"
                   className="input input-bordered w-full"
@@ -392,14 +404,16 @@ function EditMyProfile() {
               </div>
 
               <div>
-                <label className="label">
+                <label className="label" htmlFor="zip_code">
                   <span className="label-text">Codi Postal</span>
                 </label>
                 <input
                   type="text"
+                  id="zip_code"
                   name="zip_code"
                   placeholder="Codi Postal"
                   maxLength={8}
+                  autoComplete="postal-code"
                   className="input input-bordered w-full"
                   value={formData.zip_code}
                   onChange={handleChange}
@@ -414,13 +428,13 @@ function EditMyProfile() {
 
             {/* Nueva contraseña */}
             <div className="md:col-span-2">
-              <label className="label">
+              <label className="label" htmlFor="password">
                 <span className="label-text">Nova Contrasenya</span>
               </label>
               <input
                 type="password"
-                name="password"
-                placeholder="Deixa buit si no vols canviar la contrasenya"
+                id="password"
+                autoComplete="new-password"
                 className="input input-bordered w-full"
                 value={formData.password}
                 onChange={handleChange}
@@ -429,13 +443,13 @@ function EditMyProfile() {
 
             {/* Confirmar contraseña */}
             <div className="md:col-span-2">
-              <label className="label">
+              <label className="label" htmlFor="password_confirmation">
                 <span className="label-text">Confirmar Contrasenya</span>
               </label>
               <input
                 type="password"
-                name="password_confirmation"
-                placeholder="Confirmar nova contrasenya"
+                id="password_confirmation"
+                autoComplete="new-password"
                 className="input input-bordered w-full"
                 value={formData.password_confirmation}
                 onChange={handleChange}

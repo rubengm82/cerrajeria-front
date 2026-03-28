@@ -58,7 +58,7 @@ function FeatureTypeForm({ initialData, submitText, title, subtitle, backLink })
       <form className='flex flex-col gap-5 p-6 bg-base-100 rounded-lg shadow-md border border-base-300' onSubmit={handleSubmit}>
         <div className="w-full">
           <label className="label text-base-content" htmlFor="name">Nombre del Tipo *</label>
-          <input type="text" name="name" id='name' value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} placeholder="Ej: Material, Color, Grosor, etc." className="input input-bordered w-full" required/>
+          <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} placeholder="Ej: Material, Color, Grosor, etc." className="input input-bordered w-full" required/>
         </div>
 
         <div className='flex gap-2 justify-end mt-4'>

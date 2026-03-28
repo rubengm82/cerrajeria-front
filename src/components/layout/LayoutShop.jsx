@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import TopBarShop from './TopBarShop'
+import FooterShop from './FooterShop'
 
 export default function LayoutShop() {
   return (
@@ -10,6 +11,9 @@ export default function LayoutShop() {
       <main className="shop-layout__main">
         <Outlet />
       </main>
+      <div className="shop-layout__footer">
+        <FooterShop />
+      </div>
     </div>
   )
 }

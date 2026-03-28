@@ -41,6 +41,10 @@ export default function SideBarDashboard({ userRole }) {
     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
       <HiOutlineCube className="size-6" />
     ) },
+    // Solucions personalitzades
+    { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (
+      <HiOutlineClipboardDocumentList className="size-6" />
+    ) },
     // Comandes
     { to: '/orders', label: 'Comandes', icon: (
       <HiOutlineShoppingCart className="size-6" />

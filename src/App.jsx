@@ -43,6 +43,9 @@ import CreatePack from './pages/packs/CreatePack'
 import EditPack from './pages/packs/EditPack'
 import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import CustomSolutions from './pages/customSolutions/CustomSolutions'
+import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
+import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
 
 // Pages - Errors
 import Error404 from './pages/errors/error404'
@@ -88,6 +91,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/:id" element={<CategoriesShow />} />
+        <Route path="/custom-solutions" element={<CustomSolutions />} />
       </Route>
 
         <Route path="/login" element={<Login />} />
@@ -191,6 +195,17 @@ function App() {
         <Route path='/admin/features-manager' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminFeaturesManager />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/admin/custom-solutions' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminCustomSolutionsList />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/custom-solutions/:id/show' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminCustomSolutionsShow />
           </ProtectedRoute>
         } />
 

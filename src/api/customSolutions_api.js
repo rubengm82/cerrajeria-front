@@ -3,6 +3,9 @@ import api from './axiosConfig'
 // Obtener todas las soluciones personalizadas
 export const getCustomSolutions = () => api.get('/custom-solutions')
 
+// Obtener todas las soluciones personalizadas incluyendo eliminadas
+export const getCustomSolutionsWithTrashed = () => api.get('/custom-solutions/with-trashed')
+
 // Obtener una solución personalizada por ID
 export const getCustomSolution = (id) => api.get(`/custom-solutions/${id}`)
 

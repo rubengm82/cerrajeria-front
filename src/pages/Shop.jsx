@@ -4,35 +4,57 @@ import { getImportantProducts } from '../api/products_api'
 import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
+import ProductDetailModal from '../components/ProductDetailModal'
+import LoadingAnimation from '../components/LoadingAnimation'
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react';
 import '../../scss/main_shop.scss'
 
- // Se obtiene los productos y categorias importantes
-function usePersistedQuery(key, fetchFn) {
-  const cacheKey = `cached_${key}`;
-
-  return useQuery({
-    queryKey: [key],
-    queryFn: async () => {
-      const res = await fetchFn();
-      sessionStorage.setItem(cacheKey, JSON.stringify(res.data));
-      return res.data;
-    },
-    // Los datos iniciales son del cache si es que existen
-    initialData: () => {
-      const cached = sessionStorage.getItem(cacheKey);
-      return cached ? JSON.parse(cached) : undefined;
-    },
-    staleTime: 1000 * 60 * 5,
-  });
-}
 
 function Shop() {
   const navigate = useNavigate()
+  
+  // Estado para el modal de ver producto
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   // Se obtiene el data de lo que retorna el usePersistedQuery
-  const { data: importantProducts = [] } = usePersistedQuery('importantProducts', getImportantProducts);
-  const { data: importantCategories = [] } = usePersistedQuery('importantCategories', getImportantCategories);
+  const { data: importantProducts = [], isLoading: isLoadingProducts } = useQuery({
+    queryKey: ['importantProducts'],
+    queryFn: async () => {
+      const res = await getImportantProducts();
+      sessionStorage.setItem('cached_importantProducts', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  const { data: importantCategories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['importantCategories'],
+    queryFn: async () => {
+      const res = await getImportantCategories();
+      sessionStorage.setItem('cached_importantCategories', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  if (isLoadingProducts || isLoadingCategories) {
+    return <LoadingAnimation />
+  }
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
 
   return (
     <div className="shop-home">
@@ -109,8 +131,8 @@ function Shop() {
             </div>
 
             <div className="products-grid">
-              { importantProducts.length > 0 ? importantProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
+                <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
               <p className='shop-empty'>Actualmente no hay productos destacados</p>
               }
@@ -144,7 +166,7 @@ function Shop() {
           </div>
 
           <div className="categories-grid">
-            {importantCategories.length > 0 ? importantCategories.map((category) => (
+            {importantCategories && importantCategories.length > 0 ? importantCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
               <p className="shop-empty">Actualmente no hay categorias destacadas</p>
@@ -157,6 +179,14 @@ function Shop() {
           </button>
         </div>
       </div>
+
+      {/* Modal de ver producto */}
+      <ProductDetailModal 
+        key={selectedProduct?.id || 'no-product'}
+        product={selectedProduct} 
+        isOpen={isModalOpen} 
+        onClose={closeProductModal}
+      />
 
       {/* Banner naranja de contacto */}
       <div className='contact-banner bg-primary'>

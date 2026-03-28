@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { getProducts } from "../../api/products_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
+import ProductDetailModal from "../../components/ProductDetailModal"
 import { HiOutlineAdjustmentsHorizontal, HiMagnifyingGlass, HiXMark, HiOutlineFunnel } from "react-icons/hi2";
 import { getCategories } from "../../api/categories_api";
 import { getFeatures, getFeatureTypes } from "../../api/features_api";
@@ -15,6 +16,18 @@ function Products() {
   const [features, setFeatures] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [featuresTypes, setFeaturesTypes] = useState([])
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
 
   useEffect(() => {
     Promise.all([getProducts(), getCategories(), getFeatures(), getFeatureTypes()])
@@ -90,7 +103,7 @@ function Products() {
               <div className="products-list">
                 { filteredProducts.length > 0 ?
                   filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} onView={openProductModal} />
                   )) :
                 <p className='products-empty'>Actualment no hi ha productes</p>}
               </div>
@@ -121,10 +134,6 @@ function Products() {
                 </div>
 
                 <div className="filters-box__content">
-                  {/* <label className="input filters-box__search">
-                    <HiMagnifyingGlass className="filters-box__icon text-base-300" />
-                    <input type="search" placeholder="Buscar..." />
-                  </label> */}
                   <div className="collapse collapse-arrow filters-box__section border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title filters-box__section-title">
@@ -149,7 +158,6 @@ function Products() {
                     </div>
                   </div>
 
-                  {/* 1. Título principal "Características" */}
                   <div className="collapse collapse-arrow filters-box__section border-base-300">
                     <input type="checkbox" defaultChecked />
                     <div className="collapse-title filters-box__section-title">
@@ -157,14 +165,9 @@ function Products() {
                     </div>
 
                     <div className="collapse-content filters-box__section-body">
-                      {/* 2. Iterar por cada FeatureType */}
                       {featuresTypes.map((featureType) => (
                         <div key={featureType.name} className="filters-box__type-group">
-                          
-                          {/* 3. Nombre del tipo como subtítulo */}
                           <div className="divider">{featureType.name.charAt(0).toUpperCase() + featureType.name.slice(1)}</div>
-                          
-                          {/* 4. Los valores (features) como checkboxes */}
                           <div className="filters-box__list">
                             {featureType.features?.map((feature) => {
                                const featureWithCount = features.find(f => f.value === feature.value);
@@ -188,7 +191,6 @@ function Products() {
                         </div>
                       ))}
                     </div>
-                    
                   </div>
                 </div>
               </div>
@@ -197,8 +199,16 @@ function Products() {
 
         </div>
       </div>
+
+      {/* Modal de ver producto */}
+      <ProductDetailModal 
+        key={selectedProduct?.id || 'no-product'}
+        product={selectedProduct} 
+        isOpen={isModalOpen} 
+        onClose={closeProductModal}
+      />
     </div>
-    )
+  )
 }
 
 export default Products

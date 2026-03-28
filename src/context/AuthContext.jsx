@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
   // LOGOUT
   const logout = async () => {
     // Rutas protegidas del dashboard
-    const protectedRoutes = ['/admin', '/perfil', '/users', '/services', '/orders', '/reports', '/settings', '/my-']
+    const protectedRoutes = ['/admin', '/perfil', '/users', '/services', '/orders', '/reports', '/settings', '/my-', '/dashboard', '/products', '/categories']
     const currentPath = window.location.pathname
     const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route))
     
@@ -50,14 +50,16 @@ export function AuthProvider({ children }) {
     delete axios.defaults.headers.common['Authorization']
     setUser(null)
     
-    // Si está en ruta protegida, redirigir a home (con refresh)
-    // Si está en ruta pública, solo actualizar estado (sin refresh)
+    // Llamar al logout de la API en background (sin esperar)
+    axios.post('/api/logout').catch(() => {})
+    
+    // Si está en ruta protegida, usar window.location.replace para navegación completa
+    // Esto evita el problema del doble redirect que ocurre con window.location.href
     if (isProtectedRoute) {
-      window.location.href = '/'
-    } else {
-      // Llamar al logout de la API en background (sin esperar)
-      axios.post('/api/logout').catch(() => {})
+      window.location.replace('/')
     }
+    // Si no está en ruta protegida, no hace falta hacer nada más
+    // porque el estado ya se actualizó y la UI se actualiza automáticamente
   }
 
   return (

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
+import { useQuery } from "@tanstack/react-query"
 import { getProducts } from "../../api/products_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
@@ -11,15 +12,66 @@ import { getFeatures, getFeatureTypes } from "../../api/features_api";
 import '../../../scss/main_shop.scss'
 
 function Products() {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [categories, setCategories] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
-  const [features, setFeatures] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
-  const [featuresTypes, setFeaturesTypes] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Caché para productos
+  const { data: productsData, isLoading: isLoadingProducts } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const res = await getProducts();
+      sessionStorage.setItem('cached_products', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  // Caché para categorías
+  const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const res = await getCategories();
+      sessionStorage.setItem('cached_categories', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  // Caché para features
+  const { data: featuresData, isLoading: isLoadingFeatures } = useQuery({
+    queryKey: ['features'],
+    queryFn: async () => {
+      const res = await getFeatures();
+      sessionStorage.setItem('cached_features', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  // Caché para feature types
+  const { data: featuresTypesData, isLoading: isLoadingFeaturesTypes } = useQuery({
+    queryKey: ['featureTypes'],
+    queryFn: async () => {
+      const res = await getFeatureTypes();
+      sessionStorage.setItem('cached_featureTypes', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  // Estados con datos de cache o fallback
+  const products = productsData || [];
+  const categories = categoriesData || [];
+  const features = featuresData || [];
+  const featuresTypes = featuresTypesData || [];
+
+  const loading = isLoadingProducts || isLoadingCategories || isLoadingFeatures || isLoadingFeaturesTypes;
 
   const openProductModal = (product) => {
     setSelectedProduct(product);
@@ -30,26 +82,6 @@ function Products() {
     setIsModalOpen(false);
     setSelectedProduct(null);
   };
-
-  useEffect(() => {
-    Promise.all([getProducts(), getCategories(), getFeatures(), getFeatureTypes()])
-      .then(([productsResponse, categoriesResponse, featuresResponse, featuresTypesResponse]) => {
-        setProducts(productsResponse.data)
-        setCategories(categoriesResponse.data)
-        setFeatures(featuresResponse.data)
-        setFeaturesTypes(featuresTypesResponse.data)
-      })
-      .catch(error => {
-          console.error(error)
-          setProducts([])
-          setCategories([])
-          setFeatures([])
-          setFeaturesTypes([])
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
 
   const toggleCategory = (categoryName) => {
     setSelectedCategories((currentCategories) =>

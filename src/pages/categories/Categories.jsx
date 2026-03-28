@@ -1,26 +1,23 @@
-import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
+import { useQuery } from "@tanstack/react-query"
 import { getCategories } from "../../api/categories_api"
 import CategoryCard from "../../components/CategoryCard"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import '../../../scss/main_shop.scss'
 
 function Categories() {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    getCategories()
-      .then((response) => setCategories(response.data))
-      .catch((error) => {
-        console.error(error)
-        setCategories([])
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
+  // Caché para categorías
+  const { data: categories = [], isLoading: loading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const res = await getCategories();
+      sessionStorage.setItem('cached_categories', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
 
   return loading ? <LoadingAnimation /> : (
     <div className="categories-page">

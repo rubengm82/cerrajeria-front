@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+import { HiArrowLeft } from "react-icons/hi2"
 import { getProducts } from "../../api/products_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
@@ -82,6 +84,10 @@ function Products() {
         <div className="products-page__body">
           <div className="products-top">
             <div>
+              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
+                <HiArrowLeft className="size-5" />
+                <p>Tornar a l'inici</p>
+              </Link>
               <p className="products-top__tag text-primary">Catàleg</p>
               <h2 className="products-top__title">Productes</h2>
             </div>

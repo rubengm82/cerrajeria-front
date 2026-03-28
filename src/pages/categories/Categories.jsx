@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+import { HiArrowLeft } from "react-icons/hi2"
 import { getCategories } from "../../api/categories_api"
 import CategoryCard from "../../components/CategoryCard"
 import LoadingAnimation from "../../components/LoadingAnimation"
@@ -24,7 +26,13 @@ function Categories() {
     <div className="categories-page">
       <div className="categories-page__container">
         <div className="categories-page__body">
-          {categories.length > 0 && <h2 className="categories-page__title">Categorias:</h2>}
+          <div className="mb-4">
+            <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
+              <HiArrowLeft className="size-5" />
+              <p>Tornar a l'inici</p>
+            </Link>
+            {categories.length > 0 && <h2 className="categories-page__title">Categorias:</h2>}
+          </div>
           <div className="categories-list">
             {categories.length > 0 ? categories.map((category) => (
               <CategoryCard key={category.id} category={category} />

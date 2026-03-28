@@ -11,7 +11,7 @@ export default function TopBarShop() {
       <input id="shop-drawer" type="checkbox" className="drawer-toggle" />
 
       <div className="drawer-content">
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-white/90 backdrop-blur-sm shadow-sm">
           <div className="navbar-start">
             <label htmlFor="shop-drawer" aria-label="open sidebar" className="btn btn-square btn-ghost lg:hidden">
               <HiOutlineBars3 className="shop-tobar-end__icon" />

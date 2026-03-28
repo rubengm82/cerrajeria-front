@@ -65,10 +65,11 @@ api.interceptors.response.use(
           window.location.href = '/error503'
           break
         case 401:
-          // Solo redirigir a login si NO estamos en una ruta pública
+          // Solo redirigir a home si NO estamos en una ruta pública
           if (!isPublicRoute) {
             localStorage.removeItem('token')
-            window.location.href = '/login'
+            localStorage.removeItem('user')
+            window.location.href = '/'
           }
           break
         default:

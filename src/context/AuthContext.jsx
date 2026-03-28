@@ -39,13 +39,25 @@ export function AuthProvider({ children }) {
 
   // LOGOUT
   const logout = async () => {
+    // Rutas protegidas del dashboard
+    const protectedRoutes = ['/admin', '/perfil', '/users', '/services', '/orders', '/reports', '/settings', '/my-']
+    const currentPath = window.location.pathname
+    const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route))
+    
+    // Eliminar token y usuario inmediatamente
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)
     
-    axios.post('/api/logout')
-      .catch(error => console.error('Logout error:', error))
+    // Si está en ruta protegida, redirigir a home (con refresh)
+    // Si está en ruta pública, solo actualizar estado (sin refresh)
+    if (isProtectedRoute) {
+      window.location.href = '/'
+    } else {
+      // Llamar al logout de la API en background (sin esperar)
+      axios.post('/api/logout').catch(() => {})
+    }
   }
 
   return (

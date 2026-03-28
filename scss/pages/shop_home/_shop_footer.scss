@@ -1,34 +1,38 @@
 .footer-shop {
   background-color: #252525;
   color: white;
-  padding: 2.5rem 0;
+  padding: clamp(1.5rem, 5vw, 2.5rem) clamp(0.75rem, 3vw, 1rem);
 
   &__container {
-    max-width: 1200px;
+    max-width: clamp(300px, 90vw, 1200px);
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 clamp(0.5rem, 2vw, 1rem);
   }
 
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: clamp(1.25rem, 4vw, 2rem);
 
     @media (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1024px) {
       grid-template-columns: repeat(4, 1fr);
     }
   }
 
   &__brand {
     &-logo {
-      font-size: 1.5rem;
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
       font-weight: bold;
       display: inline-block;
     }
 
     &-description {
       margin-top: 0.5rem;
-      font-size: 0.875rem;
+      font-size: clamp(0.75rem, 2.5vw, 0.875rem);
       color: rgba(255, 255, 255, 0.7);
       line-height: 1.6;
     }
@@ -36,21 +40,67 @@
 
   &__links {
     h3 {
-      font-size: 1.125rem;
+      font-size: clamp(1rem, 3vw, 1.125rem);
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     ul {
       list-style: none;
       padding: 0;
       margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
 
       li {
-        margin-bottom: 0.5rem;
-
         a {
           color: rgba(255, 255, 255, 0.8);
+          text-decoration: none;
+          font-size: clamp(0.8125rem, 2.5vw, 0.875rem);
+          transition: color 0.2s ease;
+          display: inline-block;
+          padding: 0.25rem 0;
+
+          &:hover {
+            color: #DA7606;;
+          }
+        }
+      }
+    }
+  }
+
+  &__contact {
+    h3 {
+      font-size: clamp(1rem, 3vw, 1.125rem);
+      font-weight: 600;
+      margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      li {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.8125rem, 2.5vw, 0.875rem);
+
+        span {
+          font-weight: 500;
+          display: block;
+          margin-bottom: 0.125rem;
+        }
+
+        a {
+          color: inherit;
           text-decoration: none;
           transition: color 0.2s ease;
 
@@ -62,46 +112,26 @@
     }
   }
 
-  &__contact {
-    h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-
-      li {
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.5rem;
-
-        span {
-          font-weight: 500;
-        }
-      }
-    }
-  }
-
   &__social {
     h3 {
-      font-size: 1.125rem;
+      font-size: clamp(1rem, 3vw, 1.125rem);
       font-weight: 600;
-      margin-bottom: 1rem;
+      margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     }
 
     &-icons {
       display: flex;
-      gap: 1rem;
+      gap: clamp(0.75rem, 2.5vw, 1rem);
+      flex-wrap: wrap;
 
       a {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 2.5rem;
-        height: 2.5rem;
+        width: clamp(2.25rem, 7vw, 2.5rem);
+        height: clamp(2.25rem, 7vw, 2.5rem);
         border-radius: 50%;
         background-color: rgba(255, 255, 255, 0.1);
         color: rgba(255, 255, 255, 0.8);
@@ -115,8 +145,8 @@
         }
 
         svg {
-          width: 1.25rem;
-          height: 1.25rem;
+          width: clamp(1.125rem, 3.5vw, 1.25rem);
+          height: clamp(1.125rem, 3.5vw, 1.25rem);
         }
       }
     }
@@ -124,23 +154,27 @@
 
   &__bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    margin-top: 2rem;
-    padding-top: 2rem;
+    margin-top: clamp(1.5rem, 5vw, 2rem);
+    padding-top: clamp(1.5rem, 5vw, 2rem);
     text-align: center;
 
     p {
-      font-size: 0.875rem;
+      font-size: clamp(0.75rem, 2.5vw, 0.875rem);
       color: rgba(255, 255, 255, 0.6);
       margin: 0;
     }
 
     &-links {
-      margin-bottom: 1rem;
+      margin-bottom: clamp(0.75rem, 2.5vw, 1rem);
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: clamp(0.25rem, 1vw, 0.5rem);
 
       a {
         color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        font-size: 0.875rem;
+        font-size: clamp(0.75rem, 2.5vw, 0.875rem);
         transition: color 0.2s ease;
 
         &:hover {
@@ -150,7 +184,7 @@
     }
 
     &-separator {
-      margin: 0 0.75rem;
+      margin: 0 clamp(0.5rem, 1.5vw, 0.75rem);
       color: rgba(255, 255, 255, 0.4);
     }
   }

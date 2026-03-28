@@ -52,7 +52,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
                   className="product-detail-modal__carousel-item"
                 >
                   <img
-                    src={`http://127.0.0.1:8000/storage/${image.path}`}
+                    src={`/storage/${image.path}`}
                     alt={`${product.name} - ${index + 1}`}
                   />
                 </div>
@@ -76,7 +76,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
                   className={`product-detail-modal__carousel-thumb ${index === 0 ? 'active' : ''}`}
                 >
                   <img
-                    src={`http://127.0.0.1:8000/storage/${image.path}`}
+                    src={`/storage/${image.path}`}
                     alt={`Thumbnail ${index + 1}`}
                   />
                 </a>

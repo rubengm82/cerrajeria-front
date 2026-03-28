@@ -35,7 +35,7 @@ export default function TopBarDashBoard() {
               </a>
             </li>
             <li className="border-t border-base-300 mt-2 pt-2">
-              <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
+              <button className='btn btn-error w-full' onClick={logout}>Tancar sessió</button>
             </li>
           </ul>
         </div>

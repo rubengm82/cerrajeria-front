@@ -14,7 +14,7 @@ function ProductCard({product, onView}) {
 
         <div className='product-card__image-box'>
           {imagePath ? (
-            <img src={`http://127.0.0.1:8000/storage/${imagePath}`} alt={product.name} className="product-card__image"/>
+            <img src={`/storage/${imagePath}`} alt={product.name} className="product-card__image"/>
           ) : (
             <div className="product-card__empty bg-primary/10">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="product-card__empty-icon text-primary">

@@ -104,7 +104,7 @@ function AdminShowProduct() {
               {product.images?.length > 0 ?
                 product.images.map((image, number) => (
                   <div key={image + number} className="flex justify-center relative">
-                    <img src={`http://127.0.0.1:8000/storage/${image.path}`} className="rounded-lg aspect-square object-cover w-full max-w-60 border border-base-300"/>
+                    <img src={`/storage/${image.path}`} className="rounded-lg aspect-square object-cover w-full max-w-60 border border-base-300"/>
                     {image.is_important == 1 && <label className="text-white text-sm cursor-pointer font-semibold px-2 py-1 bg-primary rounded-lg absolute bottom-2 left-2">Principal</label>}
                   </div>
                 ))

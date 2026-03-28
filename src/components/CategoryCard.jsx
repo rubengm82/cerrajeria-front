@@ -7,7 +7,7 @@ function CategoryCard({ category }) {
   return category ? (
     <div onClick={() => navigate(`/categories/${category.id}`)} className="category-card border-base-300">
       {imagePath ? (
-        <img src={`http://127.0.0.1:8000/storage/${imagePath}`} alt={category.name} className="category-card__image"/>
+        <img src={`/storage/${imagePath}`} alt={category.name} className="category-card__image"/>
       ) : (
         <div className="category-card__empty bg-primary/15">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="category-card__empty-icon text-base-400">

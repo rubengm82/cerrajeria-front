@@ -297,7 +297,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {initialData?.images?.length > 0 ?
               initialData.images.filter(image => !imagesToDelete.includes(image.id)).map((image, index) => (
                 <div key={index} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square">
-                  <img src={`http://127.0.0.1:8000/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" alt="imagen"/>
+                  <img src={`/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" alt="imagen"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <ConfirmableModal

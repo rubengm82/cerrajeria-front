@@ -148,7 +148,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Se muestran las imagenes subidas del producto */}
             {initialData?.image && !existingImageRemoved && !form.image &&
                 <div className="relative w-full max-w-60 aspect-square">
-                  <img src={`http://127.0.0.1:8000/storage/${initialData.image}`} className="w-full h-full object-cover rounded-lg border border-base-300"/>
+                  <img src={`/storage/${initialData.image}`} className="w-full h-full object-cover rounded-lg border border-base-300"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <ConfirmableModal

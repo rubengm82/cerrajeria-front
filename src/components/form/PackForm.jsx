@@ -222,7 +222,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Imágenes existentes */}
             {initialData?.images?.filter(img => !imagesToDelete.includes(img.id)).map((image) => (
               <div key={image.id} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square cursor-pointer">
-                <img src={`http://127.0.0.1:8000/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90"/>
+                <img src={`/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90"/>
                 <ConfirmableModal
                   title="Eliminar imagen"
                   message="¿Estás seguro de que quieres eliminar esta imagen?"

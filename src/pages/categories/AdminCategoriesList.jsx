@@ -122,7 +122,7 @@ function AdminCategoriesList() {
                   <div className="flex items-center gap-3">
                     <div className="avatar">
                       <div className={`mask h-12 w-12 rounded-lg ${category.image ? "" : "flex items-center justify-center bg-primary/15"}`}>
-                        {category.image ? <img src={`http://127.0.0.1:8000/storage/${category.image}`} alt={category.name} /> : <HiPhoto className="size-6 text-base-400" />}
+                        {category.image ? <img src={`/storage/${category.image}`} alt={category.name} /> : <HiPhoto className="size-6 text-base-400" />}
                       </div>
                     </div>
                   </div>

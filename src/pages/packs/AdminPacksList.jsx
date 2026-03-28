@@ -117,7 +117,7 @@ function AdminPacksList() {
                           const importantImage = pack.images?.find(img => img.is_important == 1)
                           const displayImage = importantImage || pack.images?.[0]
                           return displayImage ?
-                            <img src={`http://127.0.0.1:8000/storage/${displayImage.path}`} alt="Pack" /> 
+                            <img src={`/storage/${displayImage.path}`} alt="Pack" /> 
                             : <HiPhoto className="size-6 text-base-400" />
                         })()}
                       </div>

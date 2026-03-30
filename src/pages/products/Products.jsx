@@ -107,19 +107,35 @@ function Products() {
     setSelectedFeatures([])
   }
 
-  // Filtro con lógica "Y" (AND): el producto debe tener TODAS las características seleccionadas
+  // Filtro con lógica híbrida:
+  // - Mismo tipo de feature: OR (al menos una coincidencia)
+  // - Diferentes tipos de feature: AND (todos los tipos deben cumplirse)
   const filteredProducts = products.filter((product) => {
     // Verificar categorías
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category?.name);
     
-    // Verificar características (todas las seleccionadas deben estar presentes)
-    const featuresMatch = selectedFeatures.length === 0 || 
-      selectedFeatures.every(selectedKey => {
-        return product.features?.some(feature => {
-          const featureKey = getFeatureKey(feature.type?.name, feature.value);
-          return featureKey === selectedKey;
-        });
+    // Verificar características
+    if (selectedFeatures.length === 0) {
+      return categoryMatch;
+    }
+    
+    // Agrupar las features seleccionadas por tipo
+    const featuresByType = {};
+    selectedFeatures.forEach(featureKey => {
+      const [typeName, value] = featureKey.split('-');
+      if (!featuresByType[typeName]) {
+        featuresByType[typeName] = [];
+      }
+      featuresByType[typeName].push(value);
+    });
+    
+    // Verificar que el producto cumpla con cada tipo de feature
+    const featuresMatch = Object.entries(featuresByType).every(([typeName, values]) => {
+      // Para cada tipo, el producto debe tener AL MENOS UNA de las values seleccionadas
+      return product.features?.some(feature => {
+        return feature.type?.name === typeName && values.includes(feature.value);
       });
+    });
     
     return categoryMatch && featuresMatch;
   });

@@ -20,9 +20,9 @@ function SignIn() {
       .catch((err) => {
         // Verificar si el error es por email no verificado
         if (err.response?.status === 403 && err.response?.data?.email_verified === false) {
-          setError('Has de verificar el teu correu electrònic abans d\'accedir.')
+          setError("Has de verificar el teu correu electrònic abans d'accedir.")
         } else {
-          setError('Email o contrasenya incorrectes')
+          setError('Correu electrònic o contrasenya incorrectes')
         }
       })
   }
@@ -30,7 +30,7 @@ function SignIn() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Iniciar Sessió</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">Inicia sessió</h2>
         
         {error && 
           <div className="mb-4">
@@ -64,7 +64,7 @@ function SignIn() {
         />
         
         <button type="submit" className="btn btn-primary w-full mb-3">
-          Iniciar Sessió
+          Inicia sessió
         </button>
         
         <button type="button" className="btn btn-ghost w-full" onClick={() => navigate('/')}>
@@ -79,7 +79,7 @@ function SignIn() {
         
         <div className="mt-2 text-center">
           <p className="text-sm text-gray-500">
-            No tens compte?{' '}
+            Encara no tens compte?{' '}
             <Link to="/register" className="text-primary hover:underline">
               Crear compte
             </Link>

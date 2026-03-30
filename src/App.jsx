@@ -105,7 +105,7 @@ function App() {
       <Route element={<LayoutDashboard />}>
         <Route path="/dashboard" element={
           <ProtectedRoute>
-            <div className="p-4"><h1 className="text-2xl font-bold">Dashboard</h1><p>Properament...</p></div>
+            <div className="p-4"><h1 className="text-2xl font-bold">Tauler</h1><p>Properament...</p></div>
           </ProtectedRoute>
         } />
 

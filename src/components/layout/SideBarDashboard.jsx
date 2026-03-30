@@ -8,7 +8,7 @@ export default function SideBarDashboard({ userRole }) {
 
   // Links comuns per a tots els usuaris (sense "Tornar a la botiga")
   const commonLinks = [
-    { to: '/admin/dashboard', label: 'Dashboard', icon: (
+    { to: '/admin/dashboard', label: 'Tauler', icon: (
       <HiOutlineSquares2X2 className="size-6" />
     ) },
     { to: '/perfil', label: 'El Meu Perfil', icon: (
@@ -87,7 +87,7 @@ export default function SideBarDashboard({ userRole }) {
       {/* Títul del menú */}
       <li className="menu-title">
         <span className="text-primary text-lg font-bold">
-          {isAdmin ? 'Panell d\'Administració' : 'La Meva Àrea'}
+          {isAdmin ? "Panell d'Administració" : 'La Meva Àrea'}
         </span>
       </li>
 

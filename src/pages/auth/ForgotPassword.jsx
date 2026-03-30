@@ -56,7 +56,7 @@ function ForgotPassword() {
           className="btn btn-ghost w-full" 
           onClick={() => navigate('/login')}
         >
-          Tornar a Inici de Sessió
+          Tornar a iniciar sessió
         </button>
       </form>
     </div>

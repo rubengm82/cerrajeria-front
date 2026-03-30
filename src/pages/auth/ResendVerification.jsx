@@ -72,7 +72,7 @@ function ResendVerification() {
           className="btn btn-ghost w-full" 
           onClick={() => navigate('/login')}
         >
-          Tornar a Inici de Sessió
+          Tornar a iniciar sessió
         </button>
         
         <div className="mt-4 text-center">

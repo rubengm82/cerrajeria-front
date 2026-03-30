@@ -28,13 +28,13 @@ function Categories() {
               <HiArrowLeft className="size-5" />
               <p>Tornar a l'inici</p>
             </Link>
-            {categories.length > 0 && <h2 className="categories-page__title">Categorias:</h2>}
+            {categories.length > 0 && <h2 className="categories-page__title">Categories:</h2>}
           </div>
           <div className="categories-list">
             {categories.length > 0 ? categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
-              <p className="categories-empty">Actualmente no hay categorias</p>
+              <p className="categories-empty">Actualment no hi ha categories</p>
             )}
           </div>
         </div>

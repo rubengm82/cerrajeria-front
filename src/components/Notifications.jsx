@@ -24,14 +24,14 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
   const config = {
     success: {
       className: "alert alert-success border border-success-content/30 mt-5",
-      title: "Operación realizada correctamente",
+      title: "Operació completada correctament",
       icon: (
         <HiCheckCircle className="h-6 w-6 shrink-0 stroke-current" />
       )
     },
     error: {
       className: "alert alert-error border border-error-content/30 mt-5",
-      title: "Por favor, corrige los siguientes errores:",
+      title: "Si us plau, corregeix els errors següents:",
       icon: (
         <HiXCircle className="h-6 w-6 shrink-0 stroke-current" />
       )

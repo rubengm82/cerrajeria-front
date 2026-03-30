@@ -64,30 +64,30 @@ function Shop() {
             <div className="hero-box__content">
               <h1 className="hero-box__title">
                 <span className="hero-box__line hero-box__line--nowrap">
-                  El mejor <span className="text-primary">servicio</span>
+                  El millor <span className="text-primary">servei</span>
                 </span>
-                <span className="hero-box__line">en un solo lugar</span>
+                <span className="hero-box__line">en un sol lloc</span>
               </h1>
 
               <p className="hero-box__text text-base-400">
-                Descubre nuestra seleccion de herramientas y materiales de ferreteria profesional. Calidad garantizada al mejor precio
+                Descobreix la nostra selecció d'eines i materials de ferreteria professional. Qualitat garantida al millor preu.
               </p>
 
               <div className="hero-box__actions">
                 <Link to='/products' type="button" className="btn btn-primary hero-box__button">
-                  <p>Ver productos</p>
+                  <p>Veure productes</p>
                   <HiArrowRight className="shop-icon" />
                 </Link>
 
                 <Link to='/categories' type="button" className="btn btn-secondary hero-box__button">
-                  <p>Ver categorias</p>
+                  <p>Veure categories</p>
                   <HiArrowRight className="shop-icon" />
                 </Link>
               </div>
             </div>
 
             <div className="hero-box__image-wrap">
-              <img src="/storage/images/imagen_principal.png" alt="Cerrajero trabajando en una puerta" fetchPriority="high" className="hero-box__image"/>
+              <img src="/banner.png" alt="Serraller treballant en una porta" fetchPriority="high" className="hero-box__image"/>
             </div>
           </div>
 
@@ -95,24 +95,24 @@ function Shop() {
             <div className="feature-list__item feature-list__item--line border-base-300">
               <FiTruck className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="feature-list__title">Envio gratuito</h2>
-                <p className="feature-list__text text-base-300">En pedidos de mas de 60 €</p>
+                <h2 className="feature-list__title">Enviament gratuït</h2>
+                <p className="feature-list__text text-base-300">En comandes de més de 60 €</p>
               </div>
             </div>
 
             <div className="feature-list__item feature-list__item--line border-base-300">
               <FiShield className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="feature-list__title">Garantia de calidad</h2>
-                <p className="feature-list__text text-base-300">Todos los productos de alta calidad</p>
+                <h2 className="feature-list__title">Garantia de qualitat</h2>
+                <p className="feature-list__text text-base-300">Tots els productes són d'alta qualitat</p>
               </div>
             </div>
 
             <div className="feature-list__item">
               <FiHeadphones className="feature-list__icon text-primary" strokeWidth={1.8} />
               <div>
-                <h2 className="feature-list__title">Atencion experta</h2>
-                <p className="feature-list__text text-base-300">Atencion profesional de calidad</p>
+                <h2 className="feature-list__title">Atenció experta</h2>
+                <p className="feature-list__text text-base-300">Atenció professional de qualitat</p>
               </div>
             </div>
           </div>
@@ -120,12 +120,12 @@ function Shop() {
           <div className="shop-section shop-section--products">
             <div className="section-head">
               <div>
-                <p className="section-head__tag text-primary">Lo mas destacado</p>
-                <h2 className="section-head__title">Productos Destacados</h2>
+                <p className="section-head__tag text-primary">El més destacat</p>
+                <h2 className="section-head__title">Productes destacats</h2>
               </div>
 
               <button onClick={() => navigate("/products")} type="button" className="section-link section-link--desktop text-primary">
-                Ver todos
+                Veure'ls tots
                 <HiArrowRight className="shop-icon" />
               </button>
             </div>
@@ -134,12 +134,12 @@ function Shop() {
               { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
                 <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
-              <p className='shop-empty'>Actualmente no hay productos destacados</p>
+              <p className='shop-empty'>Actualment no hi ha productes destacats</p>
               }
             </div>
 
             <button onClick={() => navigate("/products")} type="button" className="section-link section-link--mobile text-primary">
-              Ver todos
+              Veure'ls tots
               <HiArrowRight className="shop-icon" />
             </button>
           </div>
@@ -147,7 +147,7 @@ function Shop() {
       </div>
       {/* Banner naranja */}
       <div className='promo-banner bg-primary'>
-        <h3 className='promo-banner__text text-base-100'>La llave de tu tranquilidad, a un solo clic</h3>
+        <h3 className='promo-banner__text text-base-100'>La clau de la teva tranquil·litat, a un sol clic</h3>
       </div>
 
       {/* Categorias */}
@@ -155,12 +155,12 @@ function Shop() {
         <div className="shop-home__container shop-home__container--categories">
           <div className="section-head">
             <div>
-              <p className="section-head__tag text-primary">Explora nuestro catalogo</p>
-              <h2 className="section-head__title">Categorias principales</h2>
+              <p className="section-head__tag text-primary">Explora el nostre catàleg</p>
+              <h2 className="section-head__title">Categories principals</h2>
             </div>
 
             <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--desktop text-primary">
-              Ver todas
+              Veure-les totes
               <HiArrowRight className="shop-icon" />
             </button>
           </div>
@@ -169,12 +169,12 @@ function Shop() {
             {importantCategories && importantCategories.length > 0 ? importantCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
-              <p className="shop-empty">Actualmente no hay categorias destacadas</p>
+              <p className="shop-empty">Actualment no hi ha categories destacades</p>
             )}
           </div>
 
           <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--mobile text-primary">
-            Ver todas
+            Veure-les totes
             <HiArrowRight className="shop-icon" />
           </button>
         </div>
@@ -190,10 +190,10 @@ function Shop() {
 
       {/* Banner naranja de contacto */}
       <div className='contact-banner bg-primary'>
-        <h3 className='contact-banner__title text-base-100'>Contacta con nosotros ahora</h3>
-        <p className='contact-banner__text text-base-100'>Contacta con nosotros ahora, somos especialistas en cerrajeria</p>
+        <h3 className='contact-banner__title text-base-100'>Contacta amb nosaltres ara</h3>
+        <p className='contact-banner__text text-base-100'>Contacta amb nosaltres ara, som especialistes en serralleria i et podem ajudar.</p>
 
-        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button'>Contacta con nosotros ahora</button>
+        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button'>Contacta amb nosaltres ara</button>
       </div>
 
     </div>

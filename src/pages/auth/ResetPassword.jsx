@@ -46,7 +46,7 @@ function ResetPassword() {
         password,
         password_confirmation: passwordConfirmation
       })
-      setMessage('Contrasenya restablerta correctament! Ara pots iniciar sessió.')
+      setMessage('Contrasenya restablerta correctament. Ara pots iniciar sessió.')
       setTimeout(() => navigate('/login'), 3000)
     } catch (err) {
       setError(err.response?.data?.message || 'Error al restablir la contrasenya')
@@ -74,7 +74,7 @@ function ResetPassword() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Restablir Contrasenya</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">Restablir contrasenya</h2>
         
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         {message && <p className="text-green-500 mb-4 text-center">{message}</p>}
@@ -112,7 +112,7 @@ function ResetPassword() {
           className="btn btn-primary w-full mb-3"
           disabled={loading}
         >
-          {loading ? 'Restablint...' : 'Restablir Contrasenya'}
+          {loading ? 'Restablint...' : 'Restablir contrasenya'}
         </button>
         
         <button 

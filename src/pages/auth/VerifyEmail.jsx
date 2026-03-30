@@ -17,7 +17,7 @@ function VerifyEmail() {
   useEffect(() => {
     const verify = async () => {
       if (!id || !hash) {
-        setError('Enllaç de verificació invàlid')
+        setError('Enllaç de verificació no vàlid')
         setLoading(false)
         return
       }
@@ -27,7 +27,7 @@ function VerifyEmail() {
         setMessage(response.message)
         setSuccess(true)
       } catch (err) {
-        setError(err.response?.data?.message || 'Error en verificar el correu')
+        setError(err.response?.data?.message || 'Error en verificar el correu electrònic')
         setSuccess(false)
       } finally {
         setLoading(false)
@@ -61,7 +61,7 @@ function VerifyEmail() {
                 className="btn btn-primary" 
                 onClick={() => navigate('/login')}
               >
-                Anar a Iniciar Sessió
+                Anar a iniciar sessió
               </button>
             </>
           ) : (

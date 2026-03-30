@@ -60,11 +60,11 @@ export default function CustomSolutions() {
         phone: user?.phone || '',
         description: '',
       })
-      navigate('/custom-solutions', {state: {notificationType: 'success', notificationMessage: 'La teva solucio personalitzada s ha enviat correctament. Et contactarem tan aviat com la revisem.', autoClose: false}
+      navigate('/custom-solutions', {state: {notificationType: 'success', notificationMessage: "La teva solució personalitzada s'ha enviat correctament. Et contactarem tan aviat com la revisem.", autoClose: false}
       })
     } catch (err) {
       console.error(err)
-      setNotification({id: Date.now(), type: 'error', message: 'No hem pogut enviar la teva solucio. Torna-ho a provar en uns instants.',})
+      setNotification({id: Date.now(), type: 'error', message: "No hem pogut enviar la teva solució. Torna-ho a provar d'aquí a una estona.",})
     } finally {
       setLoading(false)
     }
@@ -89,7 +89,7 @@ export default function CustomSolutions() {
                 Explica'ns què necessites i prepararem una <span className="custom-solutions__title-accent">proposta a mida.</span>
               </h1>
 
-              <p className="custom-solutions__description">Si tens una necessitat especial de serralleria, materials o instal.lacio, envians els detalls i el nostre equip valorara la millor solucio per al teu cas.</p>
+              <p className="custom-solutions__description">Si tens una necessitat especial de serralleria, materials o instal·lació, envia'ns els detalls i el nostre equip valorarà la millor solució per al teu cas.</p>
             </div>
 
             <div className="custom-solutions__features">
@@ -102,7 +102,7 @@ export default function CustomSolutions() {
               <div className="custom-solutions__feature">
                 <HiOutlinePhone className="custom-solutions__feature-icon" />
                 <h2 className="custom-solutions__feature-title">Contacte directe</h2>
-                <p className="custom-solutions__feature-text">Deixans el telefon i t'ajudarem a concretar la millor opcio.</p>
+                <p className="custom-solutions__feature-text">Deixa'ns el telèfon i t'ajudarem a concretar la millor opció.</p>
               </div>
 
               <div className="custom-solutions__feature custom-solutions__feature--wide">
@@ -118,7 +118,7 @@ export default function CustomSolutions() {
               <div className="custom-solutions__card-header">
                 <div>
                   <p className="custom-solutions__eyebrow">Formulari de contacte</p>
-                  <h2 className="custom-solutions__card-title">Demana una solucio personalitzada</h2>
+                  <h2 className="custom-solutions__card-title">Demana una solució personalitzada</h2>
                 </div>
               </div>
 
@@ -133,7 +133,7 @@ export default function CustomSolutions() {
 
                   <div>
                     <label className="label custom-solutions__field-label" htmlFor="phone">
-                      <span className="text-sm font-medium">Telefon</span>
+                      <span className="text-sm font-medium">Telèfon</span>
                     </label>
                     <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="600 123 123" className="input input-bordered w-full" required/>
                   </div>
@@ -141,13 +141,13 @@ export default function CustomSolutions() {
 
                 <div>
                   <label className="label custom-solutions__field-label" htmlFor="description">
-                    <span className="text-sm font-medium">Descripcio</span>
+                    <span className="text-sm font-medium">Descripció</span>
                   </label>
-                  <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Explica'ns el tipus de solucio que necessites, materials, mesures, urgencia o qualsevol detall important." className="textarea textarea-bordered w-full custom-solutions__textarea" required/>
+                  <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Explica'ns el tipus de solució que necessites, materials, mides, urgència o qualsevol detall important." className="textarea textarea-bordered w-full custom-solutions__textarea" required/>
                 </div>
 
                 <button type="submit" className="btn btn-primary custom-solutions__submit" disabled={loading}>
-                  {loading ? 'Enviant solicitud...' : 'Enviar solicitud'}
+                  {loading ? 'Enviant sol·licitud...' : 'Enviar sol·licitud'}
                 </button>
               </form>
             </div>

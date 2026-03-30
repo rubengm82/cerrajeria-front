@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
+import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 
 function EditMyProfile() {
 
@@ -177,7 +178,7 @@ function EditMyProfile() {
       setNotification({ 
         id: Date.now(), 
         type: 'error', 
-        message: 'Error al actualitzar el perfil' 
+        message: 'Error en actualitzar el perfil' 
       })
       
     } finally {
@@ -200,7 +201,7 @@ function EditMyProfile() {
       setNotification({ 
         id: Date.now(), 
         type: 'error', 
-        message: 'Error al eliminar el compte' 
+        message: 'Error en eliminar el compte' 
       })
     } finally {
       setLoading(false)
@@ -233,13 +234,13 @@ function EditMyProfile() {
       <div className="w-full max-w-2xl">
         
         <div className="mb-5">
-          <h1 className="text-2xl font-bold">Editar el teu Perfil</h1>
+          <h1 className="text-2xl font-bold">Edita el teu perfil</h1>
         </div>
 
-        {/* Avis per completar dades */}
+        {/* Aviso para completar datos */}
         {(!formData.dni || !formData.phone || !formData.address_street || !formData.zip_code) && (
           <div className="alert alert-warning mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <HiOutlineExclamationTriangle className='stroke-current shrink-0 h-6 w-6' />
             <span>Si us plau, completa les teves dades personals (DNI, telèfon, adreça, codi postal) al teu perfil.</span>
           </div>
         )}
@@ -247,7 +248,7 @@ function EditMyProfile() {
         <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Nom */}
+            {/* Nombre */}
             <div>
               <label className="label" htmlFor="name">
                 <span className="label-text">Nom *</span>
@@ -265,7 +266,7 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Primer cognom */}
+            {/* Primer apellido */}
             <div>
               <label className="label" htmlFor="last_name_one">
                 <span className="label-text">Primer Cognom *</span>
@@ -281,7 +282,7 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Segon cognom */}
+            {/* Segundo apellido */}
             <div>
               <label className="label" htmlFor="last_name_second">
                 <span className="label-text">Segon Cognom</span>
@@ -313,7 +314,7 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Telèfon */}
+            {/* Teléfono */}
             <div>
               <label className="label" htmlFor="phone">
                 <span className="label-text">Telèfon</span>
@@ -349,12 +350,12 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Separator - Direcció */}
+            {/* Separador - Dirección */}
             <div className="md:col-span-2 mt-2">
               <div className="divider">Direcció</div>
             </div>
 
-            {/* Adreça - Carrer/Porta */}
+            {/* Dirección - Calle/Puerta */}
             <div className="md:col-span-2">
               <label className="label" htmlFor="address_street">
                 <span className="label-text">Carrer / Porta</span>
@@ -371,7 +372,7 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Piso, Escalera i Codi Postal */}
+            {/* Piso, Escalera y Código Postal */}
             <div className="md:col-span-2 grid grid-cols-3 gap-4">
               <div>
                 <label className="label" htmlFor="address_floor">
@@ -390,13 +391,13 @@ function EditMyProfile() {
 
               <div>
                 <label className="label" htmlFor="address_staircase">
-                  <span className="label-text">Escalera</span>
+                  <span className="label-text">Escala</span>
                 </label>
                 <input
                   type="text"
                   id="address_staircase"
                   name="address_staircase"
-                  placeholder="Escalera (ex: A, B)"
+                  placeholder="Escala (ex.: A, B)"
                   className="input input-bordered w-full"
                   value={formData.address_staircase}
                   onChange={handleChange}
@@ -421,7 +422,7 @@ function EditMyProfile() {
               </div>
             </div>
 
-            {/* Separator - Contrasenya */}
+            {/* Separador - Contraseña */}
             <div className="md:col-span-2 mt-4">
               <div className="divider">Canvi de Contrasenya</div>
             </div>
@@ -429,7 +430,7 @@ function EditMyProfile() {
             {/* Nueva contraseña */}
             <div className="md:col-span-2">
               <label className="label" htmlFor="password">
-                <span className="label-text">Nova Contrasenya</span>
+                <span className="label-text">Nova contrasenya</span>
               </label>
               <input
                 type="password"
@@ -444,7 +445,7 @@ function EditMyProfile() {
             {/* Confirmar contraseña */}
             <div className="md:col-span-2">
               <label className="label" htmlFor="password_confirmation">
-                <span className="label-text">Confirmar Contrasenya</span>
+                <span className="label-text">Confirma la contrasenya</span>
               </label>
               <input
                 type="password"
@@ -463,12 +464,12 @@ function EditMyProfile() {
             className="btn btn-primary w-full mt-6"
             disabled={loading}
           >
-            {loading ? 'Actualitzant compte...' : 'Actualitzar Compte'}
+            {loading ? 'Actualitzant compte...' : 'Actualitzar compte'}
           </button>
 
           <div className="divider"></div>
 
-          {/* Botó per eliminar compte */}
+          {/* Botón para eliminar cuenta */}
           <ConfirmableModal
             title="Eliminar compte"
             message="Estàs segur que vols eliminar el teu compte? Aquesta acció és irreversible."

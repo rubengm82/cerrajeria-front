@@ -69,7 +69,7 @@ function Register() {
               className="btn btn-primary" 
               onClick={() => navigate('/login')}
             >
-              Anar a Iniciar Sessió
+              Anar a iniciar sessió
             </button>
           </div>
         </div>
@@ -80,7 +80,7 @@ function Register() {
   return (
     <div className="flex items-center justify-center min-h-screen py-8">
       <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6">
-        <h2 className="text-2xl font-bold text-center mb-4">Crear Compte</h2>
+        <h2 className="text-2xl font-bold text-center mb-4">Crear compte</h2>
         
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         
@@ -193,14 +193,14 @@ function Register() {
           className="btn btn-primary w-full mt-6"
           disabled={loading}
         >
-          {loading ? 'Creant compte...' : 'Crear Compte'}
+          {loading ? 'Creant compte...' : 'Crear compte'}
         </button>
         
         <div className="mt-4 text-center">
           <p className="text-sm">
             Ja tens compte?{' '}
             <Link to="/login" className="text-primary hover:underline">
-              Iniciar Sessió
+              Inicia sessió
             </Link>
           </p>
         </div>

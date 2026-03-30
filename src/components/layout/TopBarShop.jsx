@@ -13,7 +13,7 @@ export default function TopBarShop() {
       <div className="drawer-content">
         <div className="navbar bg-white/90 backdrop-blur-sm shadow-sm">
           <div className="navbar-start">
-            <label htmlFor="shop-drawer" aria-label="open sidebar" className="btn btn-square btn-ghost lg:hidden">
+            <label htmlFor="shop-drawer" aria-label="obre el menú lateral" className="btn btn-square btn-ghost lg:hidden">
               <HiOutlineBars3 className="shop-tobar-end__icon" />
             </label>
             <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold">
@@ -37,7 +37,7 @@ export default function TopBarShop() {
 
             {!user ? (
               <Link to="/login" className="btn btn-primary btn-sm">
-                Iniciar Sessió
+                Inicia sessió
               </Link>
             ) : (
               <div className="dropdown dropdown-end">
@@ -57,7 +57,7 @@ export default function TopBarShop() {
       </div>
 
       <div className="drawer-side">
-        <label htmlFor="shop-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <label htmlFor="shop-drawer" aria-label="tanca el menú lateral" className="drawer-overlay"></label>
         <ul className="menu min-h-full w-80 bg-base-200 p-4">
           <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
           <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
@@ -65,13 +65,13 @@ export default function TopBarShop() {
           <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
           
           {!user ? (
-            <li><Link to="/login" className="btn btn-primary mt-4">Iniciar Sessió</Link></li>
+            <li><Link to="/login" className="btn btn-primary mt-4">Inicia sessió</Link></li>
           ) : (
             <>
               {(user?.role === 'admin' || user?.role === 1) && (
                 <li><Link to="/admin/dashboard" className="btn btn-primary mt-4">Panell d'Administració</Link></li>
               )}
-              <li><button onClick={logout} className="btn btn-error mt-2">Tancar Sessió</button></li>
+              <li><button onClick={logout} className="btn btn-error mt-2">Tancar sessió</button></li>
             </>
           )}
         </ul>

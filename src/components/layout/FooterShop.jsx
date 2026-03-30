@@ -38,6 +38,9 @@ export default function FooterShop() {
                 <a href="https://serralleriasolidaria.cat/serveis.php" target="_blank" rel="noopener noreferrer">Serveis</a>
               </li>
               <li>
+                <Link to="/custom-solutions">Contacta amb nosaltres</Link>
+              </li>
+              <li>
                 <a href="https://serralleriasolidaria.cat/solidaritat.php" target="_blank" rel="noopener noreferrer">Solidaritat</a>
               </li>
               <li>

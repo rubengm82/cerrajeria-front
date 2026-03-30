@@ -140,11 +140,11 @@ function AdminProductsList() {
                     </div>
                   </div>
                 </td>
-                <td className='border-base-300'>{product.name || '-'}</td>
-                <td className='border-base-300 text-base-400'>{product.code || '-'}</td>
-                <td className='border-base-300'>{product.category?.name || '-'}</td>
-                <td className='border-base-300 text-right'>{product.price || '-'}€</td>
-                <td className='border-base-300 text-center'>{product.stock || '-'}</td>
+                <td className='border-base-300'>{product.name || ''}</td>
+                <td className='border-base-300 text-base-400'>{product.code || ''}</td>
+                <td className='border-base-300'>{product.category?.name || ''}</td>
+                <td className='border-base-300 text-right'>{product.price || ''}€</td>
+                <td className='border-base-300 text-center'>{product.stock || ''}</td>
                 <td className='border-base-300'>
                   <div className='flex justify-center'>
                     <input 

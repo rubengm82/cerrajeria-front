@@ -8,7 +8,7 @@ import Notifications from '../../components/Notifications'
 function formatDate(dateString) {
   const date = new Date(dateString)
 
-  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString('ca-ES')
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('ca-ES')
 }
 
 export default function AdminCustomSolutionsShow() {
@@ -82,11 +82,11 @@ export default function AdminCustomSolutionsShow() {
                 <h3 className="text-[18px] font-semibold mb-4">Contacte</h3>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
                   <p className="font-semibold text-base-400">Correu</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.email || '-'}</p>
+                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.email || ''}</p>
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
                   <p className="font-semibold text-base-400">Telefon</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || '-'}</p>
+                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || ''}</p>
                 </div>
               </div>
 

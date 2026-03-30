@@ -124,10 +124,10 @@ function AdminPacksList() {
                     </div>
                   </div>
                 </td>
-                <td className='border-base-300 font-medium'>{pack.name || '-'}</td>
-                <td className='border-base-300 text-base-400 max-w-xs truncate'>{pack.description || '-'}</td>
+                <td className='border-base-300 font-medium'>{pack.name || ''}</td>
+                <td className='border-base-300 text-base-400 max-w-xs truncate'>{pack.description || ''}</td>
                 <td className='border-base-300 text-center'>{pack.products?.filter(p => !p.deleted_at).length || 0}</td>
-                <td className='border-base-300 text-right font-bold text-primary'>{pack.total_price || '-'}€</td>
+                <td className='border-base-300 text-right font-bold text-primary'>{pack.total_price || ''}€</td>
                 <td className='border-base-300'>
                   <div className='flex justify-center'>
                     <input 

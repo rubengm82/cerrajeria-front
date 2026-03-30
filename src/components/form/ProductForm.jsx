@@ -208,8 +208,8 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
           </div>
           {/* Codigo */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='code'>Código *</label>
-            <input type="text" name="code" id='code' autoComplete="off" value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full" required/>
+            <label className="label text-base-content" htmlFor='code'>Código</label>
+            <input type="text" name="code" id='code' autoComplete="off" value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full"/>
           </div>
           {/* Descripcion */}
           <div className="w-full col-span-1 md:col-span-2">

@@ -127,7 +127,7 @@ function AdminCategoriesList() {
                     </div>
                   </div>
                 </td>
-                <td className='border-base-300 font-medium'>{category.name || '-'}</td>
+                <td className='border-base-300 font-medium'>{category.name || ''}</td>
                 <td className='border-base-300'>
                   <div className='flex justify-center'>
                     <input 

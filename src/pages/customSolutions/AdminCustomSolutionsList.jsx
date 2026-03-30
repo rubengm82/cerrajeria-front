@@ -8,7 +8,7 @@ import ConfirmableModal from '../../components/ConfirmableModal'
 
 function formatDate(dateString) {
   const date = new Date(dateString)
-  return Number.isNaN(date.getTime()) ? '-' : date.toLocaleDateString('ca-ES')
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('ca-ES')
 }
 
 export default function AdminCustomSolutionsList() {
@@ -108,10 +108,10 @@ export default function AdminCustomSolutionsList() {
               <tbody>
                 {customSolutions.length > 0 ? customSolutions.map((solution) => (
                   <tr key={solution.id} className='hover:bg-[#F9F6F5]'>
-                    <td className='border-base-300'>{solution.email || '-'}</td>
-                    <td className='border-base-300'>{solution.phone || '-'}</td>
+                    <td className='border-base-300'>{solution.email || ''}</td>
+                    <td className='border-base-300'>{solution.phone || ''}</td>
                     <td className='border-base-300 max-w-md'>
-                      <p className='line-clamp-3 whitespace-pre-wrap'>{solution.description || '-'}</p>
+                      <p className='line-clamp-3 whitespace-pre-wrap'>{solution.description || ''}</p>
                     </td>
                     <td className='border-base-300 text-center'>
                       <ConfirmableModal title="Canviar estat de la peticio" message={`Segur que vols canviar l'estat de la peticio de "${solution.email || solution.phone || `#${solution.id}`}" de ${solution.status === 'pending' ? 'Pendent' : 'Tancada'} a ${solution.status === 'pending' ? 'Tancada' : 'Pendent'}?`} onConfirm={() => handleStatusToggle(solution)}>

@@ -91,11 +91,14 @@ function Products() {
     )
   }
 
-  const toggleFeature = (featureValue) => {
+  // Función para crear un identificador único combinando tipo + valor
+  const getFeatureKey = (typeName, value) => `${typeName}-${value}`;
+
+  const toggleFeature = (featureKey) => {
     setSelectedFeatures((currentFeature) =>
-      currentFeature.includes(featureValue)
-        ? currentFeature.filter((value) => value !== featureValue)
-        : [...currentFeature, featureValue]
+      currentFeature.includes(featureKey)
+        ? currentFeature.filter((key) => key !== featureKey)
+        : [...currentFeature, featureKey]
     )
   }
 
@@ -104,10 +107,22 @@ function Products() {
     setSelectedFeatures([])
   }
 
-  const filteredProducts = products.filter((product) => (
-    (selectedCategories.length === 0 || selectedCategories.includes(product.category?.name)) &&
-    (selectedFeatures.length === 0 || product.features?.some(feature => selectedFeatures.includes(feature.value)))
-  ))
+  // Filtro con lógica "Y" (AND): el producto debe tener TODAS las características seleccionadas
+  const filteredProducts = products.filter((product) => {
+    // Verificar categorías
+    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category?.name);
+    
+    // Verificar características (todas las seleccionadas deben estar presentes)
+    const featuresMatch = selectedFeatures.length === 0 || 
+      selectedFeatures.every(selectedKey => {
+        return product.features?.some(feature => {
+          const featureKey = getFeatureKey(feature.type?.name, feature.value);
+          return featureKey === selectedKey;
+        });
+      });
+    
+    return categoryMatch && featuresMatch;
+  });
 
 
   return loading ? <LoadingAnimation /> : (
@@ -208,15 +223,16 @@ function Products() {
                           <div className="divider">{featureType.name.charAt(0).toUpperCase() + featureType.name.slice(1)}</div>
                           <div className="filters-box__list">
                             {featureType.features?.map((feature) => {
-                               const featureWithCount = features.find(f => f.value === feature.value);
+                               const featureKey = getFeatureKey(featureType.name, feature.value);
+                               const featureWithCount = features.find(f => f.type?.name === featureType.name && f.value === feature.value);
                                const productsCount = featureWithCount?.products_count || 0;
                                return (
-                              <label key={feature.value} className="filters-box__item">
+                              <label key={featureKey} className="filters-box__item">
                                 <input
                                   type="checkbox"
                                   className="checkbox checkbox-sm border-base-300"
-                                  checked={selectedFeatures.includes(feature.value)}
-                                  onChange={() => toggleFeature(feature.value)}
+                                  checked={selectedFeatures.includes(featureKey)}
+                                  onChange={() => toggleFeature(featureKey)}
                                 />
                                 <span className="filters-box__item-name">{feature.value.charAt(0).toUpperCase() + feature.value.slice(1)}</span>
                                 <span className="filters-box__item-count text-base-400">

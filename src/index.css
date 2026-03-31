@@ -13,6 +13,8 @@
   --color-base-100: oklch(100% 0 0);
   --color-base-200: #FCFBF9;
   --color-base-300: #AFAFAF;
+  --color-base-400: #737373;
+  --color-base-500: #F6F6F6;
   --color-base-content: #0A0D10;
   --color-primary: #DA7606;
   --color-primary-content: oklch(97% 0.014 343.198);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { getFeatureTypes } from "../api/features_api"
-import {HiXMark } from 'react-icons/hi2'
-
+import { HiXMark, HiOutlinePlus, HiOutlineMinus, HiOutlineArrowTopRightOnSquare } from 'react-icons/hi2'
+ 
 function ProductDetailModal({ product, isOpen, onClose }) {
   const [featuresTypes, setFeaturesTypes] = useState([])
   const [selectedFeatureOptions, setSelectedFeatureOptions] = useState({})
@@ -28,6 +28,14 @@ function ProductDetailModal({ product, isOpen, onClose }) {
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
     setQuantity(Math.max(1, value))
+  }
+
+  const decreaseQuantity = () => {
+    setQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))
+  }
+
+  const increaseQuantity = () => {
+    setQuantity((currentQuantity) => currentQuantity + 1)
   }
 
   if (!isOpen || !product) return null
@@ -111,51 +119,28 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </p>
           )}
 
-          {/* Características y tipos para seleccionar */}
-          {product.features && product.features.length > 0 && (
-            <div className="product-detail-modal__features">
-              {featuresTypes.map((featureType) => {
-                const featuresForType = product.features.filter(
-                  (f) => f.pivot?.feature_type_id === featureType.id
-                )
-                if (featuresForType.length === 0) return null
-
-                return (
-                  <div key={featureType.id} className="product-detail-modal__feature-group">
-                    <span className="product-detail-modal__feature-label">
-                      {featureType.name}
-                    </span>
-                    <div className="product-detail-modal__feature-options">
-                      {featuresForType.map((feature) => (
-                        <button
-                          key={feature.id}
-                          className={`product-detail-modal__feature-option ${selectedFeatureOptions[featureType.id] === feature.id ? 'selected' : ''}`}
-                          onClick={() => toggleFeatureOption(feature.id)}
-                        >
-                          {feature.value}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
           {/* Cantidad */}
           <div className="product-detail-modal__quantity">
-            <span className="product-detail-modal__quantity-label">Quantitat:</span>
-            <input type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered w-20"
-            />
+            <button type="button" className="product-detail-modal__quantity-button product-detail-modal__quantity-button-left" onClick={decreaseQuantity}>
+              <HiOutlineMinus className="product-detail-modal__quantity-button-icon" />
+            </button>
+            <input type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
+            <button type="button" className="product-detail-modal__quantity-button product-detail-modal__quantity-button-right" onClick={increaseQuantity}>
+              <HiOutlinePlus className="product-detail-modal__quantity-button-icon" />
+            </button>
+            <button className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+              </svg>
+              <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
+            </button>
           </div>
 
           {/* Botones de acción */}
           <div className="product-detail-modal__actions">
-            <button className="btn btn-primary product-detail-modal__add-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-              </svg>
-              Afegir al carret
+            <button className="btn btn-secondary product-detail-modal__action-btn product-detail-modal__action-btn--details">
+              <span>Veure tots els detalls</span>
+              <HiOutlineArrowTopRightOnSquare className="product-detail-modal__action-icon" />
             </button>
           </div>
         </div>

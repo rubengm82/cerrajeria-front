@@ -87,7 +87,7 @@ function Shop() {
             </div>
 
             <div className="hero-box__image-wrap">
-              <img src="/banner.png" alt="Serraller treballant en una porta" fetchPriority="high" className="hero-box__image"/>
+              <img src="/banner.jpg" alt="Serraller treballant en una porta" fetchPriority="high" className="hero-box__image"/>
             </div>
           </div>
 

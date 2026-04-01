@@ -93,8 +93,12 @@ export default function AdminCustomSolutionsList() {
                 {customSolutions.length > 0 ? customSolutions.map((solution) => (
                   <tr key={solution.id} className='hover:bg-[#F9F6F5]'>
                     <td className='border-base-300 font-bold'>#{solution.id}</td>
-                    <td className='border-base-300'>{solution.email || ''}</td>
-                    <td className='border-base-300'>{solution.phone || ''}</td>
+                    <td className='border-base-300'>
+                      <a className='link link-hover' href={`mailto:${solution.email}`}>{solution.email || ''}</a>
+                    </td>
+                    <td className='border-base-300'>
+                      <a className='link link-hover' href={`tel:${solution.phone}`}>{solution.phone || ''}</a>
+                    </td>
                     <td className='border-base-300 max-w-md'>
                       <p className='line-clamp-3 whitespace-pre-wrap'>{solution.description || ''}</p>
                     </td>

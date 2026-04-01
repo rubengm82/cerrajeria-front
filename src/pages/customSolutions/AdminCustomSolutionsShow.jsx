@@ -77,11 +77,11 @@ export default function AdminCustomSolutionsShow() {
                 <h3 className="text-[18px] font-semibold mb-4">Contacte</h3>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
                   <p className="font-semibold text-base-400">Correu</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.email || ''}</p>
+                  <a href={`mailto:${customSolution.email}`} className="text-left link link-primary link-hover sm:text-right break-all sm:max-w-[65%]">{customSolution.email || ''}</a>
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
                   <p className="font-semibold text-base-400">Telèfon</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || ''}</p>
+                  <a href={`tel:${customSolution.phone}`} className="text-left link link-primary link-hover sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || ''}</a>
                 </div>
               </div>
 

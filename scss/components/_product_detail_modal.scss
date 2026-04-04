@@ -16,7 +16,6 @@
     padding: clamp(0.5rem, 2vw, 1rem);
     max-width: 56rem;
     max-height: 80vh;
-    overflow-y: auto;
     margin: 0 auto;
 
     @media (min-width: 640px) {
@@ -29,6 +28,12 @@
   &__gallery {
     flex: 1;
     min-width: 0;
+
+    &--single {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 
   &__carousel {
@@ -122,6 +127,34 @@
     color: oklch(55% 0 0);
   }
 
+  &__features-table-wrapper {
+    max-height: 11rem;
+    overflow-x: auto;
+    overflow-y: auto;
+    background-color: var(--color-base-100);
+  }
+
+  &__features-table {
+    width: 100%;
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__features-label {
+    width: 33%;
+    padding-right: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-base-content);
+    white-space: nowrap;
+  }
+
+  &__features-value {
+    color: var(--color-base-400);
+  }
+
   &__features {
     display: flex;
     flex-direction: column;
@@ -171,57 +204,31 @@
     align-items: center;
     flex-wrap: nowrap;
     padding-top: clamp(0.5rem, 2vw, 0.75rem);
-  }
-
-  &__quantity-input {
-    padding-inline: 0;
-    text-align: center;
-    font-size: clamp(0.875rem, 2vw, 1rem);
-    font-weight: 500;
-    border-radius: 0px;
-    background-color: var(--color-base-100);
-    border: 1px solid var(--color-base-300);
-    -moz-appearance: textfield;
-    appearance: textfield;
-
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      margin: 0;
-      -webkit-appearance: none;
-    }
-  }
-
-  &__quantity-button {
-    flex: 0 0 auto;
-    min-width: 2.75rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: clamp(0.875rem, 2vw, 2rem);
-    font-weight: 600;
-    color: var(--color-base-300);
-    background-color: var(--color-base-500);
-    border: 1px solid var(--color-base-300);
-    cursor: pointer;
-
-    &:hover {
-      opacity: 0.6;
-      transition: all 0.2s ease;
-    }
-    &-icon {
+  
+    &-input {
+      width: 3.5rem;
+      padding-inline: 0;
+      text-align: center;
       font-size: clamp(0.875rem, 2vw, 1rem);
+      font-weight: 500;
+      border-radius: 0.75rem;
+      background-color: var(--color-base-100);
+      border: 1px solid var(--color-base-300);
+      -moz-appearance: textfield;
+      appearance: textfield;
+  
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        margin: 0;
+        -webkit-appearance: none;
+      }
     }
-    &-left {
-      border-radius: 17px 0px 0px 17px;
-      border-right: none;
-    }
-    &-right {
-      border-radius: 0px 17px 17px 0px;
-      border-left: none;
+ 
+    &-label {
+      margin-right: 0.5rem;
     }
   }
+
 
   &__actions {
     display: flex;

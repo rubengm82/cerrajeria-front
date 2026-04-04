@@ -1,42 +1,21 @@
-import { useEffect, useState } from "react"
-import { getFeatureTypes } from "../api/features_api"
-import { HiXMark, HiOutlinePlus, HiOutlineMinus, HiOutlineArrowTopRightOnSquare } from 'react-icons/hi2'
+import { useState } from "react"
+import { HiXMark } from 'react-icons/hi2'
  
 function ProductDetailModal({ product, isOpen, onClose }) {
-  const [featuresTypes, setFeaturesTypes] = useState([])
-  const [selectedFeatureOptions, setSelectedFeatureOptions] = useState({})
   const [quantity, setQuantity] = useState(1)
-
-  useEffect(() => {
-    getFeatureTypes()
-      .then((res) => setFeaturesTypes(res.data))
-      .catch((err) => console.error(err))
-  }, [])
-
-  const toggleFeatureOption = (featureId) => {
-    setSelectedFeatureOptions((prev) => {
-      const feature = product?.features?.find(f => f.id === featureId)
-      if (!feature) return prev
-      const typeId = feature.pivot?.feature_type_id
-      return {
-        ...prev,
-        [typeId]: prev[typeId] === featureId ? null : featureId
-      }
-    })
-  }
+  const productImages = [
+    ...(product?.images || []).filter((image) => image.is_important == 1),
+    ...(product?.images || []).filter((image) => image.is_important != 1)
+  ]
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
     setQuantity(Math.max(1, value))
   }
 
-  const decreaseQuantity = () => {
-    setQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))
-  }
-
-  const increaseQuantity = () => {
-    setQuantity((currentQuantity) => currentQuantity + 1)
-  }
+  const productFeatures = product?.features?.filter(
+    (feature) => feature?.type?.name && feature?.value
+  ) || []
 
   if (!isOpen || !product) return null
 
@@ -44,16 +23,16 @@ function ProductDetailModal({ product, isOpen, onClose }) {
     <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open>
       <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
-          <button className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
+          <button type="button" className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
             <HiXMark className="size-6" />
           </button>
         </form>
 
-        <div className="product-detail-modal__gallery">
+        <div className={`product-detail-modal__gallery ${productImages.length <= 1 ? "product-detail-modal__gallery--single" : ""}`}>
           {/* Carousel de imágenes */}
           <div className="product-detail-modal__carousel">
-            {product.images && product.images.length > 0 ? (
-              product.images.map((image, index) => (
+            {productImages.length > 0 ? (
+              productImages.map((image, index) => (
                 <div
                   key={image.id || index}
                   id={`product-item${product.id}-${index + 1}`}
@@ -75,9 +54,9 @@ function ProductDetailModal({ product, isOpen, onClose }) {
           </div>
 
           {/* Thumbnails */}
-          {product.images && product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div className="product-detail-modal__carousel-thumbnails">
-              {product.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <a
                   key={image.id || index}
                   href={`#product-item${product.id}-${index + 1}`}
@@ -119,16 +98,27 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </p>
           )}
 
+          {productFeatures.length > 0 && (
+            <div className="product-detail-modal__features-table-wrapper">
+              <table className="product-detail-modal__features-table table table-sm">
+                <tbody>
+                  {productFeatures.map((feature) => (
+                    <tr key={feature.id}>
+                      <th className="product-detail-modal__features-label">
+                        {feature.type.name}:
+                      </th>
+                      <td className="product-detail-modal__features-value">{feature.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {/* Cantidad */}
           <div className="product-detail-modal__quantity">
-            <button type="button" className="product-detail-modal__quantity-button product-detail-modal__quantity-button-left" onClick={decreaseQuantity}>
-              <HiOutlineMinus className="product-detail-modal__quantity-button-icon" />
-            </button>
-            <input type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
-            <button type="button" className="product-detail-modal__quantity-button product-detail-modal__quantity-button-right" onClick={increaseQuantity}>
-              <HiOutlinePlus className="product-detail-modal__quantity-button-icon" />
-            </button>
-            <button className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
+            <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
+            <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
+            <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
               </svg>
@@ -136,13 +126,6 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </button>
           </div>
 
-          {/* Botones de acción */}
-          <div className="product-detail-modal__actions">
-            <button className="btn btn-secondary product-detail-modal__action-btn product-detail-modal__action-btn--details">
-              <span>Veure tots els detalls</span>
-              <HiOutlineArrowTopRightOnSquare className="product-detail-modal__action-icon" />
-            </button>
-          </div>
         </div>
 
 

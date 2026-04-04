@@ -1,6 +1,6 @@
 import { HiArrowRight } from 'react-icons/hi'
 import { FiHeadphones, FiShield, FiTruck } from 'react-icons/fi'
-import { getImportantProducts } from '../api/products_api'
+import { getImportantProducts, getProduct } from '../api/products_api'
 import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
@@ -46,8 +46,15 @@ function Shop() {
     return <LoadingAnimation />
   }
 
-  const openProductModal = (product) => {
-    setSelectedProduct(product);
+  const openProductModal = async (product) => {
+    try {
+      const response = await getProduct(product.id)
+      setSelectedProduct(response.data)
+    } catch (error) {
+      console.error(error)
+      setSelectedProduct(product)
+    }
+
     setIsModalOpen(true);
   };
 

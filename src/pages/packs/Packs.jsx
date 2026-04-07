@@ -1,0 +1,86 @@
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { HiArrowLeft } from "react-icons/hi2"
+import { useQuery } from "@tanstack/react-query"
+import { getPacks } from "../../api/packs_api"
+import LoadingAnimation from "../../components/LoadingAnimation"
+import ProductCard from "../../components/ProductCard"
+import ProductDetailModal from "../../components/ProductDetailModal"
+import '../../../scss/main_shop.scss'
+
+function Packs() {
+  const [selectedPack, setSelectedPack] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Caché para packs
+  const { data: packsData, isLoading: isLoadingPacks } = useQuery({
+    queryKey: ['packs'],
+    queryFn: async () => {
+      const res = await getPacks();
+      sessionStorage.setItem('cached_packs', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  const packs = packsData || [];
+
+  const openProductModal = (product) => {
+    setSelectedPack(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setSelectedPack(null);
+  };
+
+  return isLoadingPacks ? <LoadingAnimation /> : (
+    <div className='products-page'>
+      <div className="products-page__container">
+        <div className="products-page__body">
+          <div className="products-top">
+            <div>
+              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
+                <HiArrowLeft className="size-5" />
+                <p>Tornar a l'inici</p>
+              </Link>
+              <p className="products-top__tag text-primary">Catàleg</p>
+              <h2 className="products-top__title">Packs</h2>
+            </div>
+
+            <div className="products-top__actions">
+              <p className="products-top__count text-base-400">
+                Mostrant {packs.length} packs
+              </p>
+            </div>
+          </div>
+
+          <div className="products-layout">
+            <div>
+              <div className="products-list">
+                { packs.length > 0 ?
+                  packs.map((pack) => (
+                  <ProductCard key={pack.id} product={pack} onView={openProductModal} />
+                  )) :
+                <p className='products-empty'>Actualment no hi ha packs</p>}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Modal de ver producto */}
+      <ProductDetailModal 
+        key={selectedPack?.id || 'no-product'}
+        product={selectedPack} 
+        isOpen={isModalOpen} 
+        onClose={closeProductModal}
+      />
+    </div>
+  )
+}
+
+export default Packs

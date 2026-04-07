@@ -27,6 +27,7 @@ export default function TopBarShop() {
               <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
               <li><Link to="/" className="shop-topbar__menu-link">Packs</Link></li>
               <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+              <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
             </ul>
           </div>
 
@@ -63,6 +64,7 @@ export default function TopBarShop() {
           <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
           <li><Link to="/" className="shop-topbar__menu-link">Packs</Link></li>
           <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+          <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
           
           {!user ? (
             <li><Link to="/login" className="btn btn-primary mt-4">Inicia sessió</Link></li>

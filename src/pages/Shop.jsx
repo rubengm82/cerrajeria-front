@@ -200,7 +200,7 @@ function Shop() {
         <h3 className='contact-banner__title text-base-100'>Contacta amb nosaltres ara</h3>
         <p className='contact-banner__text text-base-100'>Contacta amb nosaltres ara, som especialistes en serralleria i et podem ajudar.</p>
 
-        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button'>Contacta amb nosaltres ara</button>
+        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button'>Solucions Personalitzades</button>
       </div>
 
     </div>

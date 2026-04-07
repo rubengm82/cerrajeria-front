@@ -5,8 +5,8 @@ import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
 function ProductDetailModal({ product, isOpen, onClose }) {
   const [quantity, setQuantity] = useState(1)
   const productImages = [
-    ...(product?.images || []).filter((image) => image.is_important == 1),
-    ...(product?.images || []).filter((image) => image.is_important != 1)
+    ...(product?.images || []).filter((image) => image.is_important === true),
+    ...(product?.images || []).filter((image) => image.is_important !== true)
   ]
 
   const handleQuantityChange = (e) => {
@@ -18,11 +18,10 @@ function ProductDetailModal({ product, isOpen, onClose }) {
     (feature) => feature?.type?.name && feature?.value
   ) || []
 
-  if (!isOpen || !product) return null
-
   return (
-    <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open>
-      <div className="modal-box product-detail-modal__content product-detail-modal">
+    product && (
+      <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open={isOpen}>
+        <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
           <button type="button" className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
             <HiXMark className="size-6" />
@@ -129,6 +128,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
 
       </div>
     </dialog>
+    )
   )
 }
 

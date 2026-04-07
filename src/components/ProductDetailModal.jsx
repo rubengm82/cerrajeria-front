@@ -121,11 +121,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
               <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
             </button>
           </div>
-
-
         </div>
-
-
       </div>
     </dialog>
     )

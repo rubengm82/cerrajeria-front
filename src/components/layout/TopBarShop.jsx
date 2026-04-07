@@ -25,7 +25,7 @@ export default function TopBarShop() {
             <ul className="menu menu-horizontal px-1">
               <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
               <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
-              <li><Link to="/" className="shop-topbar__menu-link">Packs</Link></li>
+              <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
               <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
             </ul>
           </div>

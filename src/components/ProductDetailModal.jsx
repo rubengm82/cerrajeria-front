@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2";
+import LoadingAnimation from "./LoadingAnimation";
 
 
-function ProductDetailModal({ product, isOpen, onClose }) {
+function ProductDetailModal({ product, isOpen, onClose, entityType = "product", isLoading = false }) {
   const [quantity, setQuantity] = useState(1)
+  const isPack = entityType === "pack"
   const productImages = [
     ...(product?.images || []).filter((image) => image.is_important === true),
     ...(product?.images || []).filter((image) => image.is_important !== true)
@@ -17,6 +19,8 @@ function ProductDetailModal({ product, isOpen, onClose }) {
   const productFeatures = product?.features?.filter(
     (feature) => feature?.type?.name && feature?.value
   ) || []
+  const packProducts = product?.products?.filter((packProduct) => !packProduct?.deleted_at) || []
+  const currentPrice = isPack ? product?.total_price : product?.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product?.price
 
   return (
     product && (
@@ -71,19 +75,19 @@ function ProductDetailModal({ product, isOpen, onClose }) {
         </div>
 
         <div className="product-detail-modal__details">
-          <p className="product-detail-modal__category text-base-400">
-            {product.category?.name || 'Sense categoria'}
-          </p>
+          {!isPack && (
+            <p className="product-detail-modal__category text-base-400">
+              {product.category?.name || 'Sense categoria'}
+            </p>
+          )}
 
           <h3 className="product-detail-modal__title">{product.name}</h3>
 
           <div className="product-detail-modal__price-container">
             <p className="product-detail-modal__price">
-              {product.discount > 0
-                ? (product.price * (1 - product.discount / 100)).toFixed(2)
-                : product.price}€
+              {currentPrice}€
             </p>
-            {product.discount > 0 && (
+            {!isPack && product.discount > 0 && (
               <p className="product-detail-modal__old-price text-base-400">
                 {product.price}€
               </p>
@@ -96,7 +100,33 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </p>
           )}
 
-          {productFeatures.length > 0 && (
+          {isLoading ? (
+            <div className="flex justify-center py-6">
+              <LoadingAnimation />
+            </div>
+          ) : isPack ? (
+            <div className="product-detail-modal__features-table-wrapper">
+              <h4 className="font-semibold mb-3">Productes inclosos</h4>
+              {packProducts.length > 0 ? (
+                <table className="product-detail-modal__features-table table table-sm">
+                  <tbody>
+                    {packProducts.map((packProduct) => (
+                      <tr key={packProduct.id}>
+                        <th className="product-detail-modal__features-label">
+                          {packProduct.name}
+                        </th>
+                        <td className="product-detail-modal__features-value">
+                          {packProduct.price}€
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-base-300">Aquest pack no té productes associats.</p>
+              )}
+            </div>
+          ) : productFeatures.length > 0 && (
             <div className="product-detail-modal__features-table-wrapper">
               <table className="product-detail-modal__features-table table table-sm">
                 <tbody>
@@ -112,15 +142,17 @@ function ProductDetailModal({ product, isOpen, onClose }) {
               </table>
             </div>
           )}
-          {/* Cantidad */}
-          <div className="product-detail-modal__quantity">
-            <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
-            <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
-            <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
-             <HiOutlineShoppingCart className="w-5 h-5"/>
-              <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
-            </button>
-          </div>
+
+          {!isLoading && (
+            <div className="product-detail-modal__quantity">
+              <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
+              <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
+              <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
+               <HiOutlineShoppingCart className="w-5 h-5"/>
+                <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </dialog>

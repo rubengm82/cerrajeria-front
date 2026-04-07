@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
-import { getPacks } from "../../api/packs_api"
+import { getPack, getPacks } from "../../api/packs_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
@@ -11,6 +11,7 @@ import '../../../scss/main_shop.scss'
 function Packs() {
   const [selectedPack, setSelectedPack] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingSelectedPack, setIsLoadingSelectedPack] = useState(false);
 
   // Caché para packs
   const { data: packsData, isLoading: isLoadingPacks } = useQuery({
@@ -26,14 +27,25 @@ function Packs() {
 
   const packs = packsData || [];
 
-  const openProductModal = (product) => {
-    setSelectedPack(product);
+  const openProductModal = async (pack) => {
     setIsModalOpen(true);
+    setIsLoadingSelectedPack(true);
+    setSelectedPack(pack);
+
+    try {
+      const response = await getPack(pack.id);
+      setSelectedPack(response.data);
+    } catch (error) {
+      console.error("Error en carregar el detall del pack", error);
+    } finally {
+      setIsLoadingSelectedPack(false);
+    }
   };
 
   const closeProductModal = () => {
     setIsModalOpen(false);
     setSelectedPack(null);
+    setIsLoadingSelectedPack(false);
   };
 
   return isLoadingPacks ? <LoadingAnimation /> : (
@@ -78,6 +90,8 @@ function Packs() {
         product={selectedPack} 
         isOpen={isModalOpen} 
         onClose={closeProductModal}
+        entityType="pack"
+        isLoading={isLoadingSelectedPack}
       />
     </div>
   )

@@ -214,14 +214,6 @@
       border-radius: 0.75rem;
       background-color: var(--color-base-100);
       border: 1px solid var(--color-base-300);
-      -moz-appearance: textfield;
-      appearance: textfield;
-  
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button {
-        margin: 0;
-        -webkit-appearance: none;
-      }
     }
  
     &-label {

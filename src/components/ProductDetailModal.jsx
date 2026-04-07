@@ -115,18 +115,14 @@ function ProductDetailModal({ product, isOpen, onClose }) {
           )}
           {/* Cantidad */}
           <div className="product-detail-modal__quantity">
-            <span className="product-detail-modal__quantity-label">Quantitat:</span>
-            <input type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered w-20"
-            />
-          </div>
-
-          {/* Botones de acción */}
-          <div className="product-detail-modal__actions">
+            <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
+            <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
             <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
              <HiOutlineShoppingCart className="w-5 h-5"/>
               <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
             </button>
           </div>
+
 
         </div>
 

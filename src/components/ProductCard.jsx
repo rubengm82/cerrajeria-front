@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { HiOutlinePhoto, HiOutlineEye, HiOutlineShoppingCart } from "react-icons/hi2";
 
 function ProductCard({product, onView}) {
-  const imagePath = product?.images?.[0]?.path
+  const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
+  const imagePath = mainImage?.path
+  const handleCardClick = () => onView?.(product)
 
   return product ?
-    <div key={product.id} className="product-card border-base-300">
+    <div key={product.id} className={`product-card border-base-300 ${onView ? "product-card--interactive" : ""}`} onClick={onView ? handleCardClick : undefined}>
       <div className="product-card__media">
         {product.discount > 0 && (
           <div className="product-card__discount bg-primary">
@@ -22,14 +24,21 @@ function ProductCard({product, onView}) {
             </div>
           )}
 
-          {/* Se muestran los iconos de ver y añadir al carrito */}
+          {/* Se muestran los iconos de ver */}
           <div className='product-card__actions'>
-            <button className='product-card__action product-card__action--view bg-base-100/80' onClick={() => onView && onView(product)}>
-              <HiOutlineEye className="product-card__action-icon"/>
-            </button>
+            {/* <button className='product-card__action product-card__action--view bg-base-100/80' onClick={() => onView && onView(product)}>
+             
+            </button> */}
 
-            <button className='product-card__action product-card__action--buy bg-primary/80'>
-              <HiOutlineShoppingCart className="product-card__action-icon text-white" />
+            <button
+              type="button"
+              className='product-card__action product-card__action--view bg-base-100/80'
+              onClick={(event) => {
+                event.stopPropagation()
+                handleCardClick()
+              }}
+            >
+               <HiOutlineEye className="product-card__action-icon"/>
             </button>
           </div>
         </div>
@@ -37,7 +46,7 @@ function ProductCard({product, onView}) {
 
       <div className="product-card__body">
         <p className="product-card__category text-base-400">{product.category?.name}</p>
-        <Link to='/products' className="product-card__name">
+        <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()}>
           {product.name}
         </Link>
 
@@ -56,10 +65,6 @@ function ProductCard({product, onView}) {
             )}
           </div>
 
-          <button type="button" className="btn btn-primary btn-sm product-card__buy-btn">
-            <HiOutlineShoppingCart className="product-card__buy-icon" />
-            <p className="product-card__buy-text">Comprar</p>
-          </button>
         </div>
       </div>
     </div>

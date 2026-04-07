@@ -4,32 +4,20 @@ import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
 
 
 function ProductDetailModal({ product, isOpen, onClose }) {
-  const [featuresTypes, setFeaturesTypes] = useState([])
-  const [selectedFeatureOptions, setSelectedFeatureOptions] = useState({})
   const [quantity, setQuantity] = useState(1)
-
-  useEffect(() => {
-    getFeatureTypes()
-      .then((res) => setFeaturesTypes(res.data))
-      .catch((err) => console.error(err))
-  }, [])
-
-  const toggleFeatureOption = (featureId) => {
-    setSelectedFeatureOptions((prev) => {
-      const feature = product?.features?.find(f => f.id === featureId)
-      if (!feature) return prev
-      const typeId = feature.pivot?.feature_type_id
-      return {
-        ...prev,
-        [typeId]: prev[typeId] === featureId ? null : featureId
-      }
-    })
-  }
+  const productImages = [
+    ...(product?.images || []).filter((image) => image.is_important == 1),
+    ...(product?.images || []).filter((image) => image.is_important != 1)
+  ]
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
     setQuantity(Math.max(1, value))
   }
+
+  const productFeatures = product?.features?.filter(
+    (feature) => feature?.type?.name && feature?.value
+  ) || []
 
   if (!isOpen || !product) return null
 
@@ -37,16 +25,16 @@ function ProductDetailModal({ product, isOpen, onClose }) {
     <dialog id="product-view-modal" className="modal modal-bottom sm:modal-middle" open>
       <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
-          <button className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
+          <button type="button" className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose}>
             <HiXMark className="size-6" />
           </button>
         </form>
 
-        <div className="product-detail-modal__gallery">
+        <div className={`product-detail-modal__gallery ${productImages.length <= 1 ? "product-detail-modal__gallery--single" : ""}`}>
           {/* Carousel de imágenes */}
           <div className="product-detail-modal__carousel">
-            {product.images && product.images.length > 0 ? (
-              product.images.map((image, index) => (
+            {productImages.length > 0 ? (
+              productImages.map((image, index) => (
                 <div
                   key={image.id || index}
                   id={`product-item${product.id}-${index + 1}`}
@@ -66,9 +54,9 @@ function ProductDetailModal({ product, isOpen, onClose }) {
           </div>
 
           {/* Thumbnails */}
-          {product.images && product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div className="product-detail-modal__carousel-thumbnails">
-              {product.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <a
                   key={image.id || index}
                   href={`#product-item${product.id}-${index + 1}`}
@@ -110,37 +98,22 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </p>
           )}
 
-          {/* Características y tipos para seleccionar */}
-          {product.features && product.features.length > 0 && (
-            <div className="product-detail-modal__features">
-              {featuresTypes.map((featureType) => {
-                const featuresForType = product.features.filter(
-                  (f) => f.pivot?.feature_type_id === featureType.id
-                )
-                if (featuresForType.length === 0) return null
-
-                return (
-                  <div key={featureType.id} className="product-detail-modal__feature-group">
-                    <span className="product-detail-modal__feature-label">
-                      {featureType.name}
-                    </span>
-                    <div className="product-detail-modal__feature-options">
-                      {featuresForType.map((feature) => (
-                        <button
-                          key={feature.id}
-                          className={`product-detail-modal__feature-option ${selectedFeatureOptions[featureType.id] === feature.id ? 'selected' : ''}`}
-                          onClick={() => toggleFeatureOption(feature.id)}
-                        >
-                          {feature.value}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
+          {productFeatures.length > 0 && (
+            <div className="product-detail-modal__features-table-wrapper">
+              <table className="product-detail-modal__features-table table table-sm">
+                <tbody>
+                  {productFeatures.map((feature) => (
+                    <tr key={feature.id}>
+                      <th className="product-detail-modal__features-label">
+                        {feature.type.name}:
+                      </th>
+                      <td className="product-detail-modal__features-value">{feature.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-
           {/* Cantidad */}
           <div className="product-detail-modal__quantity">
             <span className="product-detail-modal__quantity-label">Quantitat:</span>
@@ -150,11 +123,12 @@ function ProductDetailModal({ product, isOpen, onClose }) {
 
           {/* Botones de acción */}
           <div className="product-detail-modal__actions">
-            <button className="btn btn-primary product-detail-modal__add-btn">
-              <HiOutlineShoppingCart className="w-5 h-5"/>
-              Afegir al carret
+            <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn">
+             <HiOutlineShoppingCart className="w-5 h-5"/>
+              <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
             </button>
           </div>
+
         </div>
 
 

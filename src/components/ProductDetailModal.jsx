@@ -1,8 +1,11 @@
 import { useState } from "react"
+import { useAuth } from "../context/AuthContext"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2";
 
 
 function ProductDetailModal({ product, isOpen, onClose }) {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const [quantity, setQuantity] = useState(1)
   const productImages = [
     ...(product?.images || []).filter((image) => image.is_important === true),
@@ -113,6 +116,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
             </div>
           )}
           {/* Cantidad */}
+          {!isAdmin && (
           <div className="product-detail-modal__quantity">
             <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
             <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>
@@ -121,6 +125,7 @@ function ProductDetailModal({ product, isOpen, onClose }) {
               <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
             </button>
           </div>
+          )}
         </div>
       </div>
     </dialog>

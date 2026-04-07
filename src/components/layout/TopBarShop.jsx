@@ -31,9 +31,11 @@ export default function TopBarShop() {
           </div>
 
           <div className="navbar-end">
-            <Link to="/#Carrito" className="btn btn-ghost btn-circle">
-              <HiOutlineShoppingCart className="shop-tobar-end__icon" />
-            </Link>
+            {(!user || user?.role !== 'admin') && (
+              <Link to="/#Carrito" className="btn btn-ghost btn-circle">
+                <HiOutlineShoppingCart className="shop-tobar-end__icon" />
+              </Link>
+            )}
 
             {!user ? (
               <Link to="/login" className="btn btn-primary btn-sm">

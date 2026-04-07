@@ -60,20 +60,15 @@ export default function AdminCustomSolutionsShow() {
               <h1 className="text-2xl md:text-3xl font-bold text-base-content">
                 Solucio personalitzada #{customSolution.id}
               </h1>
-              <p className="text-base-400 text-md md:text-lg mt-1">
-                {customSolution.email || 'Sense correu'}
-              </p>
+
             </div>
-            <span className={`badge ${customSolution.status === 'pending' ? 'badge-warning' : 'badge-success'}`}>
-              {customSolution.status === 'pending' ? 'Pendent' : 'Tancada'}
-            </span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-5">
             <div className="simple-container">
-              <h3 className="text-[18px] font-semibold mb-4">Descripcio</h3>
+              <h3 className="text-[18px] font-semibold mb-4">Descripció</h3>
               <p className="text-base-400 whitespace-pre-wrap break-all">
-                {customSolution.description || 'Aquesta solucio personalitzada no te descripcio'}
+                {customSolution.description || 'Aquesta solucio personalitzada no te descripció'}
               </p>
             </div>
 
@@ -82,28 +77,32 @@ export default function AdminCustomSolutionsShow() {
                 <h3 className="text-[18px] font-semibold mb-4">Contacte</h3>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
                   <p className="font-semibold text-base-400">Correu</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.email || ''}</p>
+                  <a href={`mailto:${customSolution.email}`} className="text-left link link-primary link-hover sm:text-right break-all sm:max-w-[65%]">{customSolution.email || ''}</a>
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
-                  <p className="font-semibold text-base-400">Telefon</p>
-                  <p className="text-left sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || ''}</p>
+                  <p className="font-semibold text-base-400">Telèfon</p>
+                  <a href={`tel:${customSolution.phone}`} className="text-left link link-primary link-hover sm:text-right break-all sm:max-w-[65%]">{customSolution.phone || ''}</a>
                 </div>
               </div>
 
               <div className="simple-container">
                 <h3 className="text-[18px] font-semibold mb-4">Seguiment</h3>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
-                  <p className="font-semibold text-base-400">Data de creacio</p>
+                  <p className="font-semibold text-base-400">ID (identificador)</p>
+                  <p className="text-left sm:text-right">#{customSolution.id}</p>
+                </div>
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
+                  <p className="font-semibold text-base-400">Data de creació</p>
                   <p className="text-left sm:text-right">{formatDate(customSolution.created_at)}</p>
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
-                  <p className="font-semibold text-base-400">Ultima actualitzacio</p>
-                  <p className="text-left sm:text-right">{formatDate(customSolution.updated_at)}</p>
+                  <p className="font-semibold text-base-400">Data de tancament</p>
+                  <p className="text-left sm:text-right">{customSolution.status === 'pending' ? "Encara no s'ha tancat" : formatDate(customSolution.updated_at)}</p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
-                  <p className="font-semibold text-base-400">Activa</p>
+                  <p className="font-semibold text-base-400">Estat</p>
                   <p className="text-left sm:text-right">
-                    {customSolution.deleted_at ? 'No' : 'Si'}
+                    {customSolution.status === 'pending' ? 'Pendent' : 'Tancada'}
                   </p>
                 </div>
               </div>

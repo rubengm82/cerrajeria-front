@@ -161,10 +161,10 @@ function AdminShowProduct() {
               </div>
 
               {/* Si tiene llaves extras se muestra */}
-              {product.extra_keys > 0 &&
+              {product.price_keys > 0 &&
                 <div>
                   <hr className="border-base-300 my-5" />
-                  <p className="text-base-400 font-semibold">{product.extra_keys} claus extres incloses</p>
+                  <p className="text-base-400 font-semibold">{product.price_keys}€ claus extres</p>
                 </div>
               }
             </div>

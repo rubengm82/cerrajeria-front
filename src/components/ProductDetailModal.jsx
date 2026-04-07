@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react"
-import { getFeatureTypes } from "../api/features_api"
+import { useState } from "react"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2";
 
 

@@ -6,6 +6,18 @@ import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
 
+const STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pendent', selectClassName: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'contacted', label: 'Contactada', selectClassName: 'bg-info border-info-content text-info-content' },
+  { value: 'waiting_installation', label: 'Esperant instal·lació', selectClassName: 'bg-secondary border-secondary-content text-secondary-content' },
+  { value: 'installed', label: 'Instal·lada', selectClassName: 'bg-success border-success-content text-success-content' },
+  { value: 'rejected', label: 'Rebutjada', selectClassName: 'bg-error border-error-content text-error-content' },
+]
+
+function getStatusOption(status) {
+  return STATUS_OPTIONS.find((option) => option.value === status) || STATUS_OPTIONS[0]
+}
+
 function formatDate(dateString) {
   const date = new Date(dateString)
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('ca-ES')
@@ -15,6 +27,7 @@ export default function AdminCustomSolutionsList() {
   const [customSolutions, setCustomSolutions] = useState([])
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
+  const [updatingStatusId, setUpdatingStatusId] = useState(null)
 
   const loadCustomSolutions = async () => {
     try {
@@ -49,17 +62,23 @@ export default function AdminCustomSolutionsList() {
     }
   }
 
-  const handleStatusToggle = async (solution) => {
-    const nextStatus = solution.status === 'pending' ? 'closed' : 'pending'
-    const nextStatusLabel = nextStatus === 'pending' ? 'Pendent' : 'Tancada'
-
-    try {
-      await updateCustomSolution(solution.id, { status: nextStatus })
-      await loadCustomSolutions()
-      setNotification({ id: Date.now(), type: 'success', message: `Estat actualitzat a ${nextStatusLabel} correctament` })
-    } catch (error) {
-      console.error(error)
-      setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut actualitzar l'estat de la solucio personalitzada" })
+  const handleStatusChange = async (solution, nextStatus) => {
+    if (solution.status !== nextStatus) {
+      try {
+        setUpdatingStatusId(solution.id)
+        await updateCustomSolution(solution.id, { status: nextStatus })
+        setCustomSolutions((currentSolutions) => currentSolutions.map((currentSolution) => (
+          currentSolution.id === solution.id
+            ? { ...currentSolution, status: nextStatus, updated_at: new Date().toISOString() }
+            : currentSolution
+        )))
+        setNotification({ id: Date.now(), type: 'success', message: `Estat actualitzat a ${getStatusOption(nextStatus).label} correctament` })
+      } catch (error) {
+        console.error(error)
+        setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut actualitzar l'estat de la solucio personalitzada" })
+      } finally {
+        setUpdatingStatusId(null)
+      }
     }
   }
 
@@ -103,13 +122,15 @@ export default function AdminCustomSolutionsList() {
                       <p className='line-clamp-3 whitespace-pre-wrap'>{solution.description || ''}</p>
                     </td>
                     <td className='border-base-300 text-base-400'>{formatDate(solution.created_at)}</td>
-                    <td className='border-base-300 text-base-400'>{solution.status === 'pending' ? "Encara no s'ha tancat" : formatDate(solution.updated_at)}</td>
+                    <td className='border-base-300 text-base-400'>{solution.status === 'installed' || solution.status === 'rejected' ? formatDate(solution.updated_at) : "Encara no s'ha tancat"}</td>
                     <td className='border-base-300 text-center'>
-                      <ConfirmableModal title="Canviar estat de la petició" message={`Segur que vols canviar l'estat de la petició #${solution.id} de ${solution.status === 'pending' ? 'Pendent' : 'Tancada'} a ${solution.status === 'pending' ? 'Tancada' : 'Pendent'}?`} onConfirm={() => handleStatusToggle(solution)}>
-                        <span className={`badge cursor-pointer hover:opacity-80 transition-opacity ${solution.status === 'pending' ? 'badge-warning' : 'badge-success'}`}>
-                          {solution.status === 'pending' ? 'Pendent' : 'Tancada'}
-                        </span>
-                      </ConfirmableModal>
+                        <select value={solution.status} onChange={(event) => handleStatusChange(solution, event.target.value)} className={`select select-sm w-40 max-w-56 rounded-full text-center font-medium shadow-none border ${getStatusOption(solution.status).selectClassName}`} disabled={updatingStatusId === solution.id}>
+                          {STATUS_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
                     </td>
                     <td className='border-base-300'>
                       <div className='flex items-center justify-center gap-3'>
@@ -126,7 +147,7 @@ export default function AdminCustomSolutionsList() {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={6} className='p-6'>
+                    <td colSpan={8} className='p-6'>
                       <div className='w-full flex justify-center items-center gap-2'>
                         <p>Actualment no hi ha solucions personalitzades registrades</p>
                         <Link to="/custom-solutions" className='text-primary'>anar al formulari</Link>

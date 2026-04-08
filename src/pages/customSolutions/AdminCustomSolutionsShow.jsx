@@ -5,6 +5,14 @@ import { getCustomSolution } from '../../api/customSolutions_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 
+const STATUS_LABELS = {
+  pending: 'Pendent',
+  contacted: 'Contactada',
+  waiting_installation: 'Esperant instal·lació',
+  installed: 'Instal·lada',
+  rejected: 'Rebutjada',
+}
+
 function formatDate(dateString) {
   const date = new Date(dateString)
 
@@ -65,11 +73,28 @@ export default function AdminCustomSolutionsShow() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-5">
-            <div className="simple-container">
-              <h3 className="text-[18px] font-semibold mb-4">Descripció</h3>
-              <p className="text-base-400 whitespace-pre-wrap break-all">
-                {customSolution.description || 'Aquesta solucio personalitzada no te descripció'}
-              </p>
+            <div className="flex flex-col gap-5">
+              <div className="simple-container">
+                <h3 className="text-[18px] font-semibold mb-4">Descripció</h3>
+                <p className="text-base-400 whitespace-pre-wrap break-all">
+                  {customSolution.description || 'Aquesta solucio personalitzada no te descripció'}
+                </p>
+              </div>
+
+              <div className="simple-container">
+                <h3 className="text-[18px] font-semibold mb-4">Imatges adjuntes</h3>
+                {customSolution.files?.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {customSolution.files.map((file) => (
+                      <a key={file.id || file.file_path} href={`/storage/${file.file_path}`} target="_blank" rel="noreferrer" className="block">
+                        <img src={`/storage/${file.file_path}`} alt={`Adjunt de la solucio personalitzada ${customSolution.id}`} className="rounded-lg aspect-square object-cover w-full border border-base-300"/>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-base-400">Aquesta solucio personalitzada no te imatges adjuntes.</p>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-5">
@@ -97,12 +122,12 @@ export default function AdminCustomSolutionsShow() {
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
                   <p className="font-semibold text-base-400">Data de tancament</p>
-                  <p className="text-left sm:text-right">{customSolution.status === 'pending' ? "Encara no s'ha tancat" : formatDate(customSolution.updated_at)}</p>
+                  <p className="text-left sm:text-right">{customSolution.status === 'installed' || customSolution.status === 'rejected' ? formatDate(customSolution.updated_at) : "Encara no s'ha tancat"}</p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
                   <p className="font-semibold text-base-400">Estat</p>
                   <p className="text-left sm:text-right">
-                    {customSolution.status === 'pending' ? 'Pendent' : 'Tancada'}
+                    {STATUS_LABELS[customSolution.status] || customSolution.status || '-'}
                   </p>
                 </div>
               </div>

@@ -149,6 +149,60 @@
 
   &__textarea {
     min-height: 9rem;
+    resize: none;
+  }
+
+  &__upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 2px dashed var(--color-base-300);
+    border-radius: 0.75rem;
+    background-color: var(--color-base-200);
+    text-align: center;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  &__upload-box--dragging {
+    border-color: var(--color-primary);
+    background-color: var(--color-base-100);
+  }
+
+  &__file-input {
+    display: none;
+  }
+
+  &__upload-text {
+    margin: 0;
+    color: var(--color-base-content);
+    font-weight: 500;
+  }
+
+  &__upload-separator {
+    margin: 0;
+    color: rgb(10 13 16 / 0.5);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  &__upload-button {
+    min-width: 10rem;
+  }
+
+  &__images-selected {
+    margin: 0;
+    color: rgb(10 13 16 / 0.65);
+    font-size: 0.875rem;
+    word-break: break-word;
+
+    p {
+      margin: 0;
+    }
   }
 
   &__submit {

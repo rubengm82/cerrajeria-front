@@ -52,22 +52,40 @@ export default function CustomSolutions() {
     })
   }
 
-  const updateImages = (fileList, syncInput = false) => {
+  const syncFileInputFiles = (files) => {
+    if (!fileInputRef.current) return
+
+    const dataTransfer = new DataTransfer()
+    files.forEach((file) => {
+      dataTransfer.items.add(file)
+    })
+    fileInputRef.current.files = dataTransfer.files
+  }
+
+  const updateImages = (fileList) => {
     const selectedImages = Array.from(fileList).filter((file) => file.type.startsWith('image/'))
-    const limitedImages = selectedImages.slice(0, MAX_IMAGES)
-    setImages(limitedImages)
 
-    if (syncInput && fileInputRef.current) {
-      const dataTransfer = new DataTransfer()
-      limitedImages.forEach((image) => {
-        dataTransfer.items.add(image)
-      })
-      fileInputRef.current.files = dataTransfer.files
-    }
+    setImages((prevImages) => {
+      const nextImages = [...prevImages, ...selectedImages].slice(0, MAX_IMAGES)
+      syncFileInputFiles(nextImages)
 
-    if (selectedImages.length > MAX_IMAGES) {
-      showMaxImagesNotification()
-    }
+      if (prevImages.length + selectedImages.length > MAX_IMAGES) {
+        showMaxImagesNotification()
+      }
+
+      return nextImages
+    })
+  }
+
+  const handleRemoveImage = (imageToRemove) => {
+    setImages((prevImages) => {
+      const nextImages = prevImages.filter(
+        (image) => !(image.name === imageToRemove.name && image.lastModified === imageToRemove.lastModified)
+      )
+
+      syncFileInputFiles(nextImages)
+      return nextImages
+    })
   }
 
   const handleChange = (event) => {
@@ -75,6 +93,7 @@ export default function CustomSolutions() {
 
     if (type === 'file') {
       updateImages(files)
+      event.target.value = null
     } else {
       setFormData((prev) => ({...prev, [name]: value,}))
     }
@@ -103,7 +122,7 @@ export default function CustomSolutions() {
   const handleDrop = (event) => {
     event.preventDefault()
     setIsDraggingFiles(false)
-    updateImages(event.dataTransfer.files, true)
+    updateImages(event.dataTransfer.files)
   }
 
   const handleOpenFilePicker = () => {
@@ -234,7 +253,10 @@ export default function CustomSolutions() {
                     {images.length > 0 ? (
                       <div className="custom-solutions__images-selected">
                         {images.map((image) => (
-                          <p key={`${image.name}-${image.lastModified}`}>{image.name}</p>
+                          <div key={`${image.name}-${image.lastModified}`} className="flex items-center justify-between gap-2">
+                            <p>{image.name}</p>
+                            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveImage(image)}>X</button>
+                          </div>
                         ))}
                       </div>
                     ) : (

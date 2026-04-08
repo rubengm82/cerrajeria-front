@@ -45,8 +45,8 @@ export default function TopBarShop() {
                   <HiOutlineUserCircle className="shop-tobar-end__icon" />
                 </button>
                 <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-sm gap-2">
-                  {(user?.role === 'admin' || user?.role === 1) && (
-                    <li><Link to="/admin/dashboard" className='btn btn-primary'>Panell d'administració</Link></li>
+                  {user && (
+                    <li><Link to="/admin/dashboard" className='btn btn-primary'>Panell d'usuari</Link></li>
                   )}
                   <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
                 </ul>
@@ -68,8 +68,8 @@ export default function TopBarShop() {
             <li><Link to="/login" className="btn btn-primary mt-4">Inicia sessió</Link></li>
           ) : (
             <>
-              {(user?.role === 'admin' || user?.role === 1) && (
-                <li><Link to="/admin/dashboard" className="btn btn-primary mt-4">Panell d'Administració</Link></li>
+              {user && (
+                <li><Link to="/admin/dashboard" className="btn btn-primary mt-4">Panell d'Usuari</Link></li>
               )}
               <li><button onClick={logout} className="btn btn-error mt-2">Tancar sessió</button></li>
             </>

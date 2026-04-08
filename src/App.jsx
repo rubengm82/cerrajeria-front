@@ -43,6 +43,7 @@ import CreatePack from './pages/packs/CreatePack'
 import EditPack from './pages/packs/EditPack'
 import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import UserDashboard from './pages/admin/UserDashboard'
 import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
@@ -53,6 +54,14 @@ import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
 import Error500 from './pages/errors/error500'
 import Error503 from './pages/errors/error503'
+
+// Componente Dashboard que elige entre AdminDashboard y UserDashboard
+function Dashboard() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin' || user?.role === 1
+
+  return isAdmin ? <AdminDashboard /> : <UserDashboard />
+}
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -68,7 +77,11 @@ function ProtectedRoute({ children, requiredRole }) {
   // Verificar rol si se requiere uno específico
   if (requiredRole) {
     const isAdmin = user.role === 'admin' || user.role === 1
+    const isUser = user.role === 'user' || user.role === 'admin' || user.role === 1
     if (requiredRole === 'admin' && !isAdmin) {
+      return <Navigate to="/error403" />
+    }
+    if (requiredRole === 'user' && !isUser) {
       return <Navigate to="/error403" />
     }
   }
@@ -210,8 +223,8 @@ function App() {
         } />
 
         <Route path='/admin/dashboard' element={
-          <ProtectedRoute requiredRole='admin'>
-            <AdminDashboard />
+          <ProtectedRoute requiredRole='user'>
+            <Dashboard />
           </ProtectedRoute>
         } />
       </Route>

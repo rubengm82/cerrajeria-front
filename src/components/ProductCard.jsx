@@ -1,15 +1,21 @@
 import { Link } from "react-router-dom";
-import { HiOutlinePhoto, HiOutlineEye, HiOutlineShoppingCart } from "react-icons/hi2";
+import { HiOutlinePhoto, HiOutlineEye } from "react-icons/hi2";
 
 function ProductCard({product, onView}) {
+  const isPack = product?.total_price != null
   const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
   const imagePath = mainImage?.path
   const handleCardClick = () => onView?.(product)
+  const currentPrice = isPack
+    ? product.total_price
+    : product.discount > 0
+      ? (product.price * (1 - product.discount / 100)).toFixed(2)
+      : product.price
 
   return product ?
     <div key={product.id} className={`product-card border-base-300 ${onView ? "product-card--interactive" : ""}`} onClick={onView ? handleCardClick : undefined}>
       <div className="product-card__media">
-        {product.discount > 0 && (
+        {!isPack && product.discount > 0 && (
           <div className="product-card__discount bg-primary">
             <p>-{parseInt(product.discount)}%</p>
           </div>
@@ -45,7 +51,7 @@ function ProductCard({product, onView}) {
       </div>
 
       <div className="product-card__body">
-        <p className="product-card__category text-base-400">{product.category?.name}</p>
+        <p className="product-card__category text-base-400">{isPack ? "Pack" : product.category?.name}</p>
         <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()}>
           {product.name}
         </Link>
@@ -56,11 +62,10 @@ function ProductCard({product, onView}) {
 
         <div className="product-card__bottom">
           <div>
-            {/* Se muestra el precio del producto y si tiene descuento se muestra el precio con el descuento aplicado */}
             <p className="product-card__price">
-              {product.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product.price}€
+              {currentPrice}€
             </p>
-            {product.discount > 0 && (
+            {!isPack && product.discount > 0 && (
               <p className="product-card__old-price text-base-300">{product.price}€</p>
             )}
           </div>

@@ -53,6 +53,7 @@ import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
 import Error500 from './pages/errors/error500'
 import Error503 from './pages/errors/error503'
+import Packs from './pages/packs/Packs'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -89,6 +90,7 @@ function App() {
       <Route element={<LayoutShop />}>
         <Route path="/" element={<Shop />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/packs" element={<Packs />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/:id" element={<CategoriesShow />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />

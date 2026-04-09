@@ -126,9 +126,11 @@ function OrdersList() {
               <tr>
                 <th className="bg-base-200">ID Comanda</th>
                 {isAdmin && <th className="bg-base-200">Client</th>}
-                <th className="bg-base-200">Data</th>
-                <th className="bg-base-200">Estat</th>
+                <th className="bg-base-200">Data Factura</th>
+                <th className="bg-base-200">Enviament</th>
+                <th className="bg-base-200">Mètode Pagament</th>
                 <th className="bg-base-200">Total</th>
+                <th className="bg-base-200">Estat</th>
                 <th className="bg-base-200">Accions</th>
               </tr>
             </thead>
@@ -136,8 +138,19 @@ function OrdersList() {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">#{order.id}</td>
-                  {isAdmin && <td>{order.user?.name || 'N/A'}</td>}
+                  {isAdmin && <td>{order.user?.name || ''} {order.user?.last_name_one || ''} {order.user?.last_name_second || ''}</td>}
                   <td>{formatDate(order.created_at)}</td>
+                  <td>
+                    {order.shipped_at ? formatDate(order.shipped_at) : ''}
+                  </td>
+                  <td>
+                    {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
+                  </td>
+                  <td className="font-bold text-primary">
+                    {order.products?.reduce((total, product) =>
+                      total + (product.price * product.pivot.quantity), 0
+                    ).toFixed(2)}€
+                  </td>
                   <td>
                     <span className={`badge ${
                       order.status === 'completed' ? 'badge-success' :
@@ -148,11 +161,6 @@ function OrdersList() {
                        order.status === 'pending' ? 'Pendent' :
                        order.status === 'cancelled' ? 'Cancel·lada' : order.status}
                     </span>
-                  </td>
-                  <td className="font-bold text-primary">
-                    {order.products?.reduce((total, product) =>
-                      total + (product.price * product.pivot.quantity), 0
-                    ).toFixed(2)}€
                   </td>
                   <td>
                     <button

@@ -42,7 +42,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       is_important_to_show: false,
       images: [],
       installation_price: 0,
-      extra_keys: 0,
+      price_keys: 0,
       is_active: true,
       feature_ids: []
     }
@@ -122,7 +122,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       stock: parseInt(form.stock) || 0,
       discount: parseInt(form.discount) || 0,
       installation_price: parseFloat(form.installation_price) || 0,
-      extra_keys: parseInt(form.extra_keys) || 0,
+      price_keys: parseFloat(form.price_keys) || 0,
       category_id: parseInt(form.category_id),
       is_installable: form.is_installable ? 1 : 0,
       is_important_to_show: form.is_important_to_show ? 1 : 0,
@@ -334,10 +334,10 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             <input type="number" name="installation_price" id='installation_price' autoComplete="off" value={form.installation_price} onChange={handleChange} placeholder="0.00" className="input w-full" step="0.01"/>
           </div>
 
-          {/* Llaves extras */}
+          {/* Precio llaves */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='extra_keys'>Llaves extras(€)</label>
-            <input type="number" name="extra_keys" id='extra_keys' autoComplete="off" value={form.extra_keys} onChange={handleChange} placeholder="0" className="input w-full" step="0.01"/>
+            <label className="label text-base-content" htmlFor='price_keys'>Precio llaves(€)</label>
+            <input type="number" name="price_keys" id='price_keys' autoComplete="off" value={form.price_keys} onChange={handleChange} placeholder="0" className="input w-full" step="0.01"/>
           </div>
         </div>
 

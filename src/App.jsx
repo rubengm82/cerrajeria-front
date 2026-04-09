@@ -44,6 +44,7 @@ import EditPack from './pages/packs/EditPack'
 import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import UserDashboard from './pages/admin/UserDashboard'
+import AdminReports from './pages/admin/AdminReports'
 import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
@@ -122,7 +123,6 @@ function App() {
         <Route path="/products" element={<div className="p-4"><h1 className="text-2xl font-bold">Productes</h1><p>Properament...</p></div>} />
         <Route path="/categories" element={<div className="p-4"><h1 className="text-2xl font-bold">Categories</h1><p>Properament...</p></div>} />
         <Route path="/orders" element={<div className="p-4"><h1 className="text-2xl font-bold">Comandes</h1><p>Properament...</p></div>} />
-        <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Informes</h1><p>Properament...</p></div>} />
         <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configuració</h1><p>Properament...</p></div>} />
 
         {/* Rutes d'usuari normal */}
@@ -221,6 +221,11 @@ function App() {
         <Route path='/admin/dashboard' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/reports' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminReports />
           </ProtectedRoute>
         } />
       </Route>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext'
-import { getOrders } from '../../api/orders_api'
+import { getOrders, updateOrder } from '../../api/orders_api'
 import { HiDocumentDownload } from 'react-icons/hi'
 import LoadingAnimation from '../../components/LoadingAnimation'
 
@@ -26,6 +26,16 @@ function OrdersList() {
       console.error('Error fetching orders:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await updateOrder(orderId, { status: newStatus })
+      setOrders(orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order))
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Error al actualizar el estado')
     }
   }
 
@@ -151,17 +161,34 @@ function OrdersList() {
                       total + (product.price * product.pivot.quantity), 0
                     ).toFixed(2)}€
                   </td>
-                  <td>
-                    <span className={`badge ${
-                      order.status === 'completed' ? 'badge-success' :
-                      order.status === 'pending' ? 'badge-warning' :
-                      order.status === 'cancelled' ? 'badge-error' : 'badge-info'
-                    }`}>
-                      {order.status === 'completed' ? 'Completada' :
-                       order.status === 'pending' ? 'Pendent' :
-                       order.status === 'cancelled' ? 'Cancel·lada' : order.status}
-                    </span>
-                  </td>
+                   <td>
+                     {isAdmin ? (
+                       <select
+                         value={order.status}
+                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                         className="select select-sm select-bordered"
+                       >
+                         <option value="in_cart">En cistella</option>
+                         <option value="pending">Pendent</option>
+                         <option value="shipped">Enviat</option>
+                         <option value="installation_confirmed">Instal·lació confirmada</option>
+                       </select>
+                     ) : (
+                       <span className={`badge ${
+                         order.status === 'completed' ? 'badge-success' :
+                         order.status === 'pending' ? 'badge-warning' :
+                         order.status === 'shipped' ? 'badge-info' :
+                         order.status === 'installation_confirmed' ? 'badge-success' :
+                         order.status === 'cancelled' ? 'badge-error' : 'badge-info'
+                       }`}>
+                         {order.status === 'completed' ? 'Completada' :
+                          order.status === 'pending' ? 'Pendent' :
+                          order.status === 'shipped' ? 'Enviat' :
+                          order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                          order.status === 'cancelled' ? 'Cancel·lada' : order.status}
+                       </span>
+                     )}
+                   </td>
                   <td>
                     <button
                       onClick={() => downloadInvoice(order.id)}

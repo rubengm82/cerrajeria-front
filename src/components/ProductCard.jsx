@@ -11,12 +11,32 @@ function ProductCard({product, onView}) {
     : product.discount > 0
       ? (product.price * (1 - product.discount / 100)).toFixed(2)
       : product.price
+  const actionLabel = isPack ? `Veure el detall del pack ${product?.name}` : `Veure el detall del producte ${product?.name}`
+  const cardLabel = isPack
+    ? `${product?.name}. Pack. Preu ${currentPrice} euros`
+    : `${product?.name}. Categoria ${product?.category?.name || 'sense categoria'}. Preu ${currentPrice} euros`
+  const handleCardKeyDown = (event) => {
+    if (!onView) return
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleCardClick()
+    }
+  }
 
   return product ?
-    <div key={product.id} className={`product-card border-base-300 ${onView ? "product-card--interactive" : ""}`} onClick={onView ? handleCardClick : undefined}>
+    <div
+      key={product.id}
+      className={`product-card border-base-300 ${onView ? "product-card--interactive" : ""}`}
+      onClick={onView ? handleCardClick : undefined}
+      onKeyDown={handleCardKeyDown}
+      role={onView ? "button" : "article"}
+      tabIndex={onView ? 0 : undefined}
+      aria-label={onView ? cardLabel : undefined}
+    >
       <div className="product-card__media">
         {!isPack && product.discount > 0 && (
-          <div className="product-card__discount bg-primary">
+          <div className="product-card__discount bg-primary" aria-label={`Descompte del ${parseInt(product.discount)} per cent`}>
             <p>-{parseInt(product.discount)}%</p>
           </div>
         )}
@@ -25,8 +45,8 @@ function ProductCard({product, onView}) {
           {imagePath ? (
             <img src={`/storage/${imagePath}`} alt={product.name} className="product-card__image"/>
           ) : (
-            <div className="product-card__empty bg-primary/10">
-              <HiOutlinePhoto className="product-card__empty-icon text-primary" />
+            <div className="product-card__empty bg-primary/10" aria-label={`Sense imatge per a ${product.name}`}>
+              <HiOutlinePhoto className="product-card__empty-icon text-primary" aria-hidden="true" />
             </div>
           )}
 
@@ -43,8 +63,9 @@ function ProductCard({product, onView}) {
                 event.stopPropagation()
                 handleCardClick()
               }}
+              aria-label={actionLabel}
             >
-               <HiOutlineEye className="product-card__action-icon"/>
+               <HiOutlineEye className="product-card__action-icon" aria-hidden="true"/>
             </button>
           </div>
         </div>
@@ -52,7 +73,7 @@ function ProductCard({product, onView}) {
 
       <div className="product-card__body">
         <p className="product-card__category text-base-400">{isPack ? "Pack" : product.category?.name}</p>
-        <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()}>
+        <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()} aria-label={actionLabel}>
           {product.name}
         </Link>
 
@@ -66,7 +87,7 @@ function ProductCard({product, onView}) {
               {currentPrice}€
             </p>
             {!isPack && product.discount > 0 && (
-              <p className="product-card__old-price text-base-300">{product.price}€</p>
+              <p className="product-card__old-price text-base-300" aria-label={`Preu anterior ${product.price} euros`}>{product.price}€</p>
             )}
           </div>
 

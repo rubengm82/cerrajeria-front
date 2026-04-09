@@ -20,17 +20,17 @@ function Categories() {
   });
 
   return loading ? <LoadingAnimation /> : (
-    <div className="categories-page">
+    <div className="categories-page" aria-labelledby="categories-page-title">
       <div className="categories-page__container">
         <div className="categories-page__body">
           <div className="mb-4">
             <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
-              <HiArrowLeft className="size-5" />
+              <HiArrowLeft className="size-5" aria-hidden="true" />
               <p>Tornar a l'inici</p>
             </Link>
-            {categories.length > 0 && <h2 className="categories-page__title">Categories:</h2>}
+            {categories.length > 0 && <h1 id="categories-page-title" className="categories-page__title">Categories:</h1>}
           </div>
-          <div className="categories-list">
+          <div className="categories-list" aria-live="polite">
             {categories.length > 0 ? categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (

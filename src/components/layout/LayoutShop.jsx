@@ -8,7 +8,7 @@ export default function LayoutShop() {
       <div className="shop-layout__top">
         <TopBarShop />
       </div>
-      <main className="shop-layout__main">
+      <main id="shop-main-content" className="shop-layout__main">
         <Outlet />
       </main>
       <div className="shop-layout__footer">

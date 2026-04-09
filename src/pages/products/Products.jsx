@@ -142,26 +142,26 @@ function Products() {
 
 
   return loading ? <LoadingAnimation /> : (
-    <div className='products-page'>
+    <div className='products-page' aria-labelledby="products-page-title">
       <div className="products-page__container">
         <div className="products-page__body">
           <div className="products-top">
             <div>
               <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
-                <HiArrowLeft className="size-5" />
+                <HiArrowLeft className="size-5" aria-hidden="true" />
                 <p>Tornar a l'inici</p>
               </Link>
               <p className="products-top__tag text-primary">Catàleg</p>
-              <h2 className="products-top__title">Productes</h2>
+              <h1 id="products-page-title" className="products-top__title">Productes</h1>
             </div>
 
             <div className="products-top__actions">
-              <p className="products-top__count text-base-400">
+              <p className="products-top__count text-base-400" aria-live="polite">
                 Mostrant {filteredProducts.length} productes
               </p>
 
-              <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()}>
-                <HiOutlineAdjustmentsHorizontal className="filters-box__icon" />
+              <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()} aria-haspopup="dialog" aria-controls="products-filters-modal" aria-label="Obrir filtres de productes">
+                <HiOutlineAdjustmentsHorizontal className="filters-box__icon" aria-hidden="true" />
                 Filtres
               </button>
             </div>
@@ -169,7 +169,7 @@ function Products() {
 
           <div className="products-layout">
             <div>
-              <div className="products-list">
+              <div className="products-list" aria-live="polite">
                 { filteredProducts.length > 0 ?
                   filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} onView={openProductModal} />
@@ -179,13 +179,13 @@ function Products() {
             </div>
           </div>
 
-          <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle">
+          <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle" aria-labelledby="products-filters-title" aria-modal="true">
             <div className="modal-box filters-modal">
               <div className="filters-box">
                 <div className="filters-box__head">
                   <div className="filters-box__head-content">
-                    <HiOutlineFunnel className="filters-box__icon" />
-                    <h3 className="filters-box__title">Filtres</h3>
+                    <HiOutlineFunnel className="filters-box__icon" aria-hidden="true" />
+                    <h2 id="products-filters-title" className="filters-box__title">Filtres</h2>
                   </div>
                   <div className="modal-action filters-box__modal-close">
                     <button 
@@ -195,8 +195,8 @@ function Products() {
                       Sense filtres
                     </button>
                     <form method="dialog">
-                      <button>
-                        <HiXMark className="filters-box__icon filters-box__close-icon" />
+                      <button aria-label="Tancar filtres">
+                        <HiXMark className="filters-box__icon filters-box__close-icon" aria-hidden="true" />
                       </button>
                     </form>
                   </div>
@@ -236,7 +236,7 @@ function Products() {
                     <div className="collapse-content filters-box__section-body">
                       {featuresTypes.map((featureType) => (
                         <div key={featureType.name} className="filters-box__type-group">
-                          <div className="divider">{featureType.name.charAt(0).toUpperCase() + featureType.name.slice(1)}</div>
+                          <div className="divider" aria-label={`Tipus de característica ${featureType.name}`}>{featureType.name.charAt(0).toUpperCase() + featureType.name.slice(1)}</div>
                           <div className="filters-box__list">
                             {featureType.features?.map((feature) => {
                                const featureKey = getFeatureKey(featureType.name, feature.value);

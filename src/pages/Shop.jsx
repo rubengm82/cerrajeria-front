@@ -67,9 +67,9 @@ function Shop() {
     <div className="shop-home">
       <div className='shop-home__top'>
         <div className="shop-home__container shop-home__container--hero">
-          <div className="hero-box bg-base-200">
+          <section className="hero-box bg-base-200" aria-labelledby="shop-hero-title">
             <div className="hero-box__content">
-              <h1 className="hero-box__title">
+              <h1 id="shop-hero-title" className="hero-box__title">
                 <span className="hero-box__line hero-box__line--nowrap">
                   El millor <span className="text-primary">servei</span>
                 </span>
@@ -81,14 +81,14 @@ function Shop() {
               </p>
 
               <div className="hero-box__actions">
-                <Link to='/products' type="button" className="btn btn-primary hero-box__button">
+                <Link to='/products' type="button" className="btn btn-primary hero-box__button" aria-label="Anar al catàleg de productes">
                   <p>Veure productes</p>
-                  <HiArrowRight className="shop-icon" />
+                  <HiArrowRight className="shop-icon" aria-hidden="true" />
                 </Link>
 
-                <Link to='/categories' type="button" className="btn btn-secondary hero-box__button">
+                <Link to='/categories' type="button" className="btn btn-secondary hero-box__button" aria-label="Anar al llistat de categories">
                   <p>Veure categories</p>
-                  <HiArrowRight className="shop-icon" />
+                  <HiArrowRight className="shop-icon" aria-hidden="true" />
                 </Link>
               </div>
             </div>
@@ -96,11 +96,11 @@ function Shop() {
             <div className="hero-box__image-wrap">
               <img src="/banner.jpg" alt="Serraller treballant en una porta" fetchPriority="high" className="hero-box__image"/>
             </div>
-          </div>
+          </section>
 
-          <div className="feature-list bg-base-100 border-base-300">
+          <section className="feature-list bg-base-100 border-base-300" aria-label="Avantatges del servei">
             <div className="feature-list__item feature-list__item--line border-base-300">
-              <FiTruck className="feature-list__icon text-primary" strokeWidth={1.8} />
+              <FiTruck className="feature-list__icon text-primary" strokeWidth={1.8} aria-hidden="true" />
               <div>
                 <h2 className="feature-list__title">Enviament gratuït</h2>
                 <p className="feature-list__text text-base-300">En comandes de més de 60 €</p>
@@ -108,7 +108,7 @@ function Shop() {
             </div>
 
             <div className="feature-list__item feature-list__item--line border-base-300">
-              <FiShield className="feature-list__icon text-primary" strokeWidth={1.8} />
+              <FiShield className="feature-list__icon text-primary" strokeWidth={1.8} aria-hidden="true" />
               <div>
                 <h2 className="feature-list__title">Garantia de qualitat</h2>
                 <p className="feature-list__text text-base-300">Tots els productes són d'alta qualitat</p>
@@ -116,28 +116,28 @@ function Shop() {
             </div>
 
             <div className="feature-list__item">
-              <FiHeadphones className="feature-list__icon text-primary" strokeWidth={1.8} />
+              <FiHeadphones className="feature-list__icon text-primary" strokeWidth={1.8} aria-hidden="true" />
               <div>
                 <h2 className="feature-list__title">Atenció experta</h2>
                 <p className="feature-list__text text-base-300">Atenció professional de qualitat</p>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="shop-section shop-section--products">
+          <section className="shop-section shop-section--products" aria-labelledby="featured-products-title">
             <div className="section-head">
               <div>
                 <p className="section-head__tag text-primary">El més destacat</p>
-                <h2 className="section-head__title">Productes destacats</h2>
+                <h2 id="featured-products-title" className="section-head__title">Productes destacats</h2>
               </div>
 
-              <button onClick={() => navigate("/products")} type="button" className="section-link section-link--desktop text-primary">
+              <button onClick={() => navigate("/products")} type="button" className="section-link section-link--desktop text-primary" aria-label="Veure tots els productes destacats">
                 Veure'ls tots
-                <HiArrowRight className="shop-icon" />
+                <HiArrowRight className="shop-icon" aria-hidden="true" />
               </button>
             </div>
 
-            <div className="products-grid">
+            <div className="products-grid" aria-live="polite">
               { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
                 <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
@@ -145,34 +145,35 @@ function Shop() {
               }
             </div>
 
-            <button onClick={() => navigate("/products")} type="button" className="section-link section-link--mobile text-primary">
+            <button onClick={() => navigate("/products")} type="button" className="section-link section-link--mobile text-primary" aria-label="Veure tots els productes destacats">
               Veure'ls tots
-              <HiArrowRight className="shop-icon" />
+              <HiArrowRight className="shop-icon" aria-hidden="true" />
             </button>
-          </div>
+          </section>
         </div>
       </div>
       {/* Banner naranja */}
-      <div className='promo-banner bg-primary'>
+      <div className='promo-banner bg-primary' aria-label="Missatge destacat">
         <h3 className='promo-banner__text text-base-100'>La clau de la teva tranquil·litat, a un sol clic</h3>
       </div>
 
       {/* Categorias */}
       <div className='shop-home__categories'>
         <div className="shop-home__container shop-home__container--categories">
+          <section aria-labelledby="featured-categories-title">
           <div className="section-head">
             <div>
               <p className="section-head__tag text-primary">Explora el nostre catàleg</p>
-              <h2 className="section-head__title">Categories principals</h2>
+              <h2 id="featured-categories-title" className="section-head__title">Categories principals</h2>
             </div>
 
-            <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--desktop text-primary">
+            <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--desktop text-primary" aria-label="Veure totes les categories">
               Veure-les totes
-              <HiArrowRight className="shop-icon" />
+              <HiArrowRight className="shop-icon" aria-hidden="true" />
             </button>
           </div>
 
-          <div className="categories-grid">
+          <div className="categories-grid" aria-live="polite">
             {importantCategories && importantCategories.length > 0 ? importantCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
@@ -180,10 +181,11 @@ function Shop() {
             )}
           </div>
 
-          <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--mobile text-primary">
+          <button onClick={() => navigate("/categories")} type="button" className="section-link section-link--mobile text-primary" aria-label="Veure totes les categories">
             Veure-les totes
-            <HiArrowRight className="shop-icon" />
+            <HiArrowRight className="shop-icon" aria-hidden="true" />
           </button>
+          </section>
         </div>
       </div>
 
@@ -196,11 +198,11 @@ function Shop() {
       />
 
       {/* Banner naranja de contacto */}
-      <div className='contact-banner bg-primary'>
-        <h3 className='contact-banner__title text-base-100'>Contacta amb nosaltres ara</h3>
+      <div className='contact-banner bg-primary' aria-labelledby="contact-banner-title">
+        <h3 id="contact-banner-title" className='contact-banner__title text-base-100'>Contacta amb nosaltres ara</h3>
         <p className='contact-banner__text text-base-100'>Contacta amb nosaltres ara, som especialistes en serralleria i et podem ajudar.</p>
 
-        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button'>Solucions Personalitzades</button>
+        <button onClick={() => navigate("/custom-solutions")} className='btn btn-secondary contact-banner__button' aria-label="Anar al formulari de solucions personalitzades">Solucions Personalitzades</button>
       </div>
 
     </div>

@@ -166,7 +166,7 @@ export default function CustomSolutions() {
   }
 
   return (
-    <div className="custom-solutions">
+    <div className="custom-solutions" aria-labelledby="custom-solutions-title">
       {notification && (
         <Notifications key={notification.id} type={notification.type} message={notification.message} autoClose={notification.autoClose} onClose={() => setNotification(null)}/>
       )}
@@ -180,7 +180,7 @@ export default function CustomSolutions() {
         <div className="custom-solutions__layout">
           <div className="custom-solutions__content">
             <div className="custom-solutions__intro">
-              <h1 className="custom-solutions__title">
+              <h1 id="custom-solutions-title" className="custom-solutions__title">
                 Explica'ns què necessites i prepararem una <span className="custom-solutions__title-accent">proposta a mida.</span>
               </h1>
 
@@ -213,11 +213,11 @@ export default function CustomSolutions() {
               <div className="custom-solutions__card-header">
                 <div>
                   <p className="custom-solutions__eyebrow">Formulari de contacte</p>
-                  <h2 className="custom-solutions__card-title">Demana una solució personalitzada</h2>
+                  <h2 id="custom-solutions-form-title" className="custom-solutions__card-title">Demana una solució personalitzada</h2>
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="custom-solutions__form">
+              <form onSubmit={handleSubmit} className="custom-solutions__form" aria-labelledby="custom-solutions-form-title">
                 <div className="custom-solutions__field-grid">
                   <div>
                     <label className="label custom-solutions__field-label" htmlFor="email">
@@ -245,17 +245,18 @@ export default function CustomSolutions() {
                   <label className="label custom-solutions__field-label" htmlFor="images">
                     <span className="text-sm font-medium">Imatges</span>
                   </label>
-                  <div className={`custom-solutions__upload-box ${isDraggingFiles ? 'custom-solutions__upload-box--dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}>
+                  <div className={`custom-solutions__upload-box ${isDraggingFiles ? 'custom-solutions__upload-box--dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} aria-describedby="custom-solutions-upload-help">
                     <input ref={fileInputRef} id="images" name="images" type="file" accept="image/*" multiple onChange={handleChange} className="custom-solutions__file-input"/>
                     <p className="custom-solutions__upload-text">Arrossega les imatges aquí</p>
                     <p className="custom-solutions__upload-separator">O</p>
                     <button type="button" className="btn btn-dash custom-solutions__upload-button" onClick={handleOpenFilePicker}>Pujar arxius</button>
+                    <p id="custom-solutions-upload-help" className="sr-only">Pots adjuntar fins a {MAX_IMAGES} imatges.</p>
                     {images.length > 0 ? (
-                      <div className="custom-solutions__images-selected">
+                      <div className="custom-solutions__images-selected" aria-live="polite">
                         {images.map((image) => (
                           <div key={`${image.name}-${image.lastModified}`} className="flex items-center justify-between gap-2">
                             <p>{image.name}</p>
-                            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveImage(image)}>X</button>
+                            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveImage(image)} aria-label={`Eliminar la imatge ${image.name}`}>X</button>
                           </div>
                         ))}
                       </div>

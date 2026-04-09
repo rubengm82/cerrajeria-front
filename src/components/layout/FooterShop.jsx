@@ -5,7 +5,7 @@ export default function FooterShop() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="footer-shop">
+    <footer className="footer-shop" role="contentinfo">
       <div className="footer-shop__container">
         <div className="footer-shop__grid">
           {/* Columna 1: Logo y descripción */}
@@ -19,7 +19,7 @@ export default function FooterShop() {
           </div>
 
           {/* Columna 2: Enlaces rápidos */}
-          <div className="footer-shop__links">
+          <nav className="footer-shop__links" aria-label="Enllaços del peu de pàgina">
             <h3>Enllaços</h3>
             <ul>
               <li>
@@ -47,7 +47,7 @@ export default function FooterShop() {
                 <a href="https://web.gencat.cat/ca/generalitat/com-ens-organitzem/adreces-i-telefons/detall-adreces-i-telefons?objectID=5679" target="_blank" rel="noopener noreferrer">Estem Adherits</a>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* Columna 3: Información de contacto */}
           <div className="footer-shop__contact">
@@ -65,7 +65,7 @@ export default function FooterShop() {
           {/* Columna 4: Redes sociales */}
           <div className="footer-shop__social">
             <h3>Segueix-nos</h3>
-            <div className="footer-shop__social-icons">
+            <div className="footer-shop__social-icons" aria-label="Xarxes socials">
               <a href="https://www.facebook.com/serralleriasolidaria/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 <FaFacebook />
               </a>

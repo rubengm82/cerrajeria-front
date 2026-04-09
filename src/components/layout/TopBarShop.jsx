@@ -5,6 +5,7 @@ import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "reac
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
+  const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/dashboard' : '/dashboard'
 
   return (
     <div className="drawer">
@@ -49,7 +50,7 @@ export default function TopBarShop() {
                 </button>
                 <ul tabIndex={-1} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-sm gap-2">
                   {user && (
-                    <li><Link to="/admin/dashboard" className='btn btn-primary'>Panell d'usuari</Link></li>
+                    <li><Link to={dashboardUrl} className='btn btn-primary'>Panell d'usuari</Link></li>
                   )}
                   <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
                 </ul>
@@ -73,7 +74,7 @@ export default function TopBarShop() {
           ) : (
             <>
               {user && (
-                <li><Link to="/admin/dashboard" className="btn btn-primary mt-4">Panell d'Usuari</Link></li>
+                <li><Link to={dashboardUrl} className="btn btn-primary mt-4">Panell d'Usuari</Link></li>
               )}
               <li><button onClick={logout} className="btn btn-error mt-2">Tancar sessió</button></li>
             </>

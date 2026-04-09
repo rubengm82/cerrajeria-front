@@ -56,13 +56,7 @@ import Error500 from './pages/errors/error500'
 import Error503 from './pages/errors/error503'
 import Packs from './pages/packs/Packs'
 
-// Componente Dashboard que elige entre AdminDashboard y UserDashboard
-function Dashboard() {
-  const { user } = useAuth()
-  const isAdmin = user?.role === 'admin' || user?.role === 1
 
-  return isAdmin ? <AdminDashboard /> : <UserDashboard />
-}
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -119,8 +113,8 @@ function App() {
       {/* Rutas con Layout (Topbar + Sidebar) */}
       <Route element={<LayoutDashboard />}>
         <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <div className="p-4"><h1 className="text-2xl font-bold">Tauler</h1><p>Properament...</p></div>
+          <ProtectedRoute requiredRole="user">
+            <UserDashboard />
           </ProtectedRoute>
         } />
 
@@ -225,8 +219,8 @@ function App() {
         } />
 
         <Route path='/admin/dashboard' element={
-          <ProtectedRoute requiredRole='user'>
-            <Dashboard />
+          <ProtectedRoute requiredRole='admin'>
+            <AdminDashboard />
           </ProtectedRoute>
         } />
       </Route>

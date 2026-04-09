@@ -105,7 +105,7 @@ function ProductDetailModal({ product, isOpen, onClose, entityType = "product", 
 
           {isLoading ? (
             <div className="flex justify-center py-6">
-              <LoadingAnimation />
+              <LoadingAnimation heightClass="" />
             </div>
           ) : isPack ? (
             <div className="product-detail-modal__features-table-wrapper">
@@ -146,7 +146,7 @@ function ProductDetailModal({ product, isOpen, onClose, entityType = "product", 
             </div>
           )}
           {/* Cantidad */}
-          {!isLoading && !isAdmin (
+          {!isLoading && !isAdmin && (
             <div className="product-detail-modal__quantity">
               <label htmlFor="quantity" className="product-detail-modal__quantity-label">Quantitat:</label>
               <input id="quantity" type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14"/>

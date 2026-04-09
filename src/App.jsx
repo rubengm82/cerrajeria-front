@@ -47,6 +47,7 @@ import UserDashboard from './pages/admin/UserDashboard'
 import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
+import OrdersList from './pages/orders/OrdersList'
 
 // Pages - Errors
 import Error404 from './pages/errors/error404'
@@ -121,12 +122,16 @@ function App() {
         <Route path="/services" element={<div className="p-4"><h1 className="text-2xl font-bold">Serveis</h1><p>Properament...</p></div>} />
         <Route path="/products" element={<div className="p-4"><h1 className="text-2xl font-bold">Productes</h1><p>Properament...</p></div>} />
         <Route path="/categories" element={<div className="p-4"><h1 className="text-2xl font-bold">Categories</h1><p>Properament...</p></div>} />
-        <Route path="/orders" element={<div className="p-4"><h1 className="text-2xl font-bold">Comandes</h1><p>Properament...</p></div>} />
+        <Route path="/orders" element={
+          <ProtectedRoute requiredRole="admin">
+            <OrdersList />
+          </ProtectedRoute>
+        } />
         <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Informes</h1><p>Properament...</p></div>} />
         <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configuració</h1><p>Properament...</p></div>} />
 
         {/* Rutes d'usuari normal */}
-        <Route path="/my-orders" element={<div className="p-4"><h1 className="text-2xl font-bold">Les Meves Comandes</h1><p>Properament...</p></div>} />
+        <Route path="/my-orders" element={<OrdersList />} />
         <Route path="/my-services" element={<div className="p-4"><h1 className="text-2xl font-bold">Els Meus Serveis</h1><p>Properament...</p></div>} />
 
         {/* Rutas de Admin - Protegidas por rol */}

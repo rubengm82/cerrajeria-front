@@ -101,7 +101,7 @@ function AdminCategoriesList() {
       </div>
 
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar categoria per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
+          <input type="search" name="search" id="search" placeholder='Cerca una categoria per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
       </div>
 
       {/* Tabla de categorías */}

@@ -101,10 +101,10 @@ function AdminShowPack() {
               {pack.images?.length > 0 ?
                 pack.images.map((image, number) => (
                   <div key={image.id || number} className="flex justify-center">
-                    <img src={`/storage/${image.path}`} alt={`Imagen del pack ${number}`} className="rounded-lg aspect-square object-cover w-full max-w-60 border border-base-300"/>
+                    <img src={`/storage/${image.path}`} alt={`Imatge del pack ${number}`} className="rounded-lg aspect-square object-cover w-full max-w-60 border border-base-300"/>
                   </div>
                 ))
-              : <p className="col-span-full">Este pack no tiene imágenes asociadas</p> }
+              : <p className="col-span-full">Aquest pack no té imatges associades</p> }
             </div>
 
             <div className="simple-container">

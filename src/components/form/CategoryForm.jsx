@@ -68,7 +68,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
       }
 
       // Se redirecciona con una notificacion al index de productos
-      navigate("/admin/categories", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Categoria actualizada correctamente" : "Categoria creada correctamente" }})
+      navigate("/admin/categories", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Categoria actualitzada correctament" : "Categoria creada correctament" }})
 
     } catch (error) {
       console.log("Error: " + error);
@@ -88,7 +88,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
         {backLink && (
           <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
             <HiArrowLeft className="size-5" />
-            <p>Volver atrás</p>
+            <p>Tornar enrere</p>
           </Link>
         )}
         {title && <h1 className="text-2xl font-bold">{title}</h1>}
@@ -96,24 +96,24 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
       </div>
       <form onSubmit={handleSubmit} className='flex flex-col justify-center gap-5'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-3">Información básica</h3>
+          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-3">Informació bàsica</h3>
 
           {/* Nombre */}
           <div className="w-full md:col-span-3">
-            <label className="label text-base-content" htmlFor="name">Nombre de la categoria *</label>
-            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre de la categoria" className="input w-full" required/>
+            <label className="label text-base-content" htmlFor="name">Nom de la categoria *</label>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nom de la categoria" className="input w-full" required/>
           </div>
 
           <div className="flex items-center justify-between md:col-span-3 w-full border border-base-300 p-3 rounded-lg">
             <div>
               <label className="label text-base-content" htmlFor='is_important_to_show'>Categoria destacada</label>
-              <p className='text-sm font-semibold text-base-content/55'>Aparecerá en la sección de categorias principales</p>
+              <p className='text-sm font-semibold text-base-content/55'>Apareixerà a la secció de categories principals</p>
             </div>
             <input id='is_important_to_show' name='is_important_to_show' type="checkbox" checked={form.is_important_to_show} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
 
         {/* Imagenes */}
-          <h3 className="text-[20px] font-semibold md:col-span-3">Imágenes de la categoría</h3>
+          <h3 className="text-[20px] font-semibold md:col-span-3">Imatges de la categoria</h3>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
 
             {/* Se muestra un div para subir la imagen solo si no hay imágenes */}
@@ -123,7 +123,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
                 <div className='w-full max-w-60 aspect-square bg-primary/10 rounded-lg border-2 border-dashed border-primary flex items-center justify-center cursor-pointer' onClick={() => fileInputRef.current.click()}>
                     <div className='flex flex-col items-center gap-2 text-primary p-4 text-center'>
                       <HiPhoto className="size-9" />
-                      <p>Añadir nueva imagen</p>
+                      <p>Afegir una imatge nova</p>
                     </div>
                 </div>
               </>
@@ -132,12 +132,12 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Se muestra la nueva imagen seleccionada */}
             {form.image && (
               <div className="relative w-full max-w-60 aspect-square">
-                <img src={URL.createObjectURL(form.image)} alt='Nueva imagen' className="w-full h-full object-cover rounded-lg border border-base-300" />
+                <img src={URL.createObjectURL(form.image)} alt='Nova imatge' className="w-full h-full object-cover rounded-lg border border-base-300" />
 
                 {/* Boton para eliminar las imagenes que aun no se han subido */}
                 <ConfirmableModal
-                  title="Eliminar imagen"
-                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  title="Eliminar imatge"
+                  message="Segur que vols eliminar aquesta imatge?"
                   onConfirm={removeNewImage}
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
@@ -152,8 +152,8 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <ConfirmableModal
-                    title="Eliminar imagen"
-                    message="¿Estás seguro de que quieres eliminar esta imagen?"
+                    title="Eliminar imatge"
+                    message="Segur que vols eliminar aquesta imatge?"
                     onConfirm={removeExistingImage}
                   >
                     <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
@@ -165,7 +165,7 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Boton de enviar y cancelar */}
         <div className='col-span-2 flex gap-2 justify-end'>
-          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancelar</button>
+          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancel·lar</button>
           <button type='submit' className='btn btn-primary'>{submitText}</button>
         </div>
       </form>

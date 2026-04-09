@@ -92,7 +92,7 @@ function AdminProductsList() {
       </div>
       {/* Buscador */}
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar producte per número, client...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
+          <input type="search" name="search" id="search" placeholder='Cerca un producte per número, client...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
 
           <div className='flex flex-row gap-2 w-full md:w-[50%] lg:w-[30%]'>
             <select name="status" id="status-category" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
@@ -106,7 +106,7 @@ function AdminProductsList() {
             </select>
 
             <button className='btn btn-secondary flex-1 border-base-300 bg-transparent px-1'>
-                Descargar
+                Descarregar
             </button>
           </div>
       </div>
@@ -135,7 +135,7 @@ function AdminProductsList() {
                     <div className="avatar">
                       <div className={`mask h-12 w-12 rounded-lg ${product.images?.[0] ? "" : "flex items-center justify-center bg-primary/10"}`}>
                         {/* Se muestra la imagen del producto y si no tiene se muestra un svg */}
-                        {importantImage ? <img src={`/storage/${importantImage.path}`} alt="Imagen" /> : product.images?.[0] ?  <img src={`/storage/${product.images?.[0].path}`} alt="Imagen" /> : <HiOutlinePhoto className='size-6 text-base-400' />}
+                        {importantImage ? <img src={`/storage/${importantImage.path}`} alt="Imatge del producte" /> : product.images?.[0] ?  <img src={`/storage/${product.images?.[0].path}`} alt="Imatge del producte" /> : <HiOutlinePhoto className='size-6 text-base-400' />}
                       </div>
                     </div>
                   </div>

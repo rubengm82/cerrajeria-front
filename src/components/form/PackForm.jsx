@@ -145,7 +145,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
           await deletePackImage(imageId)
         }
       }
-      navigate("/admin/packs", {state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Pack actualizado correctamente" : "Pack creado correctamente" }
+      navigate("/admin/packs", {state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Pack actualitzat correctament" : "Pack creat correctament" }
       })
 
     } catch (error) {
@@ -163,7 +163,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
         {backLink && (
           <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
             <HiArrowLeft className="size-5" />
-            <p>Volver atrás</p>
+            <p>Tornar enrere</p>
           </Link>
         )}
         {title && <h1 className="text-2xl font-bold">{title}</h1>}
@@ -173,30 +173,30 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
       <form className='flex flex-col gap-5' onSubmit={handleSubmit}>
         {/* Información Básica */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Información del Pack</h3>
+          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Informació del pack</h3>
 
           <div className="w-full">
-            <label className="label text-base-content" htmlFor="name">Nombre del pack *</label>
-            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre del pack" className="input w-full" required/>
+            <label className="label text-base-content" htmlFor="name">Nom del pack *</label>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nom del pack" className="input w-full" required/>
           </div>
 
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='total_price'>Precio Total(€) *</label>
+            <label className="label text-base-content" htmlFor='total_price'>Preu total (€) *</label>
             <input type="number" name="total_price" id='total_price' autoComplete="off" value={form.total_price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>          </div>
 
           <div className="w-full col-span-1 md:col-span-2">
-            <label className="label text-base-content" htmlFor='description'>Descripción</label>
-            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripción..." className="textarea h-auto max-h-28 w-full"></textarea>
+            <label className="label text-base-content" htmlFor='description'>Descripció</label>
+            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripció..." className="textarea h-auto max-h-28 w-full"></textarea>
           </div>
         </div>
 
         {/* Imágenes */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <div className="flex items-center justify-between md:col-span-3">
-            <h3 className="text-[20px] font-semibold">Imágenes del pack</h3>
+          <h3 className="text-[20px] font-semibold">Imatges del pack</h3>
             <button type="button" onClick={() => fileInputRef.current.click()} className="btn btn-primary btn-sm gap-2">
               <HiPhoto className="size-5" />
-              Añadir imagen
+              Afegir imatge
             </button>
           </div>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 justify-items-center md:justify-items-start'>
@@ -206,10 +206,10 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Nuevas imágenes */}
             {form.images.map((image, index) => (
               <div key={index} onClick={(e) => { setNewImportantImage(image); setImportantImageId(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square cursor-pointer">
-                <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90" />
+                <img src={URL.createObjectURL(image)} alt="Vista prèvia del pack" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90" />
                 <ConfirmableModal
-                  title="Eliminar imagen"
-                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  title="Eliminar imatge"
+                  message="Segur que vols eliminar aquesta imatge?"
                   onConfirm={() => removeNewImage(index, image)}
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
@@ -221,10 +221,10 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
             {/* Imágenes existentes */}
             {initialData?.images?.filter(img => !imagesToDelete.includes(img.id)).map((image) => (
               <div key={image.id} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square cursor-pointer">
-                <img src={`/storage/${image.path}`} alt="Existente" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90"/>
+                <img src={`/storage/${image.path}`} alt="Imatge existent del pack" className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity duration-300 hover:opacity-90"/>
                 <ConfirmableModal
-                  title="Eliminar imagen"
-                  message="¿Estás seguro de que quieres eliminar esta imagen?"
+                  title="Eliminar imatge"
+                  message="Segur que vols eliminar aquesta imatge?"
                   onConfirm={() => removeExistingImage(image.id)}
                 >
                   <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 flex items-center justify-center cursor-pointer">X</span>
@@ -237,7 +237,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Productos */}
         <div className='flex flex-col gap-4 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold">Productos incluidos</h3>
+          <h3 className="text-[20px] font-semibold">Productes inclosos</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto p-1">
             {products.filter(p => !p.deleted_at).map(product => (
               <label key={product.id} className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${form.product_ids.includes(product.id) ? 'border-primary bg-primary/5' : 'border-base-300'}`}>
@@ -258,7 +258,7 @@ function PackForm({ initialData, submitText, title, subtitle, backLink }) {
         </div>
 
         <div className='flex gap-2 justify-end'>
-          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancelar</button>
+          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancel·lar</button>
           <button type='submit' className='btn btn-primary'>{submitText}</button>
         </div>
       </form>

@@ -55,10 +55,10 @@ export default function AdminCustomSolutionsList() {
     try {
       await forceDeleteCustomSolution(solution.id)
       await loadCustomSolutions()
-      setNotification({ id: Date.now(), type: 'success', message: 'Solucio personalitzada eliminada correctament' })
+      setNotification({ id: Date.now(), type: 'success', message: 'Solució personalitzada eliminada correctament' })
     } catch (error) {
       console.error(error)
-      setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut eliminar la solucio personalitzada" })
+      setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut eliminar la solució personalitzada" })
     }
   }
 
@@ -75,7 +75,7 @@ export default function AdminCustomSolutionsList() {
         setNotification({ id: Date.now(), type: 'success', message: `Estat actualitzat a ${getStatusOption(nextStatus).label} correctament` })
       } catch (error) {
         console.error(error)
-        setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut actualitzar l'estat de la solucio personalitzada" })
+        setNotification({ id: Date.now(), type: 'error', message: "No s'ha pogut actualitzar l'estat de la solució personalitzada" })
       } finally {
         setUpdatingStatusId(null)
       }
@@ -134,7 +134,7 @@ export default function AdminCustomSolutionsList() {
                     </td>
                     <td className='border-base-300'>
                       <div className='flex items-center justify-center gap-3'>
-                        <ConfirmableModal title="Eliminar solucio personalitzada" message={`Segur que vols eliminar permanentment la solució #${solution.id}? Aquesta acció no es pot desfer.`} onConfirm={() => handleForceDelete(solution)}>
+                        <ConfirmableModal title="Eliminar solució personalitzada" message={`Segur que vols eliminar permanentment la solució #${solution.id}? Aquesta acció no es pot desfer.`} onConfirm={() => handleForceDelete(solution)}>
                           <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer" title="Eliminar">
                             <HiTrash className="size-6" />
                           </button>

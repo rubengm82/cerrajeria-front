@@ -33,7 +33,7 @@ export default function AdminCustomSolutionsShow() {
         setCustomSolution(response.data)
       } catch (loadError) {
         console.error(loadError)
-        setError("No s'ha pogut carregar la solucio personalitzada")
+        setError("No s'ha pogut carregar la solució personalitzada")
       } finally {
         setLoading(false)
       }
@@ -48,7 +48,7 @@ export default function AdminCustomSolutionsShow() {
         <LoadingAnimation />
       ) : error || !customSolution ? (
         <div className="flex flex-col items-center justify-center p-8">
-          <Notifications type="error" message={error || "Solucio personalitzada no trobada"} />
+          <Notifications type="error" message={error || "Solució personalitzada no trobada"} />
           <button onClick={() => navigate('/admin/custom-solutions')} className="btn btn-primary mt-4">
             Tornar a la llista
           </button>
@@ -66,7 +66,7 @@ export default function AdminCustomSolutionsShow() {
           <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-base-content">
-                Solucio personalitzada #{customSolution.id}
+                Solució personalitzada #{customSolution.id}
               </h1>
 
             </div>
@@ -77,7 +77,7 @@ export default function AdminCustomSolutionsShow() {
               <div className="simple-container">
                 <h3 className="text-[18px] font-semibold mb-4">Descripció</h3>
                 <p className="text-base-400 whitespace-pre-wrap break-all">
-                  {customSolution.description || 'Aquesta solucio personalitzada no te descripció'}
+                  {customSolution.description || 'Aquesta solució personalitzada no té descripció'}
                 </p>
               </div>
 
@@ -87,12 +87,12 @@ export default function AdminCustomSolutionsShow() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {customSolution.files.map((file) => (
                       <a key={file.id || file.file_path} href={`/storage/${file.file_path}`} target="_blank" rel="noreferrer" className="block">
-                        <img src={`/storage/${file.file_path}`} alt={`Adjunt de la solucio personalitzada ${customSolution.id}`} className="rounded-lg aspect-square object-cover w-full border border-base-300"/>
+                        <img src={`/storage/${file.file_path}`} alt={`Adjunt de la solució personalitzada ${customSolution.id}`} className="rounded-lg aspect-square object-cover w-full border border-base-300"/>
                       </a>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-base-400">Aquesta solucio personalitzada no te imatges adjuntes.</p>
+                  <p className="text-base-400">Aquesta solució personalitzada no té imatges adjuntes.</p>
                 )}
               </div>
             </div>

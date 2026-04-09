@@ -185,7 +185,7 @@ function AdminShowProduct() {
 
               <div className="w-full flex items-center justify-between mt-2">
                 <p className="font-semibold text-base-400">Producte destacat</p>
-                <p>{product.is_important_to_show ? "Si" : "No" }</p>
+                <p>{product.is_important_to_show ? "Sí" : "No" }</p>
               </div>
             </div>
           </div>

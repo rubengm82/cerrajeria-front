@@ -20,7 +20,7 @@ function AdminDashboard() {
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">120€</p>
-          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">12%</span> mes que el mes anterior</p>
+          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">12%</span> més que el mes anterior</p>
         </div>
         {/* Contenedor */}
         <div className="simple-container">
@@ -31,7 +31,7 @@ function AdminDashboard() {
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">214</p>
-          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">31%</span> mes que el mes anterior</p>
+          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">31%</span> més que el mes anterior</p>
         </div>
         {/* Contenedor */}
         <div className="simple-container">
@@ -53,7 +53,7 @@ function AdminDashboard() {
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">34</p>
-          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">2</span> mes que el mes anterior</p>
+          <p className="mt-2 text-sm md:text-base"><span className="text-success-content font-semibold">2</span> més que el mes anterior</p>
         </div>
       </div>
       <div className="flex flex-col lg:flex-row items-start gap-10 mt-10">
@@ -76,7 +76,7 @@ function AdminDashboard() {
                 <tr className='hover:bg-[#F9F6F5]'>
                   <td className='border-base-300 font-semibold'>#1</td>
                   <td className='border-base-300 text-base-400 font-semibold'>Client 1</td>
-                  <td className='border-base-300 text-base-400 font-semibold'>12 Dic 2025</td>
+                  <td className='border-base-300 text-base-400 font-semibold'>12 des. 2025</td>
                   <td className='border-base-300 font-semibold'>1220€</td>
                   <td className='border-base-300 font-semibold text-center'>
                     <p className={`min-w-24 md:w-26 border rounded-lg py-1 ${statusStyle["Completat"]}`}>Completat</p>
@@ -85,7 +85,7 @@ function AdminDashboard() {
                 <tr className='hover:bg-[#F9F6F5]'>
                   <td className='border-base-300 font-semibold'>#2</td>
                   <td className='border-base-300 text-base-400 font-semibold'>Client 1</td>
-                  <td className='border-base-300 text-base-400 font-semibold'>12 Dic 2025</td>
+                  <td className='border-base-300 text-base-400 font-semibold'>12 des. 2025</td>
                   <td className='border-base-300 font-semibold'>1220€</td>
                   <td className='border-base-300 font-semibold text-center'>
                     <p className={`min-w-24 md:w-26 border rounded-lg py-1 ${statusStyle["Completat"]}`}>Completat</p>
@@ -94,7 +94,7 @@ function AdminDashboard() {
                 <tr className='hover:bg-[#F9F6F5]'>
                   <td className='border-base-300 font-semibold'>#3</td>
                   <td className='border-base-300 text-base-400 font-semibold'>Client 1</td>
-                  <td className='border-base-300 text-base-400 font-semibold'>12 Dic 2025</td>
+                  <td className='border-base-300 text-base-400 font-semibold'>12 des. 2025</td>
                   <td className='border-base-300 font-semibold'>1220€</td>
                   <td className='border-base-300 font-semibold text-center'>
                     <p className={`min-w-24 md:w-26 border rounded-lg py-1 ${statusStyle["Completat"]}`}>Completat</p>
@@ -152,7 +152,7 @@ function AdminDashboard() {
         {/* Contenedor derecha */}
         <div className="w-full lg:w-[40%]">
           {/* Productos mas vendidos */}
-          <h3 className='text-[20px] font-bold text-base-content mb-3'>Productes mes venuts</h3>
+          <h3 className='text-[20px] font-bold text-base-content mb-3'>Productes més venuts</h3>
           <div className="simple-container flex flex-col gap-3">
             {/* Producto */}
             <div className="flex flex-row items-center justify-between gap-2">
@@ -218,7 +218,7 @@ function AdminDashboard() {
                 </div>
                 <p className="font-semibold truncate">Bombí nombre 5</p>
               </div>
-              <p className="text-primary font-semibold text-base md:text-lg shrink-0">2 uds</p>
+              <p className="text-primary font-semibold text-base md:text-lg shrink-0">2 u.</p>
             </div>
             {/* Elemento */}
             <div className="w-full flex items-center justify-between gap-3">
@@ -228,7 +228,7 @@ function AdminDashboard() {
                 </div>
                 <p className="font-semibold truncate">Bombí nombre 4</p>
               </div>
-              <p className="text-primary font-semibold text-base md:text-lg shrink-0">1 uds</p>
+              <p className="text-primary font-semibold text-base md:text-lg shrink-0">1 u.</p>
             </div>
             {/* Elemento */}
             <div className="w-full flex items-center justify-between gap-3">
@@ -238,7 +238,7 @@ function AdminDashboard() {
                 </div>
                 <p className="font-semibold truncate">Bombí nombre 3</p>
               </div>
-              <p className="text-primary font-semibold text-base md:text-lg shrink-0">4 uds</p>
+              <p className="text-primary font-semibold text-base md:text-lg shrink-0">4 u.</p>
             </div>
           </div>
         </div>

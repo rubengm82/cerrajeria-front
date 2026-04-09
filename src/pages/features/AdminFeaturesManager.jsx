@@ -259,7 +259,7 @@ function AdminFeaturesManager() {
         <h1 className='text-2xl font-bold text-base-content'>Característiques</h1>
         <button onClick={() => handleOpenTypeModal()} className='btn btn-primary flex items-center gap-2'> 
           <HiPlus className="size-5" />
-          Nou Tipus
+          Nou tipus
         </button>
       </div>
 
@@ -392,14 +392,14 @@ function AdminFeaturesManager() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-base-100 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{editingType ? 'Editar Tipus' : 'Nou Tipus de Característica'}</h2>
+              <h2 className="text-xl font-bold">{editingType ? 'Editar tipus' : 'Nou tipus de característica'}</h2>
               <button onClick={handleCloseTypeModal} className="btn btn-sm btn-ghost">
                 <HiXMark className="size-5" />
               </button>
             </div>
             <form onSubmit={handleSaveType}>
               <div className="mb-4">
-                <label className="label text-base-content" htmlFor="typeName">Nom del Tipus *</label>
+                <label className="label text-base-content" htmlFor="typeName">Nom del tipus *</label>
                 <input 
                   type="text" 
                   name="name" 
@@ -415,7 +415,7 @@ function AdminFeaturesManager() {
                 )}
               </div>
               <div className="flex gap-2 justify-end">
-                <button type='button' onClick={handleCloseTypeModal} className='btn btn-ghost'>Cancelar</button>
+                <button type='button' onClick={handleCloseTypeModal} className='btn btn-ghost'>Cancel·lar</button>
                 <button type='submit' className='btn btn-primary' disabled={typeLoading}>
                   {typeLoading ? 'Guardant...' : (editingType ? 'Actualitzar' : 'Crear')}
                 </button>
@@ -430,7 +430,7 @@ function AdminFeaturesManager() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-base-100 p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">{editingValue ? 'Editar Valor' : 'Nou Valor'}</h2>
+              <h2 className="text-xl font-bold">{editingValue ? 'Editar valor' : 'Nou valor'}</h2>
               <button onClick={handleCloseValueModal} className="btn btn-sm btn-ghost">
                 <HiXMark className="size-5" />
               </button>
@@ -453,7 +453,7 @@ function AdminFeaturesManager() {
                 )}
               </div>
               <div className="flex gap-2 justify-end">
-                <button type='button' onClick={handleCloseValueModal} className='btn btn-ghost'>Cancelar</button>
+                <button type='button' onClick={handleCloseValueModal} className='btn btn-ghost'>Cancel·lar</button>
                 <button type='submit' className='btn btn-primary' disabled={valueLoading}>
                   {valueLoading ? 'Guardant...' : (editingValue ? 'Actualitzar' : 'Crear')}
                 </button>

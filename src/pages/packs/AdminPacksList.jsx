@@ -89,7 +89,7 @@ function AdminPacksList() {
       </div>
 
       <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Buscar pack per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
+          <input type="search" name="search" id="search" placeholder='Cerca un pack per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
       </div>
 
       <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">

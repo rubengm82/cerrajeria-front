@@ -174,7 +174,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         }
       }
 
-      navigate("/admin/products", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Producto actualizado correctamente" : "Producto creado correctamente" }})
+      navigate("/admin/products", { state: { notificationType: "success", notificationMessage: initialData && initialData.id ? "Producte actualitzat correctament" : "Producte creat correctament" }})
 
     } catch (error) {
       if (error.response?.status == 422) {
@@ -192,7 +192,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         {backLink && (
           <Link to={backLink} className='text-primary mb-2 flex items-center gap-2 cursor-pointer'>
             <HiArrowLeft className="size-5" />
-            <p>Volver atrás</p>
+            <p>Tornar enrere</p>
           </Link>
         )}
         {title && <h1 className="text-2xl font-bold">{title}</h1>}
@@ -200,27 +200,27 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       </div>
       <form onSubmit={handleSubmit} className='flex flex-col justify-center gap-5'>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Información básica</h3>
+          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Informació bàsica</h3>
           {/* Nombre */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor="name">Nombre del producto *</label>
-            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nombre del producto" className="input w-full" required/>
+            <label className="label text-base-content" htmlFor="name">Nom del producte *</label>
+            <input type="text" name="name" id='name' autoComplete="off" value={form.name} onChange={handleChange} placeholder="Nom del producte" className="input w-full" required/>
           </div>
           {/* Codigo */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='code'>Código</label>
-            <input type="text" name="code" id='code' autoComplete="off" value={form.code} onChange={handleChange} placeholder="Código del producto" className="input w-full"/>
+            <label className="label text-base-content" htmlFor='code'>Codi</label>
+            <input type="text" name="code" id='code' autoComplete="off" value={form.code} onChange={handleChange} placeholder="Codi del producte" className="input w-full"/>
           </div>
           {/* Descripcion */}
           <div className="w-full col-span-1 md:col-span-2">
-            <label className="label text-base-content" htmlFor='description'>Descripción</label>
-            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripción del producto" className="textarea h-auto max-h-28 w-full"></textarea>
+            <label className="label text-base-content" htmlFor='description'>Descripció</label>
+            <textarea name="description" id='description' autoComplete="off" value={form.description} onChange={handleChange} placeholder="Descripció del producte" className="textarea h-auto max-h-28 w-full"></textarea>
           </div>
           {/* Categoria */}
           <div className="w-full col-span-1 md:col-span-2">
-            <label className="label text-base-content" htmlFor='category_id'>Categoría *</label>
+            <label className="label text-base-content" htmlFor='category_id'>Categoria *</label>
             <select name="category_id" id="category_id" value={form.category_id} onChange={handleChange} className='select w-full' required>
-              <option value="" disabled>Selecciona una categoría</option>
+              <option value="" disabled>Selecciona una categoria</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>{category.name}</option>
               ))}
@@ -230,34 +230,34 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Características */}
         <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold">Características del producto</h3>
+          <h3 className="text-[20px] font-semibold">Característiques del producte</h3>
           
           <MultiSelectFeatures
             features={availableFeatures}
             selectedIds={form.feature_ids}
             onChange={(ids) => setForm(current => ({ ...current, feature_ids: ids }))}
-            label="Selecciona las características del producto"
+            label="Selecciona les característiques del producte"
           />
         </div>
 
         {/* Precio y stock */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-3">Precio y stock</h3>
+          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-3">Preu i estoc</h3>
           {/* Precio */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='price'>Precio(€) *</label>
+            <label className="label text-base-content" htmlFor='price'>Preu (€) *</label>
             <input type="number" name="price" id='price' autoComplete="off" value={form.price} onChange={handleChange} placeholder="0.00" className="input w-full" required step="0.01"/>
           </div>
 
           {/* Stock */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='stock'>Stock *</label>
+            <label className="label text-base-content" htmlFor='stock'>Estoc *</label>
             <input type="number" name="stock" id='stock' autoComplete="off" value={form.stock} onChange={handleChange} placeholder="0" className="input w-full" required/>
           </div>
 
           {/* Descuento */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='discount'>Descuento (%):</label>
+            <label className="label text-base-content" htmlFor='discount'>Descompte (%):</label>
             <input type="number" name="discount" id='discount' autoComplete="off" value={form.discount} onChange={handleChange} placeholder="0" className="input w-full"/>
           </div>
         </div>
@@ -265,10 +265,10 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         {/* Imagenes */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <div className="flex items-center justify-between md:col-span-3">
-            <h3 className="text-[20px] font-semibold">Imágenes del producto</h3>
+          <h3 className="text-[20px] font-semibold">Imatges del producte</h3>
             <button type="button" onClick={() => fileInputRef.current.click()} className="btn btn-primary btn-sm gap-2">
               <HiPhoto className="size-5" />
-              Añadir imagen
+              Afegir imatge
             </button>
           </div>
           <div className='md:col-span-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-h-130 overflow-y-auto justify-items-center md:justify-items-start'>
@@ -279,12 +279,12 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {form.images.length > 0 && (
               form.images.map((image, index) => (
                 <div key={index} onClick={(e) => { setNewImportantImage(image); setImportantImageId(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square">
-                  <img src={URL.createObjectURL(image)} alt={`Nueva imagen ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" />
+                  <img src={URL.createObjectURL(image)} alt={`Nova imatge ${index}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" />
 
                   {/* Boton para eliminar las imagenes que aun no se han subido */}
                   <ConfirmableModal
-                    title="Eliminar imagen"
-                    message="¿Estás seguro de que quieres eliminar esta imagen?"
+                    title="Eliminar imatge"
+                    message="Segur que vols eliminar aquesta imatge?"
                     onConfirm={() => removeNewImage(index, image)}
                   >
                     <button type="button" className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</button>
@@ -297,12 +297,12 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
             {initialData?.images?.length > 0 ?
               initialData.images.filter(image => !imagesToDelete.includes(image.id)).map((image, index) => (
                 <div key={index} onClick={(e) => { setImportantImageId(image.id); setNewImportantImage(null); e.stopPropagation()}} className="relative w-full max-w-60 aspect-square">
-                  <img src={`/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" alt="imagen"/>
+                  <img src={`/storage/${image.path}`} className="w-full h-full object-cover rounded-lg border border-base-300 transition-opacity cursor-pointer duration-300 hover:opacity-90" alt="Imatge del producte"/>
 
                   {/* Boton para eliminar las imagenes subidas al servidor */}
                   <ConfirmableModal
-                    title="Eliminar imagen"
-                    message="¿Estás seguro de que quieres eliminar esta imagen?"
+                    title="Eliminar imatge"
+                    message="Segur que vols eliminar aquesta imatge?"
                     onConfirm={() => removeExistingImage(image.id)}
                   >
                     <span className="absolute top-2 right-2 bg-black/60 hover:bg-black text-white rounded-full w-7 h-7 aspect-square flex items-center justify-center text-sm cursor-pointer">X</span>
@@ -317,54 +317,54 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
 
         {/* Instalacion y extras */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Instalación y extras</h3>
+          <h3 className="text-[20px] font-semibold col-span-1 md:col-span-2">Instal·lació i extres</h3>
 
           {/* Es instalable */}
           <div className="flex items-center justify-between col-span-1 md:col-span-2 w-full border border-base-300 p-3 rounded-lg">
             <div>
-              <label className="label text-base-content" htmlFor='is_installable'>Es instalable</label>
-              <p className='text-sm font-semibold text-base-content/55'>El producto puede ser instalado</p>
+              <label className="label text-base-content" htmlFor='is_installable'>És instal·lable</label>
+              <p className='text-sm font-semibold text-base-content/55'>El producte es pot instal·lar</p>
             </div>
             <input id='is_installable' name='is_installable' type="checkbox" checked={!!form.is_installable} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
 
           {/* Precio instalación */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='installation_price'>Precio instalación(€)</label>
+            <label className="label text-base-content" htmlFor='installation_price'>Preu d'instal·lació (€)</label>
             <input type="number" name="installation_price" id='installation_price' autoComplete="off" value={form.installation_price} onChange={handleChange} placeholder="0.00" className="input w-full" step="0.01"/>
           </div>
 
           {/* Precio llaves */}
           <div className="w-full">
-            <label className="label text-base-content" htmlFor='price_keys'>Precio llaves(€)</label>
+            <label className="label text-base-content" htmlFor='price_keys'>Preu de claus (€)</label>
             <input type="number" name="price_keys" id='price_keys' autoComplete="off" value={form.price_keys} onChange={handleChange} placeholder="0" className="input w-full" step="0.01"/>
           </div>
         </div>
 
         {/* Estado y visibilidad */}
         <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
-          <h3 className="text-[20px] font-semibold">Estado y visibilidad</h3>
+          <h3 className="text-[20px] font-semibold">Estat i visibilitat</h3>
 
           {/* Producto activo */}
           <div className="flex items-center justify-between w-full border border-base-300 p-3 rounded-lg">
             <div>
-              <label className="label text-base-content" htmlFor='is_active'>Producto activo</label>
-              <p className='text-sm font-semibold text-base-content/55'>El producto está visible y disponible para la venta</p>
+              <label className="label text-base-content" htmlFor='is_active'>Producte actiu</label>
+              <p className='text-sm font-semibold text-base-content/55'>El producte està visible i disponible per a la venda</p>
             </div>
             <input id='is_active' name='is_active' type="checkbox" checked={!!form.is_active} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
           {/* Producto destacado */}
           <div className="flex items-center justify-between w-full border border-base-300 p-3 rounded-lg">
             <div>
-              <label className="label text-base-content" htmlFor='is_important_to_show'>Producto destacado</label>
-              <p className='text-sm font-semibold text-base-content/55'>Aparecerá en la sección de productos destacados</p>
+              <label className="label text-base-content" htmlFor='is_important_to_show'>Producte destacat</label>
+              <p className='text-sm font-semibold text-base-content/55'>Apareixerà a la secció de productes destacats</p>
             </div>
             <input id='is_important_to_show' name='is_important_to_show' type="checkbox" checked={!!form.is_important_to_show} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
         </div>
         {/* Boton de enviar y cancelar */}
         <div className='col-span-2 flex gap-2 justify-end'>
-          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancelar</button>
+          <button type='button' onClick={() => navigate(-1)} className='btn btn-secondary'>Cancel·lar</button>
           <button type='submit' className='btn btn-primary'>{submitText}</button>
         </div>
       </form>

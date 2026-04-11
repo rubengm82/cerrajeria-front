@@ -67,19 +67,19 @@ export default function FooterShop() {
             <h3>Segueix-nos</h3>
             <div className="footer-shop__social-icons" aria-label="Xarxes socials">
               <a href="https://www.facebook.com/serralleriasolidaria/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                <FaFacebook />
+                <FaFacebook aria-hidden="true" />
               </a>
               <a href="https://www.instagram.com/serralleria_solidaria/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                <FaInstagram />
+                <FaInstagram aria-hidden="true" />
               </a>
               <a href="https://twitter.com/serralsolidaria" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                <FaTwitter />
+                <FaTwitter aria-hidden="true" />
               </a>
               <a href="https://es.linkedin.com/company/serralleria-solid%C3%A0ria-s-l-u" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                <FaLinkedin />
+                <FaLinkedin aria-hidden="true" />
               </a>
               <a href="https://www.youtube.com/channel/UCFhIQvRHGT4SG6bJcw6HWqw?view_as=subscriber" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
-                <FaYoutube />
+                <FaYoutube aria-hidden="true" />
               </a>
             </div>
           </div>

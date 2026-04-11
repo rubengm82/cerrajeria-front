@@ -67,7 +67,7 @@ function Shop() {
     <div className="shop-home">
       <div className='shop-home__top'>
         <div className="shop-home__container shop-home__container--hero">
-          <section className="hero-box bg-base-200" aria-labelledby="shop-hero-title">
+          <section className="hero-box bg-base-200">
             <div className="hero-box__content">
               <h1 id="shop-hero-title" className="hero-box__title">
                 <span className="hero-box__line hero-box__line--nowrap">
@@ -124,7 +124,7 @@ function Shop() {
             </div>
           </section>
 
-          <section className="shop-section shop-section--products" aria-labelledby="featured-products-title">
+          <section className="shop-section shop-section--products">
             <div className="section-head">
               <div>
                 <p className="section-head__tag text-primary">El més destacat</p>
@@ -137,7 +137,7 @@ function Shop() {
               </button>
             </div>
 
-            <div className="products-grid" aria-live="polite">
+            <div className="products-grid">
               { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
                 <ProductCard key={product.id} product={product} onView={openProductModal} />
               )) :
@@ -160,7 +160,7 @@ function Shop() {
       {/* Categorias */}
       <div className='shop-home__categories'>
         <div className="shop-home__container shop-home__container--categories">
-          <section aria-labelledby="featured-categories-title">
+          <section>
           <div className="section-head">
             <div>
               <p className="section-head__tag text-primary">Explora el nostre catàleg</p>
@@ -173,7 +173,7 @@ function Shop() {
             </button>
           </div>
 
-          <div className="categories-grid" aria-live="polite">
+          <div className="categories-grid">
             {importantCategories && importantCategories.length > 0 ? importantCategories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
@@ -198,7 +198,7 @@ function Shop() {
       />
 
       {/* Banner naranja de contacto */}
-      <div className='contact-banner bg-primary' aria-labelledby="contact-banner-title">
+      <div className='contact-banner bg-primary'>
         <h3 id="contact-banner-title" className='contact-banner__title text-base-100'>Contacta amb nosaltres ara</h3>
         <p className='contact-banner__text text-base-100'>Contacta amb nosaltres ara, som especialistes en serralleria i et podem ajudar.</p>
 

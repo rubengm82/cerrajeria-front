@@ -49,12 +49,12 @@ function Packs() {
   };
 
   return isLoadingPacks ? <LoadingAnimation /> : (
-    <div className='products-page' aria-labelledby="packs-page-title">
+    <div className='products-page'>
       <div className="products-page__container">
         <div className="products-page__body">
           <div className="products-top">
             <div>
-              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
+              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer" aria-label="Tornar a la pàgina d'inici">
                 <HiArrowLeft className="size-5" aria-hidden="true" />
                 <p>Tornar a l'inici</p>
               </Link>
@@ -63,7 +63,7 @@ function Packs() {
             </div>
 
             <div className="products-top__actions">
-              <p className="products-top__count text-base-400" aria-live="polite">
+              <p className="products-top__count text-base-400">
                 Mostrant {packs.length} packs
               </p>
             </div>
@@ -71,7 +71,7 @@ function Packs() {
 
           <div className="products-layout">
             <div>
-              <div className="products-list" aria-live="polite">
+              <div className="products-list">
                 { packs.length > 0 ?
                   packs.map((pack) => (
                   <ProductCard key={pack.id} product={pack} onView={openProductModal} />

@@ -24,15 +24,15 @@ function CategoriesShow() {
   const categoryProducts = Object.values(category?.products || {})
 
   return loading ? <LoadingAnimation /> : (
-    <div className='bg-base-200 flex flex-col items-center justify-center' aria-labelledby="category-detail-title">
+    <div className='bg-base-200 flex flex-col items-center justify-center'>
       <div className="w-full max-w-390 px-4">
         <div className="px-0 py-12 sm:py-16 lg:px-4">
-          <Link to="/categories" className="link link-hover text-primary mb-4 flex items-center gap-2 cursor-pointer">
+          <Link to="/categories" className="link link-hover text-primary mb-4 flex items-center gap-2 cursor-pointer" aria-label="Tornar al llistat de categories">
             <HiArrowLeft className="size-5" aria-hidden="true" />
             <p>Tornar a les categories</p>
           </Link>
           <h1 id="category-detail-title" className="mt-1 text-4xl font-medium tracking-tight sm:text-3xl mb-10">{category.name}:</h1>
-          <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" aria-live="polite">
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {categoryProducts.length > 0 ? categoryProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           )) : <p className='col-span-full font-semibold text-2xl'>Actualment no hi ha productes</p> }

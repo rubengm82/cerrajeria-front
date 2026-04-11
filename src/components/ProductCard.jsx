@@ -6,19 +6,14 @@ function ProductCard({product, onView}) {
   const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
   const imagePath = mainImage?.path
   const handleCardClick = () => onView?.(product)
-  const currentPrice = isPack
-    ? product.total_price
-    : product.discount > 0
-      ? (product.price * (1 - product.discount / 100)).toFixed(2)
-      : product.price
+  const currentPrice = isPack ? product.total_price : product.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product.price
   const actionLabel = isPack ? `Veure el detall del pack ${product?.name}` : `Veure el detall del producte ${product?.name}`
-  const cardLabel = isPack
-    ? `${product?.name}. Pack. Preu ${currentPrice} euros`
-    : `${product?.name}. Categoria ${product?.category?.name || 'sense categoria'}. Preu ${currentPrice} euros`
+  const cardLabel = isPack ? `${product?.name}. Pack. Preu ${currentPrice} euros` : `${product?.name}. Categoria ${product?.category?.name || 'sense categoria'}. Preu ${currentPrice} euros`
+  const productDescriptionId = product ? `product-card-${product.id}-description` : undefined
+  const productPriceId = product ? `product-card-${product.id}-price` : undefined
+  const productDescribedBy = product ? `${productDescriptionId} ${productPriceId}` : undefined
   const handleCardKeyDown = (event) => {
-    if (!onView) return
-
-    if (event.key === 'Enter' || event.key === ' ') {
+    if (onView && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault()
       handleCardClick()
     }
@@ -33,6 +28,7 @@ function ProductCard({product, onView}) {
       role={onView ? "button" : "article"}
       tabIndex={onView ? 0 : undefined}
       aria-label={onView ? cardLabel : undefined}
+      aria-describedby={productDescribedBy}
     >
       <div className="product-card__media">
         {!isPack && product.discount > 0 && (
@@ -77,13 +73,13 @@ function ProductCard({product, onView}) {
           {product.name}
         </Link>
 
-        <p className="product-card__desc text-base-300">
+        <p id={productDescriptionId} className="product-card__desc text-base-300">
           {product.description || ''}
         </p>
 
         <div className="product-card__bottom">
           <div>
-            <p className="product-card__price">
+            <p id={productPriceId} className="product-card__price">
               {currentPrice}€
             </p>
             {!isPack && product.discount > 0 && (

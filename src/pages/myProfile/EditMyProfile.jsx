@@ -240,12 +240,12 @@ function EditMyProfile() {
         {/* Aviso para completar datos */}
         {(!formData.dni || !formData.phone || !formData.address_street || !formData.zip_code) && (
           <div className="alert alert-warning mb-4">
-            <HiOutlineExclamationTriangle className='stroke-current shrink-0 h-6 w-6' />
-            <span>Si us plau, completa les teves dades personals (DNI, telèfon, adreça, codi postal) al teu perfil.</span>
+            <HiOutlineExclamationTriangle className='stroke-current shrink-0 h-6 w-6' aria-hidden="true" />
+            <span id="profile-missing-data-warning">Si us plau, completa les teves dades personals (DNI, telèfon, adreça, codi postal) al teu perfil.</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6">
+        <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari d'edició del perfil" aria-describedby={(!formData.dni || !formData.phone || !formData.address_street || !formData.zip_code) ? "profile-missing-data-warning" : undefined}>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Nombre */}

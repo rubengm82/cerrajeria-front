@@ -142,12 +142,12 @@ function Products() {
 
 
   return loading ? <LoadingAnimation /> : (
-    <div className='products-page' aria-labelledby="products-page-title">
+    <div className='products-page'>
       <div className="products-page__container">
         <div className="products-page__body">
           <div className="products-top">
             <div>
-              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer">
+              <Link to="/" className="link link-hover text-primary mb-2 flex items-center gap-2 cursor-pointer" aria-label="Tornar a la pàgina d'inici">
                 <HiArrowLeft className="size-5" aria-hidden="true" />
                 <p>Tornar a l'inici</p>
               </Link>
@@ -156,11 +156,11 @@ function Products() {
             </div>
 
             <div className="products-top__actions">
-              <p className="products-top__count text-base-400" aria-live="polite">
+              <p className="products-top__count text-base-400">
                 Mostrant {filteredProducts.length} productes
               </p>
 
-              <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()} aria-haspopup="dialog" aria-controls="products-filters-modal" aria-label="Obrir filtres de productes">
+              <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()} aria-label="Obrir filtres de productes">
                 <HiOutlineAdjustmentsHorizontal className="filters-box__icon" aria-hidden="true" />
                 Filtres
               </button>
@@ -169,7 +169,7 @@ function Products() {
 
           <div className="products-layout">
             <div>
-              <div className="products-list" aria-live="polite">
+              <div className="products-list">
                 { filteredProducts.length > 0 ?
                   filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} onView={openProductModal} />
@@ -179,7 +179,7 @@ function Products() {
             </div>
           </div>
 
-          <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle" aria-labelledby="products-filters-title" aria-modal="true">
+          <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle">
             <div className="modal-box filters-modal">
               <div className="filters-box">
                 <div className="filters-box__head">
@@ -191,6 +191,7 @@ function Products() {
                     <button 
                       onClick={clearFilters} 
                       className="btn btn-ghost btn-sm mr-2"
+                      aria-label="Treure tots els filtres de productes"
                     >
                       Sense filtres
                     </button>
@@ -249,6 +250,7 @@ function Products() {
                                   className="checkbox checkbox-sm border-base-300"
                                   checked={selectedFeatures.includes(featureKey)}
                                   onChange={() => toggleFeature(featureKey)}
+                                  aria-label={`Filtrar per ${featureType.name}: ${feature.value}`}
                                 />
                                 <span className="filters-box__item-name">{feature.value.charAt(0).toUpperCase() + feature.value.slice(1)}</span>
                                 <span className="filters-box__item-count text-base-400">

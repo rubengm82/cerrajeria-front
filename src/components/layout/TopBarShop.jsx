@@ -1,13 +1,11 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
 
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
-  const { pathname } = useLocation()
   const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/dashboard' : '/dashboard'
-  const isCurrentPath = (path) => pathname === path
 
   return (
     <div className="drawer">
@@ -19,18 +17,18 @@ export default function TopBarShop() {
             <label htmlFor="shop-drawer" aria-label="obre el menú lateral" className="btn btn-square btn-ghost lg:hidden">
               <HiOutlineBars3 className="shop-tobar-end__icon" aria-hidden="true" />
             </label>
-            <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold">
+            <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold" aria-label="Anar a la pàgina d'inici">
               Serralleria Solidària
             </Link>
           </div>
 
           <nav className="navbar-center hidden lg:flex" aria-label="Navegació principal">
             <ul className="menu menu-horizontal px-1">
-              <li><Link to="/" className="shop-topbar__menu-link" aria-current={isCurrentPath('/') ? 'page' : undefined}>Inici</Link></li>
-              <li><Link to="/products" className="shop-topbar__menu-link" aria-current={isCurrentPath('/products') ? 'page' : undefined}>Productes</Link></li>
-              <li><Link to="/packs" className="shop-topbar__menu-link" aria-current={isCurrentPath('/packs') ? 'page' : undefined}>Packs</Link></li>
-              <li><Link to="/categories" className="shop-topbar__menu-link" aria-current={isCurrentPath('/categories') ? 'page' : undefined}>Categories</Link></li>
-              <li><Link to="/custom-solutions" className="shop-topbar__menu-link" aria-current={isCurrentPath('/custom-solutions') ? 'page' : undefined}>Solucions Personalitzades</Link></li>
+              <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
+              <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
+              <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
+              <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+              <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
             </ul>
           </nav>
 
@@ -54,7 +52,7 @@ export default function TopBarShop() {
                   {user && (
                     <li><Link to={dashboardUrl} className='btn btn-primary'>Panell d'usuari</Link></li>
                   )}
-                  <li className='btn btn-error' onClick={logout}>Tancar sessió</li>
+                  <li className='btn btn-error' onClick={logout} aria-label="Tancar la sessió actual">Tancar sessió</li>
                 </ul>
               </div>
             )}
@@ -65,11 +63,11 @@ export default function TopBarShop() {
       <div className="drawer-side" aria-label="Menú lateral">
         <label htmlFor="shop-drawer" aria-label="tanca el menú lateral" className="drawer-overlay"></label>
         <ul className="menu min-h-full w-80 bg-base-200 p-4" aria-label="Opcions del menú lateral">
-          <li><Link to="/" className="shop-topbar__menu-link" aria-current={isCurrentPath('/') ? 'page' : undefined}>Inici</Link></li>
-          <li><Link to="/products" className="shop-topbar__menu-link" aria-current={isCurrentPath('/products') ? 'page' : undefined}>Productes</Link></li>
-          <li><Link to="/packs" className="shop-topbar__menu-link" aria-current={isCurrentPath('/packs') ? 'page' : undefined}>Packs</Link></li>
-          <li><Link to="/categories" className="shop-topbar__menu-link" aria-current={isCurrentPath('/categories') ? 'page' : undefined}>Categories</Link></li>
-          <li><Link to="/custom-solutions" className="shop-topbar__menu-link" aria-current={isCurrentPath('/custom-solutions') ? 'page' : undefined}>Solucions Personalitzades</Link></li>
+          <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
+          <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
+          <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
+          <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+          <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
           
           {!user ? (
             <li><Link to="/login" className="btn btn-primary mt-4">Inicia sessió</Link></li>

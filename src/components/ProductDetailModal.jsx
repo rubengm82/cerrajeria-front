@@ -34,9 +34,7 @@ function ProductDetailModal({ product, isOpen, onClose, entityType = "product", 
         id="product-view-modal"
         className="modal modal-bottom sm:modal-middle"
         open={isOpen}
-        aria-labelledby={modalTitleId}
         aria-describedby={product.description ? modalDescriptionId : undefined}
-        aria-modal="true"
       >
         <div className="modal-box product-detail-modal__content product-detail-modal">
         <form method="dialog">
@@ -97,7 +95,7 @@ function ProductDetailModal({ product, isOpen, onClose, entityType = "product", 
 
           <h3 id={modalTitleId} className="product-detail-modal__title">{product.name}</h3>
 
-          <div className="product-detail-modal__price-container" aria-live="polite">
+          <div className="product-detail-modal__price-container">
             <p className="product-detail-modal__price" aria-label={`Preu actual ${currentPrice} euros`}>
               {currentPrice}€
             </p>

@@ -18,7 +18,7 @@ export default function LayoutDashboard() {
 
   return (
     <div className="drawer lg:drawer-open">
-      <input id="drawer" type="checkbox" className="drawer-toggle" />
+      <input id="drawer" type="checkbox" className="drawer-toggle" aria-label="Obrir o tancar el menú lateral" />
 
       <div className="drawer-content flex flex-col">
         {/* Topbar - siempre visible */}
@@ -34,7 +34,7 @@ export default function LayoutDashboard() {
 
       {/* Sidebar - Drawer de DaisyUI */}
       <div className="drawer-side shadow-2xl">
-        <label htmlFor="drawer" className="drawer-overlay"></label>
+        <label htmlFor="drawer" className="drawer-overlay" aria-label="Tancar el menú lateral"></label>
         <SideBarDashboard userRole={user?.role} />
       </div>
     </div>

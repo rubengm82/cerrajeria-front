@@ -15,7 +15,7 @@ function UserDashboard() {
           <div className="flex items-start justify-between">
             <p className="text-base-400 font-semibold text-[18px] md:text-[20px]">Les Meves Comandes</p>
             <div className="w-12 h-12 md:w-14 md:h-14 p-2 flex items-center justify-center bg-primary/20 rounded-lg shrink-0">
-              <HiShoppingCart className="size-7 md:size-9 text-primary" />
+              <HiShoppingCart className="size-7 md:size-9 text-primary" aria-hidden="true" />
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">3</p>
@@ -27,7 +27,7 @@ function UserDashboard() {
           <div className="flex items-start justify-between">
             <p className="text-base-400 font-semibold text-[18px] md:text-[20px]">Serveis Contractats</p>
             <div className="w-12 h-12 md:w-14 md:h-14 p-2 flex items-center justify-center bg-primary/20 rounded-lg shrink-0">
-              <HiWrenchScrewdriver className="size-7 md:size-9 text-primary" />
+              <HiWrenchScrewdriver className="size-7 md:size-9 text-primary" aria-hidden="true" />
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">1</p>
@@ -39,7 +39,7 @@ function UserDashboard() {
           <div className="flex items-start justify-between">
             <p className="text-base-400 font-semibold text-[18px] md:text-[20px]">Propers</p>
             <div className="w-12 h-12 md:w-14 md:h-14 p-2 flex items-center justify-center bg-base-200 rounded-lg shrink-0">
-              <HiTruck className="size-7 md:size-9 text-base-400" />
+              <HiTruck className="size-7 md:size-9 text-base-400" aria-hidden="true" />
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">0</p>
@@ -50,7 +50,7 @@ function UserDashboard() {
           <div className="flex items-start justify-between">
             <p className="text-base-400 font-semibold text-[18px] md:text-[20px]">Més</p>
             <div className="w-12 h-12 md:w-14 md:h-14 p-2 flex items-center justify-center bg-base-200 rounded-lg shrink-0">
-              <HiCube className="size-7 md:size-9 text-base-400" />
+              <HiCube className="size-7 md:size-9 text-base-400" aria-hidden="true" />
             </div>
           </div>
           <p className="text-2xl md:text-3xl font-bold">-</p>

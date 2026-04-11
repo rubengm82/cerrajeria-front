@@ -29,12 +29,12 @@ function SignIn() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6">
+      <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6" aria-label="Formulari d'inici de sessió" aria-describedby={error ? "signin-error" : undefined}>
         <h2 className="text-2xl font-bold text-center mb-4">Inicia sessió</h2>
         
         {error && 
           <div className="mb-4">
-            <p className="text-red-500 text-center mb-2">{error}</p>
+            <p id="signin-error" className="text-red-500 text-center mb-2">{error}</p>
             {error.includes('verificar') && (
               <div className="text-center">
                 <Link to="/resend-verification" className="text-sm text-primary hover:underline">
@@ -51,6 +51,7 @@ function SignIn() {
           className="input input-bordered w-full mb-3"
           value={email}
           onChange={event => setEmail(event.target.value)}
+          aria-label="Email"
           required
         />
         
@@ -60,6 +61,7 @@ function SignIn() {
           className="input input-bordered w-full mb-4"
           value={password}
           onChange={event => setPassword(event.target.value)}
+          aria-label="Contrasenya"
           required
         />
         

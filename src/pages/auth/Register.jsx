@@ -56,7 +56,7 @@ function Register() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="card w-96 bg-base-100 shadow-xl p-6">
           <div className="text-center">
-            <div className="text-success text-5xl mb-4">✓</div>
+            <div className="text-success text-5xl mb-4" aria-hidden="true">✓</div>
             <h2 className="text-xl font-bold text-success mb-2">Compte creat!</h2>
             <p className="text-sm text-gray-600 mb-4">{success}</p>
             <p className="text-sm text-gray-500 mb-4">
@@ -79,18 +79,19 @@ function Register() {
 
   return (
     <div className="flex items-center justify-center min-h-screen py-8">
-      <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6">
+      <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari de registre" aria-describedby={error ? "register-error" : undefined}>
         <h2 className="text-2xl font-bold text-center mb-4">Crear compte</h2>
         
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+        {error && <p id="register-error" className="text-red-500 mb-4 text-center">{error}</p>}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Nom */}
           <div className="md:col-span-2">
-            <label className="label">
+            <label className="label" htmlFor="register-name">
               <span className="label-text">Nom *</span>
             </label>
             <input
+              id="register-name"
               type="text"
               name="name"
               placeholder="Nom"
@@ -104,10 +105,11 @@ function Register() {
           {/* Primer cognom y Segon cognom en la misma línea */}
           <div className="grid grid-cols-2 gap-4 md:col-span-2">
             <div>
-              <label className="label">
+              <label className="label" htmlFor="register-last-name-one">
                 <span className="label-text">Primer Cognom *</span>
               </label>
               <input
+                id="register-last-name-one"
                 type="text"
                 name="last_name_one"
                 placeholder="Primer Cognom"
@@ -119,10 +121,11 @@ function Register() {
             </div>
 
             <div>
-              <label className="label">
+              <label className="label" htmlFor="register-last-name-second">
                 <span className="label-text">Segon Cognom</span>
               </label>
               <input
+                id="register-last-name-second"
                 type="text"
                 name="last_name_second"
                 placeholder="Segon Cognom"
@@ -135,10 +138,11 @@ function Register() {
 
           {/* Email */}
           <div className="md:col-span-2">
-            <label className="label">
+            <label className="label" htmlFor="register-email">
               <span className="label-text">Email *</span>
             </label>
             <input
+              id="register-email"
               type="email"
               name="email"
               placeholder="Email"
@@ -155,10 +159,11 @@ function Register() {
           </div>
 
           <div className="md:col-span-2">
-            <label className="label">
+            <label className="label" htmlFor="register-password">
               <span className="label-text">Contrasenya *</span>
             </label>
             <input
+              id="register-password"
               type="password"
               name="password"
               placeholder="Contrasenya (mín. 8 caràcters)"
@@ -172,10 +177,11 @@ function Register() {
 
           {/* Confirmar Contrasenya */}
           <div className="md:col-span-2">
-            <label className="label">
+            <label className="label" htmlFor="register-password-confirmation">
               <span className="label-text">Confirmar Contrasenya *</span>
             </label>
             <input
+              id="register-password-confirmation"
               type="password"
               name="password_confirmation"
               placeholder="Confirmar Contrasenya"

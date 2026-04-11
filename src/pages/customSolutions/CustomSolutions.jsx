@@ -166,14 +166,14 @@ export default function CustomSolutions() {
   }
 
   return (
-    <div className="custom-solutions" aria-labelledby="custom-solutions-title">
+    <div className="custom-solutions">
       {notification && (
         <Notifications key={notification.id} type={notification.type} message={notification.message} autoClose={notification.autoClose} onClose={() => setNotification(null)}/>
       )}
       <div className="custom-solutions__container">
         <div className="custom-solutions__back">
-          <Link to="/" className="link link-hover text-primary flex items-center gap-2 cursor-pointer">
-            <HiArrowLeft className="size-5" />
+          <Link to="/" className="link link-hover text-primary flex items-center gap-2 cursor-pointer" aria-label="Tornar a la pàgina d'inici">
+            <HiArrowLeft className="size-5" aria-hidden="true" />
             <p>Tornar a l'inici</p>
           </Link>
         </div>
@@ -189,19 +189,19 @@ export default function CustomSolutions() {
 
             <div className="custom-solutions__features">
               <div className="custom-solutions__feature">
-                <HiOutlineEnvelope className="custom-solutions__feature-icon" />
+                <HiOutlineEnvelope className="custom-solutions__feature-icon" aria-hidden="true" />
                 <h2 className="custom-solutions__feature-title">Resposta clara</h2>
                 <p className="custom-solutions__feature-text">Revisem la teva consulta i et responem amb una proposta adaptada.</p>
               </div>
 
               <div className="custom-solutions__feature">
-                <HiOutlinePhone className="custom-solutions__feature-icon" />
+                <HiOutlinePhone className="custom-solutions__feature-icon" aria-hidden="true" />
                 <h2 className="custom-solutions__feature-title">Contacte directe</h2>
                 <p className="custom-solutions__feature-text">Deixa'ns el telèfon i t'ajudarem a concretar la millor opció.</p>
               </div>
 
               <div className="custom-solutions__feature custom-solutions__feature--wide">
-                <HiOutlineClock className="custom-solutions__feature-icon" />
+                <HiOutlineClock className="custom-solutions__feature-icon" aria-hidden="true" />
                 <h2 className="custom-solutions__feature-title">Seguiment intern</h2>
                 <p className="custom-solutions__feature-text">El nostre equip gestionara la petició per donar-te una resposta adequada.</p>
               </div>
@@ -217,20 +217,20 @@ export default function CustomSolutions() {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="custom-solutions__form" aria-labelledby="custom-solutions-form-title">
+              <form onSubmit={handleSubmit} className="custom-solutions__form">
                 <div className="custom-solutions__field-grid">
                   <div>
                     <label className="label custom-solutions__field-label" htmlFor="email">
                       <span className="text-sm font-medium">Email</span>
                     </label>
-                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" className="input input-bordered w-full" required/>
+                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="tu@email.com" className="input input-bordered w-full" aria-describedby="custom-solutions-form-title" required/>
                   </div>
 
                   <div>
                     <label className="label custom-solutions__field-label" htmlFor="phone">
                       <span className="text-sm font-medium">Telèfon</span>
                     </label>
-                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="600 123 123" className="input input-bordered w-full" required/>
+                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="600 123 123" className="input input-bordered w-full" aria-describedby="custom-solutions-form-title" required/>
                   </div>
                 </div>
 
@@ -238,7 +238,7 @@ export default function CustomSolutions() {
                   <label className="label custom-solutions__field-label" htmlFor="description">
                     <span className="text-sm font-medium">Descripció</span>
                   </label>
-                  <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Explica'ns el tipus de solució que necessites, materials, mides, urgència o qualsevol detall important." className="textarea textarea-bordered w-full custom-solutions__textarea" required/>
+                  <textarea id="description" name="description" value={formData.description} onChange={handleChange} placeholder="Explica'ns el tipus de solució que necessites, materials, mides, urgència o qualsevol detall important." className="textarea textarea-bordered w-full custom-solutions__textarea" aria-describedby="custom-solutions-form-title" required/>
                 </div>
 
                 <div>
@@ -249,10 +249,10 @@ export default function CustomSolutions() {
                     <input ref={fileInputRef} id="images" name="images" type="file" accept="image/*" multiple onChange={handleChange} className="custom-solutions__file-input"/>
                     <p className="custom-solutions__upload-text">Arrossega les imatges aquí</p>
                     <p className="custom-solutions__upload-separator">O</p>
-                    <button type="button" className="btn btn-dash custom-solutions__upload-button" onClick={handleOpenFilePicker}>Pujar arxius</button>
+                    <button type="button" className="btn btn-dash custom-solutions__upload-button" onClick={handleOpenFilePicker} aria-label="Pujar imatges per a la solució personalitzada">Pujar arxius</button>
                     <p id="custom-solutions-upload-help" className="sr-only">Pots adjuntar fins a {MAX_IMAGES} imatges.</p>
                     {images.length > 0 ? (
-                      <div className="custom-solutions__images-selected" aria-live="polite">
+                      <div className="custom-solutions__images-selected">
                         {images.map((image) => (
                           <div key={`${image.name}-${image.lastModified}`} className="flex items-center justify-between gap-2">
                             <p>{image.name}</p>

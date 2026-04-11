@@ -8,8 +8,8 @@ export default function TopBarDashBoard() {
   return (
     <div className="navbar bg-transparent">
       <div className="flex-none lg:hidden">
-        <label htmlFor="drawer" className="btn btn-square btn-ghost">
-          <HiBars3 className="inline-block w-6 h-6 stroke-current" />
+        <label htmlFor="drawer" className="btn btn-square btn-ghost" aria-label="Obrir o tancar el menú lateral">
+          <HiBars3 className="inline-block w-6 h-6 stroke-current" aria-hidden="true" />
         </label>
       </div>
 
@@ -19,8 +19,8 @@ export default function TopBarDashBoard() {
 
       <div className="flex-none">
         <div className="dropdown dropdown-end">
-          <button tabIndex={0} className='btn btn-ghost btn-circle'>
-            <HiOutlineUserCircle className="shop-tobar-end__icon" />
+          <button tabIndex={0} className='btn btn-ghost btn-circle' aria-label="Obrir el menú d'usuari">
+            <HiOutlineUserCircle className="shop-tobar-end__icon" aria-hidden="true" />
           </button>
           <ul tabIndex={-1} className="mt-3 z-50 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
             <li className="menu-title">
@@ -35,7 +35,7 @@ export default function TopBarDashBoard() {
               </a>
             </li>
             <li className="border-t border-base-300 mt-2 pt-2">
-              <button className='btn btn-error w-full' onClick={logout}>Tancar sessió</button>
+              <button className='btn btn-error w-full' onClick={logout} aria-label="Tancar la sessió actual">Tancar sessió</button>
             </li>
           </ul>
         </div>

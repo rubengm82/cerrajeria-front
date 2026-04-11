@@ -9,13 +9,13 @@ export default function SideBarDashboard({ userRole }) {
   // Links comuns per a tots els usuaris (sense "Tornar a la botiga")
   const commonLinks = [
     { to: isAdmin ? '/admin/dashboard' : '/dashboard', label: 'Tauler', icon: (
-      <HiOutlineSquares2X2 className="size-6" />
+      <HiOutlineSquares2X2 className="size-6" aria-hidden="true" />
     ) },
     { to: '/perfil', label: 'El Meu Perfil', icon: (
-      <HiOutlineUser className="size-6" />
+      <HiOutlineUser className="size-6" aria-hidden="true" />
     ) },
     { to: '/services', label: 'Serveis', icon: (
-      <HiOutlineWrenchScrewdriver className="size-6" />
+      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
     ) },
   ]
 
@@ -23,15 +23,15 @@ export default function SideBarDashboard({ userRole }) {
   const adminLinks = [
     // Productes - Grup principal
     { to: '/admin/products', label: 'Veure Productes', parent: 'Productes', icon: (
-      <HiOutlineShoppingBag className="size-6" />
+      <HiOutlineShoppingBag className="size-6" aria-hidden="true" />
     ) },
     // Categories - anidat dins Productes
     { to: '/admin/categories', label: 'Categories', parent: 'Productes', icon: (
-      <HiOutlineTag className="size-6" />
+      <HiOutlineTag className="size-6" aria-hidden="true" />
     ) },
     // Tipus de Característiques - anidat dins Productes
     { to: '/admin/features-manager', label: 'Característiques', parent: 'Productes', icon: (
-      <HiOutlineSwatch className="size-6" />
+      <HiOutlineSwatch className="size-6" aria-hidden="true" />
     ) },
     // Característiques - anidat dins Productes (mantener para compatibilidad)
     // { to: '/admin/features', label: 'Característiques - Valors', parent: 'Productes', icon: (
@@ -39,33 +39,33 @@ export default function SideBarDashboard({ userRole }) {
     // ) },
     // Packs - anidat dins Productes
     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
-      <HiOutlineCube className="size-6" />
+      <HiOutlineCube className="size-6" aria-hidden="true" />
     ) },
     // Solucions personalitzades
     { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (
-      <HiOutlineClipboardDocumentList className="size-6" />
+      <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
     ) },
     // Comandes
     { to: '/orders', label: 'Comandes', icon: (
-      <HiOutlineShoppingCart className="size-6" />
+      <HiOutlineShoppingCart className="size-6" aria-hidden="true" />
     ) },
     // Gestió d'Usuaris
     { to: '/users', label: "Gestió d'Usuaris", icon: (
-      <HiOutlineUserGroup className="size-6" />
+      <HiOutlineUserGroup className="size-6" aria-hidden="true" />
     ) },
     // Informes
     { to: '/reports', label: 'Informes', icon: (
-      <HiOutlineChartPie className="size-6" />
+      <HiOutlineChartPie className="size-6" aria-hidden="true" />
     ) },
   ]
 
   // Links específics per a usuaris normals
   const userLinks = [
     { to: '/my-orders', label: 'Les Meves Comandes', icon: (
-      <HiOutlineClipboardDocumentList className="size-6" />
+      <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
     ) },
     { to: '/my-services', label: 'Els Meus Serveis', icon: (
-      <HiOutlineWrenchScrewdriver className="size-6" />
+      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
     ) },
   ]
 
@@ -80,7 +80,7 @@ export default function SideBarDashboard({ userRole }) {
   const isActive = (path) => location.pathname === path
 
   return (
-    <ul className="menu bg-base-200 rounded-box w-70 min-h-full text-base-content">
+    <ul className="menu bg-base-200 rounded-box w-70 min-h-full text-base-content" aria-label={isAdmin ? "Menú del panell d'administració" : "Menú de l'àrea d'usuari"}>
       {/* Espaciador para evitar que el topbar se superponga al abrir el menú */}
       <div className="h-16 w-full"></div>
 
@@ -132,7 +132,7 @@ export default function SideBarDashboard({ userRole }) {
           to="/"
           className="btn btn-primary btn-outline py-2"
         >
-          <HiOutlineHome className="size-6" />
+          <HiOutlineHome className="size-6" aria-hidden="true" />
           Tornar a la botiga
         </Link>
       </li>

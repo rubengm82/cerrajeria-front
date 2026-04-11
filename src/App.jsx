@@ -44,6 +44,7 @@ import EditPack from './pages/packs/EditPack'
 import AdminFeaturesManager from './pages/features/AdminFeaturesManager'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import UserDashboard from './pages/admin/UserDashboard'
+import AdminReports from './pages/admin/AdminReports'
 import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
@@ -226,6 +227,11 @@ function App() {
         <Route path='/admin/dashboard' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path='/admin/reports' element={
+          <ProtectedRoute requiredRole='admin'>
+            <AdminReports />
           </ProtectedRoute>
         } />
       </Route>

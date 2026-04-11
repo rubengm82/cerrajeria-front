@@ -54,7 +54,7 @@ export default function SideBarDashboard({ userRole }) {
       <HiOutlineUserGroup className="size-6" aria-hidden="true" />
     ) },
     // Informes
-    { to: '/reports', label: 'Informes', icon: (
+    { to: '/admin/reports', label: 'Informes', icon: (
       <HiOutlineChartPie className="size-6" aria-hidden="true" />
     ) },
   ]

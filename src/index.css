@@ -3,6 +3,13 @@
 
 @theme {
   --color-base-400: #737373;
+  --color-report-chart-sales: #DA7606;
+  --color-report-chart-sales-fill: rgba(218, 118, 6, 0.14);
+  --color-report-chart-bar: #E06C00;
+  --color-report-chart-stock: #E06C00;
+  --color-report-chart-grid: #E7E2DB;
+  --color-report-chart-text: #57534E;
+  --color-report-chart-bar-track: #F3EEE7;
 }
 
 @plugin "daisyui/theme" {

@@ -9,7 +9,7 @@ export default function TopBarShop() {
 
   return (
     <div className="drawer">
-      <input id="shop-drawer" type="checkbox" className="drawer-toggle" aria-label="Obrir o tancar el menú lateral" />
+      <input id="shop-drawer" type="checkbox" className="drawer-toggle" tabIndex={-1} aria-hidden="true" />
 
       <div className="drawer-content">
         <div className="navbar bg-white/90 backdrop-blur-sm shadow-sm" role="banner">

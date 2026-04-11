@@ -35,6 +35,12 @@
     padding-bottom: 0;
     transition: transform 150ms ease-in-out, color 150ms ease-in-out;
 
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 0.2rem;
+      color: var(--color-primary);
+    }
+
     &:hover {
       background-color: transparent;
       color: var(--color-primary);
@@ -77,6 +83,12 @@
     display: flex;
     align-items: center;
   }
+}
+
+.shop-topbar__logo:focus-visible,
+.shop-tobar-end .btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0.2rem;
 }
 
 @media (min-width: 768px) {

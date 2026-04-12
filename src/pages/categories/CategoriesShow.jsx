@@ -1,13 +1,18 @@
+import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
+import ProductDetailModal from "../../components/ProductDetailModal"
 import { HiArrowLeft } from "react-icons/hi2"
 import { getCategory } from "../../api/categories_api"
+import { getProducts } from "../../api/products_api"
 import '../../../scss/main_shop.scss'
 
 function CategoriesShow() {
   const {id} = useParams()
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Caché para categoría con sus productos
   const { data: category = null, isLoading: loading } = useQuery({
@@ -21,7 +26,31 @@ function CategoriesShow() {
     retry: 1,
   });
 
+  // Caché para productos
+  const { data: productsData } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const res = await getProducts();
+      sessionStorage.setItem('cached_products', JSON.stringify(res.data));
+      return res.data;
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
   const categoryProducts = Object.values(category?.products || {})
+  const products = productsData || []
+
+  const openProductModal = (product) => {
+    const fullProduct = products.find(p => p.id === product.id)
+    setSelectedProduct(fullProduct || product)
+    setIsModalOpen(true)
+  }
+
+  const closeProductModal = () => {
+    setIsModalOpen(false)
+    setSelectedProduct(null)
+  }
 
   return loading ? <LoadingAnimation /> : (
     <div className='bg-base-200 flex flex-col items-center justify-center'>
@@ -34,11 +63,16 @@ function CategoriesShow() {
           <h1 id="category-detail-title" className="mt-1 text-4xl font-medium tracking-tight sm:text-3xl mb-10">{category.name}:</h1>
           <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {categoryProducts.length > 0 ? categoryProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} onView={openProductModal} />
           )) : <p className='col-span-full font-semibold text-2xl'>Actualment no hi ha productes</p> }
           </div>
         </div>
       </div>
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={closeProductModal}
+      />
     </div>
   )
 }

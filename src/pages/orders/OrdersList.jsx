@@ -1,14 +1,18 @@
 import { useState, useEffect, useContext } from 'react'
+import { Link } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
-import { getOrders, updateOrder } from '../../api/orders_api'
-import { HiDocumentDownload } from 'react-icons/hi'
+import { getOrders, getOrdersWithTrashed, updateOrder, deleteOrder, restoreOrder, forceDeleteOrder } from '../../api/orders_api'
+import { HiDocumentDownload, HiTrash, HiEye } from 'react-icons/hi'
 import LoadingAnimation from '../../components/LoadingAnimation'
+import ConfirmableModal from '../../components/ConfirmableModal'
+import Notifications from '../../components/Notifications'
 
 function OrdersList() {
   const { user } = useContext(AuthContext)
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [notification, setNotification] = useState(null)
 
   const isAdmin = user?.role === 'admin'
 
@@ -19,7 +23,7 @@ function OrdersList() {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const response = await getOrders()
+      const response = isAdmin ? await getOrdersWithTrashed() : await getOrders()
       setOrders(response.data)
     } catch (err) {
       setError('Error al cargar las órdenes')
@@ -33,9 +37,38 @@ function OrdersList() {
     try {
       await updateOrder(orderId, { status: newStatus })
       setOrders(orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order))
+      setNotification({ id: Date.now(), type: "success", message: "Estat de la comanda actualitzat correctament" })
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('Error al actualizar el estado')
+      setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut actualitzar l'estat de la comanda" })
+    }
+  }
+
+  const handleToggle = async (orderId, isActive) => {
+    try {
+      if (isActive) {
+        await restoreOrder(orderId)
+        setOrders(orders.map(order => order.id === orderId ? { ...order, deleted_at: null } : order))
+        setNotification({ id: Date.now(), type: "success", message: "Comanda restaurada correctament" })
+      } else {
+        await deleteOrder(orderId)
+        setOrders(orders.map(order => order.id === orderId ? { ...order, deleted_at: new Date().toISOString() } : order))
+        setNotification({ id: Date.now(), type: "success", message: "Comanda desactivada correctament" })
+      }
+    } catch (error) {
+      console.error('Error toggling order:', error)
+      setNotification({ id: Date.now(), type: "error", message: isActive ? "No s'ha pogut restaurar la comanda" : "No s'ha pogut desactivar la comanda" })
+    }
+  }
+
+  const handleForceDelete = async (orderId) => {
+    try {
+      await forceDeleteOrder(orderId)
+      setOrders(orders.filter(order => order.id !== orderId))
+      setNotification({ id: Date.now(), type: "success", message: "Comanda eliminada permanentment" })
+    } catch (error) {
+      console.error('Error force deleting order:', error)
+      setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut eliminar permanentment la comanda" })
     }
   }
 
@@ -68,7 +101,7 @@ function OrdersList() {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `factura-${orderId}.pdf`
+      link.download = `factura-INV-${orderId.toString().padStart(6, '0')}.pdf`
       document.body.appendChild(link)
       link.click()
 
@@ -118,6 +151,9 @@ function OrdersList() {
 
   return (
     <div className="p-4 md:p-0">
+      {notification && (
+        <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)}/>
+      )}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-base-content mb-2">{pageTitle}</h1>
         <p className="text-base-400">{pageDescription}</p>
@@ -138,29 +174,27 @@ function OrdersList() {
                 {isAdmin && <th className="bg-base-200">Client</th>}
                 <th className="bg-base-200">Data Factura</th>
                 <th className="bg-base-200">Enviament</th>
-                <th className="bg-base-200">Mètode Pagament</th>
-                <th className="bg-base-200">Total</th>
-                <th className="bg-base-200">Estat</th>
-                <th className="bg-base-200">Accions</th>
+                 <th className="bg-base-200">Mètode Pagament</th>
+                  <th className="bg-base-200">Estat Comanda</th>
+                  <th className="bg-base-200">Subtotal i IVA</th>
+                  <th className="bg-base-200">Total</th>
+                  <th className="bg-base-200">Descàrrega</th>
+                  {isAdmin && <th className="bg-base-200">Estat</th>}
+                  {isAdmin && <th className="bg-base-200">Accions</th>}
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id}>
-                  <td className="font-semibold">#{order.id}</td>
+                  <td className="font-semibold">INV-{order.id.toString().padStart(6, '0')}</td>
                   {isAdmin && <td>{order.user?.name || ''} {order.user?.last_name_one || ''} {order.user?.last_name_second || ''}</td>}
                   <td>{formatDate(order.created_at)}</td>
                   <td>
                     {order.shipped_at ? formatDate(order.shipped_at) : ''}
                   </td>
-                  <td>
-                    {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
-                  </td>
-                  <td className="font-bold text-primary">
-                    {order.products?.reduce((total, product) =>
-                      total + (product.price * product.pivot.quantity), 0
-                    ).toFixed(2)}€
-                  </td>
+                   <td>
+                     {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
+                   </td>
                    <td>
                      {isAdmin ? (
                        <select
@@ -189,16 +223,68 @@ function OrdersList() {
                        </span>
                      )}
                    </td>
-                  <td>
-                    <button
-                      onClick={() => downloadInvoice(order.id)}
-                      className="btn btn-sm btn-primary"
-                      title="Descarregar Factura"
-                    >
-                      <HiDocumentDownload className="w-4 h-4" />
-                      Factura
-                    </button>
-                  </td>
+                   <td>
+                     {(() => {
+                       const subtotal = order.products?.reduce((sum, product) =>
+                         sum + (parseFloat(product.price) * product.pivot.quantity), 0
+                       ) || 0
+                       const iva = subtotal * 0.21
+                       return (
+                         <div className="text-left text-sm">
+                           <div>Subtotal: {subtotal.toFixed(2)}€</div>
+                           <div>IVA: {iva.toFixed(2)}€</div>
+                         </div>
+                       )
+                     })()}
+                   </td>
+                   <td className="font-bold text-primary">
+                     {(() => {
+                       const subtotal = order.products?.reduce((sum, product) =>
+                         sum + (parseFloat(product.price) * product.pivot.quantity), 0
+                       ) || 0
+                       const iva = subtotal * 0.21
+                       const total = subtotal + iva
+                       return total.toFixed(2) + '€'
+                     })()}
+                   </td>
+                   <td>
+                     <button
+                       onClick={() => downloadInvoice(order.id)}
+                       className="btn btn-sm btn-primary"
+                       title="Descarregar Factura"
+                     >
+                       <HiDocumentDownload className="w-4 h-4" />
+                       Factura
+                     </button>
+                   </td>
+                   {isAdmin && (
+                     <td>
+                       <input
+                         type="checkbox"
+                         className="toggle toggle-primary"
+                         checked={!order.deleted_at}
+                         onChange={(e) => handleToggle(order.id, e.target.checked)}
+                       />
+                     </td>
+                   )}
+                   {isAdmin && (
+                     <td className="h-12">
+                       <div className='flex items-center justify-center gap-3'>
+                       <Link to={`/orders/${order.id}`} className="text-base-400 hover:text-primary transition-colors">
+                         <HiEye className="size-6" />
+                       </Link>
+                         <ConfirmableModal
+                           title="Eliminar comanda permanentment"
+                           message={`Segur que vols eliminar permanentment la comanda INV-${order.id.toString().padStart(6, '0')}? Aquesta acció no es pot desfer.`}
+                           onConfirm={() => handleForceDelete(order.id)}
+                         >
+                           <button className={`text-base-400 hover:text-error-content transition-colors cursor-pointer ${!order.deleted_at ? 'invisible' : ''}`}>
+                             <HiTrash className="size-6" />
+                           </button>
+                         </ConfirmableModal>
+                       </div>
+                     </td>
+                   )}
                 </tr>
               ))}
             </tbody>

@@ -3,6 +3,9 @@ import api from './axiosConfig'
 // Obtener todos los pedidos
 export const getOrders = () => api.get('/orders')
 
+// Obtener todos los pedidos incluyendo eliminados
+export const getOrdersWithTrashed = () => api.get('/orders/with-trashed')
+
 // Obtener un pedido por ID
 export const getOrder = (id) => api.get(`/orders/${id}`)
 

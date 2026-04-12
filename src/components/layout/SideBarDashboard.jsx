@@ -14,9 +14,6 @@ export default function SideBarDashboard({ userRole }) {
     { to: '/perfil', label: 'El Meu Perfil', icon: (
       <HiOutlineUser className="size-6" aria-hidden="true" />
     ) },
-    { to: '/services', label: 'Serveis', icon: (
-      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
-    ) },
   ]
 
   // Links específics per a administradors (ordenats alfabèticament)
@@ -40,6 +37,10 @@ export default function SideBarDashboard({ userRole }) {
     // Packs - anidat dins Productes
     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
       <HiOutlineCube className="size-6" aria-hidden="true" />
+    ) },
+    // Serveis
+    { to: '/services', label: 'Serveis', icon: (
+      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
     ) },
     // Solucions personalitzades
     { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (

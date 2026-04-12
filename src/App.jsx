@@ -49,6 +49,7 @@ import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
 import OrdersList from './pages/orders/OrdersList'
+import OrderShow from './pages/orders/OrderShow'
 
 // Pages - Errors
 import Error404 from './pages/errors/error404'
@@ -126,6 +127,11 @@ function App() {
         <Route path="/orders" element={
           <ProtectedRoute requiredRole="admin">
             <OrdersList />
+          </ProtectedRoute>
+        } />
+        <Route path="/orders/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <OrderShow />
           </ProtectedRoute>
         } />
         <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Informes</h1><p>Properament...</p></div>} />

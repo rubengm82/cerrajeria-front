@@ -1,10 +1,9 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { HiBars3, HiOutlineUserCircle, HiOutlineHome } from 'react-icons/hi2'
 
 export default function TopBarDashBoard() {
   const { user, logout } = useAuth()
-  const location = useLocation()
   
   return (
     <div className="navbar bg-transparent">
@@ -24,12 +23,9 @@ export default function TopBarDashBoard() {
             <HiOutlineUserCircle className="shop-tobar-end__icon" aria-hidden="true" />
           </button>
           <ul tabIndex={-1} className="mt-3 z-50 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
-            {location.pathname !== '/admin/dashboard' && (
+            {user?.role === 'admin' || user?.role === 1 ? (
               <>
-                <div className="menu-title px-4 py-2">
-                  <span>{user?.name + " " + user?.last_name_one || 'Usuari'}</span>
-                </div>
-                <li className="border-t border-base-300 mt-2 pt-2 mb-2">
+                <li className="mb-2">
                   <Link to="/" className="btn btn-primary btn-outline w-full">
                     <HiOutlineHome className="size-6" aria-hidden="true" />
                     Tornar a la botiga
@@ -39,10 +35,12 @@ export default function TopBarDashBoard() {
                   <button className='btn btn-error w-full' onClick={logout} aria-label="Tancar la sessió actual">Tancar sessió</button>
                 </li>
               </>
-            )}
-            {location.pathname === '/admin/dashboard' && (
+            ) : (
               <>
-                <li className="mb-2">
+                <div className="menu-title px-4 py-2">
+                  <span>{user?.name + " " + user?.last_name_one || 'Usuari'}</span>
+                </div>
+                <li className="border-t border-base-300 mt-2 pt-2 mb-2">
                   <Link to="/" className="btn btn-primary btn-outline w-full">
                     <HiOutlineHome className="size-6" aria-hidden="true" />
                     Tornar a la botiga

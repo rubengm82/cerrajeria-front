@@ -102,6 +102,7 @@ function drawSalesGrid(ctx, width, padding, chartHeight, maxValue, colors) {
   ctx.strokeStyle = colors.grid
   ctx.fillStyle = colors.text
   ctx.lineWidth = 1
+  ctx.setLineDash([4, 4])
 
   for (let index = 0; index <= 4; index += 1) {
     const y = padding.top + (chartHeight / 4) * index
@@ -112,6 +113,8 @@ function drawSalesGrid(ctx, width, padding, chartHeight, maxValue, colors) {
     ctx.stroke()
     ctx.fillText(formatCurrency(value), 8, y + 4)
   }
+
+  ctx.setLineDash([])
 }
 
 function drawSingleSalesPoint(ctx, item, chart, maxValue, colors) {
@@ -218,7 +221,7 @@ function HorizontalBarChart({ data, colorName, suffix, valueFormatter }) {
             </Link>
 
             <div className="h-5 overflow-hidden rounded-lg bg-report-chart-bar-track">
-              <div className="h-full rounded-lg" style={{ width, background: `linear-gradient(to right, transparent, var(--color-report-chart-${colorName}))` }} />
+              <div className="h-full rounded-lg transition-all duration-300 hover:opacity-90 hover:scale-105" style={{ width, background: `linear-gradient(to right, transparent, var(--color-report-chart-${colorName}))` }} />
             </div>
 
             <span className="text-left text-base-400">{valueFormatter ? valueFormatter(item.value) : item.value}{suffix}</span>
@@ -231,7 +234,7 @@ function HorizontalBarChart({ data, colorName, suffix, valueFormatter }) {
 
 function StatCard({ icon, label, value, helper }) {
   return (
-    <div className="simple-container">
+    <div className="simple-container shadow-sm hover:shadow-md transition-shadow duration-300">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-base-400">{label}</p>

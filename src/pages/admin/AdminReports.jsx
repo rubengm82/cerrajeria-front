@@ -4,11 +4,6 @@ import { Link } from 'react-router-dom'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { getReportsSummary } from '../../api/reports_api'
 
-const barColorClasses = {
-  bar: 'bg-report-chart-bar',
-  stock: 'bg-report-chart-stock',
-}
-
 function cssVar(styles, name) {
   return styles.getPropertyValue(name).trim()
 }
@@ -203,7 +198,6 @@ function SalesLineChart({ data }) {
 
 function HorizontalBarChart({ data, colorName, suffix, valueFormatter }) {
   const maxValue = Math.max(...data.map(item => item.value), 1)
-  const barColorClass = barColorClasses[colorName]
 
   return (
     <div className="flex min-h-80 flex-col justify-center gap-3">
@@ -224,7 +218,7 @@ function HorizontalBarChart({ data, colorName, suffix, valueFormatter }) {
             </Link>
 
             <div className="h-5 overflow-hidden rounded-lg bg-report-chart-bar-track">
-              <div className={`h-full rounded-lg ${barColorClass}`} style={{ width }} />
+              <div className="h-full rounded-lg" style={{ width, background: `linear-gradient(to right, transparent, var(--color-report-chart-${colorName}))` }} />
             </div>
 
             <span className="text-left text-base-400">{valueFormatter ? valueFormatter(item.value) : item.value}{suffix}</span>

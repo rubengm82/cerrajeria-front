@@ -9,6 +9,9 @@ export const getOrdersWithTrashed = () => api.get('/orders/with-trashed')
 // Obtener un pedido por ID
 export const getOrder = (id) => api.get(`/orders/${id}`)
 
+// Obtener el carrito del usuario autenticado
+export const getCartOrder = () => api.get('/orders/cart')
+
 // Crear un nuevo pedido
 export const createOrder = (orderData) => api.post('/orders', orderData)
 

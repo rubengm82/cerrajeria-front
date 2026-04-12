@@ -26,17 +26,9 @@ export default function TopBarDashBoard() {
           <ul tabIndex={-1} className="mt-3 z-50 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
             {location.pathname !== '/admin/dashboard' && (
               <>
-                <li className="menu-title">
-                  <span>{user?.name || 'Usuari'}</span>
-                </li>
-                <li><a>{user?.email || 'email@exemple.com'}</a></li>
-                <li>
-                  <a>
-                    {user?.role === 'admin' || user?.role === 1
-                      ? 'Administrador'
-                      : 'Usuari'}
-                  </a>
-                </li>
+                <div className="menu-title px-4 py-2">
+                  <span>{user?.name + " " + user?.last_name_one || 'Usuari'}</span>
+                </div>
                 <li className="border-t border-base-300 mt-2 pt-2 mb-2">
                   <Link to="/" className="btn btn-primary btn-outline w-full">
                     <HiOutlineHome className="size-6" aria-hidden="true" />

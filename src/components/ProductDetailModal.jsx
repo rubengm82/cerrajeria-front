@@ -67,21 +67,22 @@ function ProductDetailModal({
       aria-modal="true"
       aria-describedby={product.description ? modalDescriptionId : undefined}
     >
-      <div className="modal-box product-pack-show__container h-[90vh] overflow-hidden p-4">
-        {/* Close button */}
-        <button
-          type="button"
-          className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]"
-          onClick={onClose}
-          aria-label="Tancar el detall del producte"
-        >
-          <HiXMark className="size-6" />
-        </button>
-
-        <section
-          className="product-pack-show__summary h-full"
-          aria-labelledby={modalTitleId}
-        >
+      <div className="modal-box product-pack-show__container p-4">
+        <div className="product-pack-show__header">
+          <button
+            type="button"
+            className="btn btn-circle btn-ghost product-pack-show__close text-[30px]"
+            onClick={onClose}
+            aria-label="Tancar el detall del producte"
+          >
+            <HiXMark className="size-6" />
+          </button>
+        </div>
+        <div className="product-pack-show__body">
+          <section
+            className="product-pack-show__summary"
+            aria-labelledby={modalTitleId}
+          >
           {/* Gallery */}
           <div className="product-pack-show__gallery">
             <div className="product-pack-show__main-image bg-base-500">
@@ -208,6 +209,7 @@ function ProductDetailModal({
                   id={quantityInputId}
                   type="number"
                   min="1"
+                  step="1"
                   value={quantity}
                   onChange={handleQuantityChange}
                   className="input input-bordered product-pack-show__quantity-input"
@@ -225,7 +227,8 @@ function ProductDetailModal({
             )}
           </div>
         </section>
-      </div>
+        </div>
+        </div>
     </div>
   )
 }

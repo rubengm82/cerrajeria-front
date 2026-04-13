@@ -13,6 +13,21 @@
     overflow-y: auto !important;
   }
 
+  &__header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__close {
+    z-index: 10;
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+  }
+
   &__back {
     display: inline-flex;
     align-items: center;
@@ -61,8 +76,7 @@
     overflow: hidden;
     border-radius: 0.5rem;
     background: var(--color-base-200);
-    /* En móvil usamos una proporción fija para evitar estiramientos */
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 700 / 550;
     width: 100%;
 
     img {
@@ -182,7 +196,13 @@
     text-align: center;
     font-weight: 600;
     font-size: 1rem;
-    padding: 0 0.25rem;
+
+    @media (max-width: 767px) {
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        opacity: 1;
+      }
+    }
   }
 
   &__cart-button {
@@ -264,13 +284,23 @@
       overflow: hidden !important;
     }
 
+    &__header {
+      display: flex;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+
+    &__body {
+      flex-direction: row;
+      gap: 1.25rem;
+    }
+
     &__summary {
       grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.95fr);
       height: 100%;
     }
 
     &__main-image {
-      aspect-ratio: auto;
       flex: 1;
       min-height: 0;
     }

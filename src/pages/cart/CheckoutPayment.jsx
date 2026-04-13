@@ -10,7 +10,7 @@ import OrderSummary from "../../components/OrderSummary"
 import { getCartTotals } from "../../utils/cartTotals"
 import "../../../scss/main_shop.scss"
 
-function Checkout() {
+function CheckoutPayment() {
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
   const { data: cartOrder, isLoading, isError } = useQuery({
@@ -37,7 +37,7 @@ function Checkout() {
 
   const products = cartOrder?.products || []
   const { itemCount, subtotal, shipping, total } = getCartTotals(products)
-  const userDataDescriptionId = "checkout-user-data-description"
+  const paymentDescriptionId = "checkout-payment-description"
 
   const content = authLoading || !user || isLoading ? (
     <LoadingAnimation heightClass="h-32" />
@@ -54,14 +54,44 @@ function Checkout() {
     </div>
   ) : (
     <>
-      <CheckoutSteps activeStep={1} />
+      <CheckoutSteps activeStep={2} />
 
       <div className="checkout-page__layout">
-        <section className="checkout-page__panel border-base-300 bg-base-100" aria-labelledby="checkout-user-data-title" aria-describedby={userDataDescriptionId}>
+        <section className="checkout-page__panel checkout-page__panel--payment border-base-300 bg-base-100" aria-labelledby="checkout-payment-title" aria-describedby={paymentDescriptionId}>
           <header className="checkout-page__panel-header">
-            <h2 id="checkout-user-data-title">Dades personals</h2>
-            <p id={userDataDescriptionId} className="text-base-400">Introdueix les teves dades per processar la comanda.</p>
+            <h2 id="checkout-payment-title">Pagament</h2>
+            <p id={paymentDescriptionId} className="text-base-400">Selecciona un mètode de pagament.</p>
           </header>
+
+          <form className="payment-methods" aria-label="Mètodes de pagament">
+            <label className="payment-method border-base-300" htmlFor="payment-card">
+              <span className="payment-method__choice">
+                <input id="payment-card" className="radio radio-primary" type="radio" name="paymentMethod" value="card" />
+                <span>Targeta de crèdit</span>
+              </span>
+              <span className="payment-method__logos" aria-label="Visa, Mastercard, American Express i targetes compatibles">
+                <span>VISA</span>
+                <span>MC</span>
+                <span>AMEX</span>
+              </span>
+            </label>
+
+            <label className="payment-method border-base-300" htmlFor="payment-paypal">
+              <span className="payment-method__choice">
+                <input id="payment-paypal" className="radio radio-primary" type="radio" name="paymentMethod" value="paypal" />
+                <span>PayPal</span>
+              </span>
+              <span className="payment-method__brand payment-method__brand--paypal" aria-hidden="true">PayPal</span>
+            </label>
+
+            <label className="payment-method border-base-300" htmlFor="payment-bizum">
+              <span className="payment-method__choice">
+                <input id="payment-bizum" className="radio radio-primary" type="radio" name="paymentMethod" value="bizum" defaultChecked />
+                <span>Bizum</span>
+              </span>
+              <span className="payment-method__brand payment-method__brand--bizum" aria-hidden="true">bizum</span>
+            </label>
+          </form>
         </section>
 
         <OrderSummary
@@ -70,18 +100,17 @@ function Checkout() {
           total={total}
           itemCount={itemCount}
           buttonLabel="Continuar amb el pagament"
-          actionTo="/checkout/payment"
         />
       </div>
     </>
   )
 
   return (
-    <section className="checkout-page" aria-label="Tramitar comanda">
+    <section className="checkout-page" aria-label="Configurar pagament">
       <div className="checkout-page__container">
-        <Link to="/cart" className="checkout-page__back text-primary">
+        <Link to="/checkout" className="checkout-page__back text-primary">
           <HiArrowLeft className="checkout-page__back-icon" aria-hidden="true" />
-          Tornar al carret
+          Tornar a les dades
         </Link>
 
         <header className="checkout-page__header">
@@ -94,4 +123,4 @@ function Checkout() {
   )
 }
 
-export default Checkout
+export default CheckoutPayment

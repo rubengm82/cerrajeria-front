@@ -20,6 +20,7 @@ import Categories from './pages/categories/Categories'
 import CategoriesShow from './pages/categories/CategoriesShow'
 import Cart from './pages/cart/Cart'
 import Checkout from './pages/cart/Checkout'
+import CheckoutPayment from './pages/cart/CheckoutPayment'
 
 // Pages - Auth
 import Login from './pages/auth/SignIn'
@@ -107,6 +108,7 @@ function App() {
         <Route path="/categories/:id" element={<CategoriesShow />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout/payment" element={<CheckoutPayment />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />
       </Route>
 

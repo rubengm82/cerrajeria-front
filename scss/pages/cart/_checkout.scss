@@ -67,6 +67,18 @@
         content: "";
         transform: translateY(-50%);
       }
+
+      &::after {
+        position: absolute;
+        top: calc(1.25rem + 1.25rem);
+        left: 1.5rem;
+        z-index: 0;
+        width: var(--checkout-steps-progress, 0);
+        height: 0.250rem;
+        background: var(--color-primary);
+        content: "";
+        transform: translateY(-50%);
+      }
     }
 
     .step {
@@ -119,6 +131,18 @@
         }
       }
     }
+
+    &--active-2 {
+      .steps {
+        --checkout-steps-progress: calc(50% - 1.5rem);
+      }
+    }
+
+    &--active-3 {
+      .steps {
+        --checkout-steps-progress: calc(100% - 3rem);
+      }
+    }
   }
 
   &__step {
@@ -160,6 +184,10 @@
   &__panel {
     min-height: 25rem;
     padding: clamp(1rem, 3vw, 1.5rem);
+
+    &--payment {
+      min-height: 0;
+    }
   }
 
   &__panel-header {
@@ -198,6 +226,82 @@
   }
 }
 
+.payment-methods {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3rem;
+  padding: 0.55rem 0.75rem;
+  border-width: 1px;
+  border-radius: 0.5rem;
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+
+  &__choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    input {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__logos,
+  &__brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+  }
+
+  &__logos {
+    span {
+      padding: 0.1rem 0.25rem;
+      border: 1px solid var(--color-base-300);
+      border-radius: 0.25rem;
+      color: var(--color-base-400);
+      font-size: 0.65rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+  }
+
+  &__brand {
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1;
+
+    &--paypal {
+      color: var(--color-base-content);
+      font-style: italic;
+    }
+
+    &--bizum {
+      color: var(--color-primary);
+      letter-spacing: 0;
+    }
+  }
+}
+
 @media (min-width: 900px) {
   .checkout-page {
     &__layout {
@@ -215,5 +319,11 @@
         display: none;
       }
     }
+  }
+
+  .payment-method {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
   }
 }

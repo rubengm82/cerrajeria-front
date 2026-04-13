@@ -124,7 +124,7 @@ export default function AdminCustomSolutionsList() {
                     <td className='border-base-300 text-base-400'>{formatDate(solution.created_at)}</td>
                     <td className='border-base-300 text-base-400'>{solution.status === 'installed' || solution.status === 'rejected' ? formatDate(solution.updated_at) : "Encara no s'ha tancat"}</td>
                     <td className='border-base-300 text-center'>
-                        <select value={solution.status} onChange={(event) => handleStatusChange(solution, event.target.value)} className={`select select-sm w-40 max-w-56 rounded-full text-center font-medium shadow-none border ${getStatusOption(solution.status).selectClassName}`} disabled={updatingStatusId === solution.id}>
+                        <select value={solution.status} onChange={(event) => handleStatusChange(solution, event.target.value)} className="select select-sm select-bordered text-center" disabled={updatingStatusId === solution.id}>
                           {STATUS_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
                               {option.label}

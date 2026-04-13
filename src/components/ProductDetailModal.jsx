@@ -67,6 +67,9 @@ function ProductDetailModal({
       aria-modal="true"
       aria-describedby={product.description ? modalDescriptionId : undefined}
     >
+      <div className="modal-backdrop join" onClick={onClose}>
+        <button aria-label="Tancar el modal"></button>
+      </div>
       <div className="modal-box product-pack-show__container p-4">
         <div className="product-pack-show__header">
           <button
@@ -228,7 +231,7 @@ function ProductDetailModal({
           </div>
         </section>
         </div>
-        </div>
+      </div>
     </div>
   )
 }

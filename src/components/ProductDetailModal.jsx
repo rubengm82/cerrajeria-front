@@ -1,174 +1,238 @@
 import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
-import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2";
-import LoadingAnimation from "./LoadingAnimation";
+import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
+import LoadingAnimation from "./LoadingAnimation"
 
+const formatPrice = (price) => {
+  const numericPrice = Number(price || 0)
+  return new Intl.NumberFormat("ca-ES", {
+    style: "currency",
+    currency: "EUR",
+  }).format(numericPrice)
+}
 
-function ProductDetailModal({ product, isOpen, onClose, entityType = "product", isLoading = false }) {
+function ProductDetailModal({
+  product,
+  isOpen,
+  onClose,
+  entityType = "product",
+  isLoading = false,
+}) {
   const { user } = useAuth()
-  const isAdmin = user?.role === 'admin'
+  const isAdmin = user?.role === "admin"
+
   const [quantity, setQuantity] = useState(1)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
+
+  if (!product) return null
+
   const isPack = entityType === "pack"
+
   const productImages = [
-    ...(product?.images || []).filter((image) => image.is_important === true),
-    ...(product?.images || []).filter((image) => image.is_important !== true)
+    ...(product.images || []).filter((img) => img.is_important),
+    ...(product.images || []).filter((img) => !img.is_important),
   ]
+
+  const activeImage = productImages[activeImageIndex]
+
+  const productFeatures =
+    product.features?.filter(
+      (f) => f?.type?.name && f?.value
+    ) || []
+
+  const packProducts =
+    product.products?.filter((p) => !p?.deleted_at) || []
+
+  const currentPrice = isPack
+    ? product.total_price
+    : product.discount > 0
+    ? (product.price * (1 - product.discount / 100)).toFixed(2)
+    : product.price
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
     setQuantity(Math.max(1, value))
   }
 
-  const productFeatures = product?.features?.filter(
-    (feature) => feature?.type?.name && feature?.value
-  ) || []
-  const packProducts = product?.products?.filter((packProduct) => !packProduct?.deleted_at) || []
-  const currentPrice = isPack ? product?.total_price : product?.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product?.price
-  const modalTitleId = `product-detail-title-${product?.id || 'empty'}`
-  const modalDescriptionId = `product-detail-description-${product?.id || 'empty'}`
-  const quantityInputId = `quantity-${product?.id || 'product'}`
+  const modalTitleId = `product-detail-title-${product.id}`
+  const modalDescriptionId = `product-detail-description-${product.id}`
+  const quantityInputId = `quantity-${product.id}`
 
   return (
-    product && (
-      <dialog
-        id="product-view-modal"
-        className="modal modal-bottom sm:modal-middle"
-        open={isOpen}
-        aria-describedby={product.description ? modalDescriptionId : undefined}
-      >
-        <div className="modal-box product-detail-modal__content product-detail-modal">
-        <form method="dialog">
-          <button type="button" className="btn btn-circle btn-ghost absolute right-2 top-2 z-10 text-[30px]" onClick={onClose} aria-label="Tancar el detall del producte">
-            <HiXMark className="size-6" aria-hidden="true" />
+    <div
+      id="product-view-modal"
+      className="modal modal-bottom md:modal-middle modal-lg"
+      open={isOpen}
+      role="dialog"
+      aria-modal="true"
+      aria-describedby={product.description ? modalDescriptionId : undefined}
+    >
+      <div className="modal-backdrop join" onClick={onClose}>
+        <button aria-label="Tancar el modal"></button>
+      </div>
+      <div className="modal-box product-pack-show__container p-4">
+        <div className="product-pack-show__header">
+          <button
+            type="button"
+            className="btn btn-circle btn-ghost product-pack-show__close text-[30px]"
+            onClick={onClose}
+            aria-label="Tancar el detall del producte"
+          >
+            <HiXMark className="size-6" />
           </button>
-        </form>
+        </div>
+        <div className="product-pack-show__body">
+          <section
+            className="product-pack-show__summary"
+            aria-labelledby={modalTitleId}
+          >
+          {/* Gallery */}
+          <div className="product-pack-show__gallery">
+            <div className="product-pack-show__main-image bg-base-500">
+              {activeImage ? (
+                <img
+                  src={`/storage/${activeImage.path}`}
+                  alt={product.name}
+                />
+              ) : (
+                <HiOutlinePhoto className="product-pack-show__placeholder text-base-300" />
+              )}
+            </div>
 
-        <div className={`product-detail-modal__gallery ${productImages.length <= 1 ? "product-detail-modal__gallery--single" : ""}`}>
-          {/* Carousel de imágenes */}
-          <div className="product-detail-modal__carousel">
-            {productImages.length > 0 ? (
-              productImages.map((image, index) => (
-                <div
-                  key={image.id || index}
-                  id={`product-item${product.id}-${index + 1}`}
-                  className="product-detail-modal__carousel-item"
-                >
-                  <img
-                    src={`/storage/${image.path}`}
-                    alt={`${product.name} - ${index + 1}`}
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="product-detail-modal__carousel-item flex items-center justify-center">
-                <HiOutlinePhoto className="w-16 h-16 text-base-300" aria-hidden="true" />
+            {productImages.length > 1 && (
+              <div
+                className="product-pack-show__thumbs"
+                aria-label="Miniatures de les imatges"
+              >
+                {productImages.map((image, index) => (
+                  <button
+                    key={image.id || index}
+                    type="button"
+                    className={`product-pack-show__thumb bg-base-500 ${
+                      index === activeImageIndex
+                        ? "product-pack-show__thumb--active"
+                        : ""
+                    }`}
+                    onClick={() => setActiveImageIndex(index)}
+                    aria-label={`Veure imatge ${index + 1}`}
+                    aria-current={index === activeImageIndex}
+                  >
+                     <img src={`/storage/${image.path}`} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Thumbnails */}
-          {productImages.length > 1 && (
-            <div className="product-detail-modal__carousel-thumbnails" aria-label="Miniatures de les imatges del producte">
-              {productImages.map((image, index) => (
-                <a
-                  key={image.id || index}
-                  href={`#product-item${product.id}-${index + 1}`}
-                  className={`product-detail-modal__carousel-thumb ${index === 0 ? 'active' : ''}`}
-                  aria-label={`Veure imatge ${index + 1} de ${productImages.length}`}
+          {/* Content */}
+          <div className="product-pack-show__content">
+            <div className="product-pack-show__info">
+              {!isPack && (
+                <p className="product-pack-show__category text-primary">
+                  {product.category?.name || "Sense categoria"}
+                </p>
+              )}
+
+              <h3 id={modalTitleId} className="product-pack-show__title">
+                {product.name}
+              </h3>
+
+              <div className="product-pack-show__price-row">
+                <p className="product-pack-show__price">
+                  {formatPrice(currentPrice)}
+                </p>
+
+                {!isPack && product.discount > 0 && (
+                  <p className="product-pack-show__old-price text-base-400">
+                    {formatPrice(product.price)}
+                  </p>
+                )}
+              </div>
+
+              {product.description && (
+                <p
+                  id={modalDescriptionId}
+                  className="product-pack-show__description text-base-400"
                 >
-                  <img
-                    src={`/storage/${image.path}`}
-                    alt={`Miniatura ${index + 1}`}
-                  />
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="product-detail-modal__details">
-          {!isPack && (
-            <p className="product-detail-modal__category text-base-400">
-              {product.category?.name || 'Sense categoria'}
-            </p>
-          )}
-
-          <h3 id={modalTitleId} className="product-detail-modal__title">{product.name}</h3>
-
-          <div className="product-detail-modal__price-container">
-            <p className="product-detail-modal__price" aria-label={`Preu actual ${currentPrice} euros`}>
-              {currentPrice}€
-            </p>
-            {!isPack && product.discount > 0 && (
-              <p className="product-detail-modal__old-price text-base-400" aria-label={`Preu anterior ${product.price} euros`}>
-                {product.price}€
-              </p>
-            )}
-          </div>
-
-          {product.description && (
-            <p id={modalDescriptionId} className="product-detail-modal__description text-base-300">
-              {product.description}
-            </p>
-          )}
-
-          {isLoading ? (
-            <div className="flex justify-center py-6">
-              <LoadingAnimation heightClass="" />
-            </div>
-          ) : isPack ? (
-            <div className="product-detail-modal__features-table-wrapper">
-              <h4 className="font-semibold mb-3">Productes inclosos</h4>
-              {packProducts.length > 0 ? (
-                <table className="product-detail-modal__features-table table table-sm">
-                  <tbody>
-                    {packProducts.map((packProduct) => (
-                      <tr key={packProduct.id}>
-                        <th className="product-detail-modal__features-label">
-                          {packProduct.name}
-                        </th>
-                        <td className="product-detail-modal__features-value">
-                          {packProduct.price}€
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-base-300">Aquest pack no té productes associats.</p>
+                  {product.description}
+                </p>
               )}
             </div>
-          ) : productFeatures.length > 0 && (
-            <div className="product-detail-modal__features-table-wrapper">
-              <table className="product-detail-modal__features-table table table-sm">
-                <tbody>
-                  {productFeatures.map((feature) => (
-                    <tr key={feature.id}>
-                      <th className="product-detail-modal__features-label">
-                        {feature.type.name}:
-                      </th>
-                      <td className="product-detail-modal__features-value">{feature.value}</td>
-                    </tr>
+
+            {/* Details */}
+            <section className="product-pack-show__details">
+              <h2 className="product-pack-show__details-title">
+                {isPack ? "Productes inclosos" : "Especificacions"}
+              </h2>
+
+              {isLoading ? (
+                <div className="flex justify-center py-6">
+                  <LoadingAnimation />
+                </div>
+              ) : isPack ? (
+                packProducts.length > 0 ? (
+                  <div className="product-pack-show__table">
+                    {packProducts.map((p) => (
+                      <div
+                        key={p.id}
+                        className="product-pack-show__table-row"
+                      >
+                        <span>{p.name}</span>
+                        <strong>{formatPrice(p.price)}</strong>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="product-pack-show__muted text-base-400">
+                    Aquest pack no té productes associats.
+                  </p>
+                )
+              ) : productFeatures.length > 0 ? (
+                <div className="product-pack-show__table">
+                  {productFeatures.map((f) => (
+                    <div
+                      key={f.id}
+                      className="product-pack-show__table-row"
+                    >
+                      <span>{f.type.name}</span>
+                      <strong>{f.value}</strong>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {/* Cantidad */}
-          {!isLoading && !isAdmin && (
-            <div className="product-detail-modal__quantity">
-              <label htmlFor={quantityInputId} className="product-detail-modal__quantity-label">Quantitat:</label>
-              <input id={quantityInputId} type="number" min="1" value={quantity} onChange={handleQuantityChange} className="input input-bordered product-detail-modal__quantity-input w-14" aria-describedby={modalTitleId}/>
-              <button type="button" className="btn btn-primary product-detail-modal__action-btn product-detail-modal__action-btn--add product-detail-modal__quantity-add-btn" aria-label={`Afegir ${quantity} unitats de ${product.name} al carret`}>
-               <HiOutlineShoppingCart className="w-5 h-5" aria-hidden="true"/>
-                <span className="product-detail-modal__quantity-add-text">Afegir al carret</span>
-              </button>
-            </div>
-          )}
+                </div>
+              ) : (
+                <p className="product-pack-show__muted text-base-400">
+                  Aquest producte no té especificacions disponibles.
+                </p>
+              )}
+            </section>
+
+            {!isLoading && !isAdmin && (
+              <div className="product-pack-show__purchase">
+                <input
+                  id={quantityInputId}
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="input input-bordered product-pack-show__quantity-input"
+                />
+
+                <button
+                  type="button"
+                  className="btn btn-primary product-pack-show__cart-button"
+                  aria-label={`Afegir ${quantity} unitats de ${product.name} al carret`}
+                >
+                  <HiOutlineShoppingCart className="product-pack-show__cart-icon" />
+                  Afegir al carret
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
         </div>
       </div>
-    </dialog>
-    )
+    </div>
   )
 }
 

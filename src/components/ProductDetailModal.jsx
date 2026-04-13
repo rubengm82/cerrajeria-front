@@ -61,7 +61,7 @@ function ProductDetailModal({
   return (
     <div
       id="product-view-modal"
-      className="modal modal-lg"
+      className="modal modal-bottom md:modal-middle modal-lg"
       open={isOpen}
       role="dialog"
       aria-modal="true"

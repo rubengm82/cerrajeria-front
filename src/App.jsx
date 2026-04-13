@@ -19,6 +19,7 @@ import Products from './pages/products/Products'
 import Categories from './pages/categories/Categories'
 import CategoriesShow from './pages/categories/CategoriesShow'
 import Cart from './pages/cart/Cart'
+import Checkout from './pages/cart/Checkout'
 
 // Pages - Auth
 import Login from './pages/auth/SignIn'
@@ -105,6 +106,7 @@ function App() {
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/:id" element={<CategoriesShow />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />
       </Route>
 

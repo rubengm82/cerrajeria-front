@@ -6,23 +6,8 @@ import { useAuth } from "../../context/AuthContext"
 import { getCartOrder } from "../../api/orders_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
 import OrderSummary from "../../components/OrderSummary"
+import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
 import "../../../scss/main_shop.scss"
-
-const formatPrice = (price) => {
-  const numericPrice = Number(price || 0)
-
-  return new Intl.NumberFormat("ca-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(numericPrice)
-}
-
-const getProductPrice = (product) => {
-  const price = Number(product?.price || 0)
-  const discount = Number(product?.discount || 0)
-
-  return discount <= 0 ? price : price * (1 - discount / 100)
-}
 
 const getImportantImage = (product) => (
   product?.images?.find((image) => image.is_important === true || image.is_important === 1) || product?.images?.[0]
@@ -122,13 +107,7 @@ function Cart() {
   }, [authLoading, navigate, user])
 
   const products = cartOrder?.products || []
-  const itemCount = products.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
-  const subtotal = products.reduce((total, product) => {
-    const quantity = Number(product?.pivot?.quantity || 0)
-    return total + getProductPrice(product) * quantity
-  }, 0)
-  const shipping = 0
-  const total = subtotal + shipping
+  const { itemCount, subtotal, shipping, total } = getCartTotals(products)
 
   const content = authLoading || !user || isLoading ? (
     <LoadingAnimation heightClass="h-32" />
@@ -156,6 +135,7 @@ function Cart() {
         shipping={shipping}
         total={total}
         itemCount={itemCount}
+        actionTo="/checkout"
       />
     </div>
   )

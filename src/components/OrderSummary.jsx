@@ -1,18 +1,17 @@
 import { HiOutlineArchiveBox, HiOutlineShieldCheck } from "react-icons/hi2"
-
-const formatPrice = (price) => (
-  new Intl.NumberFormat("ca-ES", {
-    style: "currency",
-    currency: "EUR",
-  }).format(Number(price || 0))
-)
+import { Link } from "react-router-dom"
+import { formatPrice } from "../utils/cartTotals"
 
 function OrderSummary({
   subtotal = 0,
   shipping = 0,
   total = 0,
   itemCount = 0,
+  actionTo,
+  buttonLabel = "Tramitar comanda",
 }) {
+  const actionClassName = "btn btn-primary order-summary__button"
+
   return (
     <aside className="order-summary border-base-300 bg-base-100" aria-label="Resum de la comanda">
       <h2 className="order-summary__title">Resum de la comanda</h2>
@@ -34,9 +33,15 @@ function OrderSummary({
         <strong>{formatPrice(total)}</strong>
       </div>
 
-      <button type="button" className="btn btn-primary order-summary__button">
-        Tramitar comanda
-      </button>
+      {actionTo ? (
+        <Link to={actionTo} className={actionClassName} aria-label={buttonLabel}>
+          {buttonLabel}
+        </Link>
+      ) : (
+        <button type="button" className={actionClassName} aria-label={buttonLabel}>
+          {buttonLabel}
+        </button>
+      )}
 
       <div className="order-summary__benefits text-base-400">
         <p>

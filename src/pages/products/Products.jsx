@@ -4,6 +4,7 @@ import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
 import { getProducts } from "../../api/products_api"
 import LoadingAnimation from "../../components/LoadingAnimation"
+import Notifications from "../../components/Notifications"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { HiOutlineAdjustmentsHorizontal, HiMagnifyingGlass, HiXMark, HiOutlineFunnel } from "react-icons/hi2";

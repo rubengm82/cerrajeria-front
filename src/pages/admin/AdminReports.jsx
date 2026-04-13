@@ -221,7 +221,7 @@ function HorizontalBarChart({ data, colorName, suffix, valueFormatter }) {
             </Link>
 
             <div className="h-5 overflow-hidden rounded-lg bg-report-chart-bar-track">
-              <div className="h-full rounded-lg transition-all duration-300 hover:opacity-90 hover:scale-105" style={{ width, background: `linear-gradient(to right, transparent, var(--color-report-chart-${colorName}))` }} />
+              <div className="h-full rounded-lg transition-all duration-300 hover:opacity-90 hover:scale-105" style={{ width, background: `var(--report-chart-${colorName}-gradient, var(--report-chart-bar-gradient))`, }}/>
             </div>
 
             <span className="text-left text-base-400">{valueFormatter ? valueFormatter(item.value) : item.value}{suffix}</span>

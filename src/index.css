@@ -10,6 +10,8 @@
   --color-report-chart-grid: #E7E2DB;
   --color-report-chart-text: #57534E;
   --color-report-chart-bar-track: #F3EEE7;
+  --report-chart-bar-gradient: linear-gradient(90deg, #FBE8D2 0%, #F6C98F 55%, #EBA65A 100%);
+  --report-chart-stock-gradient: linear-gradient(90deg, #FBE8D2 0%, #F6C98F 55%, #EBA65A 100%);
 }
 
 @plugin "daisyui/theme" {

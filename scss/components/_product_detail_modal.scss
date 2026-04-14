@@ -175,7 +175,6 @@
 
   &__purchase {
     display: grid;
-    /* Forzamos que siempre estén en la misma línea */
     grid-template-columns: 4rem minmax(0, 1fr);
     gap: 0.5rem;
     padding-top: 0.5rem;
@@ -214,6 +213,13 @@
     font-size: 0.875rem;
     padding: 0 0.45rem;
     white-space: nowrap;
+  }
+
+  &__cart-feedback {
+    grid-column: 1 / -1;
+    min-height: 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
 
   &__cart-icon {

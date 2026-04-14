@@ -12,6 +12,27 @@ export const getOrder = (id) => api.get(`/orders/${id}`)
 // Obtener el carrito del usuario autenticado
 export const getCartOrder = () => api.get('/orders/cart')
 
+// Crear un pedido desde checkout público o invitado
+export const createCheckoutOrder = (checkoutData) => api.post('/checkout/orders', checkoutData)
+
+// Añadir un producto al carrito del usuario autenticado
+export const addProductToCart = (cartData) => api.post('/orders/cart/products', cartData)
+
+// Añadir un pack al carrito del usuario autenticado
+export const addPackToCart = (cartData) => api.post('/orders/cart/packs', cartData)
+
+// Actualizar la cantidad de un producto del carrito autenticado
+export const updateCartProduct = (productId, cartData) => api.put(`/orders/cart/products/${productId}`, cartData)
+
+// Actualizar la cantidad de un pack del carrito autenticado
+export const updateCartPack = (packId, cartData) => api.put(`/orders/cart/packs/${packId}`, cartData)
+
+// Eliminar un producto del carrito autenticado
+export const removeCartProduct = (productId) => api.delete(`/orders/cart/products/${productId}`)
+
+// Eliminar un pack del carrito autenticado
+export const removeCartPack = (packId) => api.delete(`/orders/cart/packs/${packId}`)
+
 // Crear un nuevo pedido
 export const createOrder = (orderData) => api.post('/orders', orderData)
 

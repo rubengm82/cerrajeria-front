@@ -8,6 +8,10 @@ export const formatPrice = (price) => {
 }
 
 export const getProductPrice = (product) => {
+  if (product?.cartItemType === "pack") {
+    return Number(product?.total_price || 0)
+  }
+
   const price = Number(product?.price || 0)
   const discount = Number(product?.discount || 0)
 

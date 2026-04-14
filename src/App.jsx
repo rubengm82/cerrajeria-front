@@ -21,6 +21,7 @@ import CategoriesShow from './pages/categories/CategoriesShow'
 import Cart from './pages/cart/Cart'
 import Checkout from './pages/cart/Checkout'
 import CheckoutPayment from './pages/cart/CheckoutPayment'
+import CheckoutReview from './pages/cart/CheckoutReview'
 
 // Pages - Auth
 import Login from './pages/auth/SignIn'
@@ -109,6 +110,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/checkout/payment" element={<CheckoutPayment />} />
+        <Route path="/checkout/review" element={<CheckoutReview />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />
       </Route>
 

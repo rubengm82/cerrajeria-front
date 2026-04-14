@@ -2,6 +2,9 @@ import { useState } from "react"
 import { useAuth } from "../context/AuthContext"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
 import LoadingAnimation from "./LoadingAnimation"
+import Notifications from "./Notifications"
+import { addPackToCart, addProductToCart } from "../api/orders_api"
+import { addProductToLocalCart } from "../utils/localCart"
 
 const formatPrice = (price) => {
   const numericPrice = Number(price || 0)
@@ -23,6 +26,8 @@ function ProductDetailModal({
 
   const [quantity, setQuantity] = useState(1)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const [notification, setNotification] = useState(null)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
 
   if (!product) return null
 
@@ -43,6 +48,12 @@ function ProductDetailModal({
   const packProducts =
     product.products?.filter((p) => !p?.deleted_at) || []
 
+  const availableStock = isPack && packProducts.length > 0
+    ? Math.min(...packProducts.map((packProduct) => Number(packProduct.stock || 0)))
+    : Number(product.stock || 0)
+  const isQuantityAvailable = quantity <= availableStock
+  const isOutOfStock = availableStock <= 0 || !Number.isFinite(availableStock)
+
   const currentPrice = isPack
     ? product.total_price
     : product.discount > 0
@@ -51,12 +62,85 @@ function ProductDetailModal({
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
-    setQuantity(Math.max(1, value))
+    const nextQuantity = Math.max(1, value)
+    setQuantity(nextQuantity)
+
+    if (nextQuantity > availableStock) {
+      setNotification({
+        id: Date.now(),
+        type: "info",
+        message: isOutOfStock
+          ? "Aquest producte no té estoc disponible."
+          : isPack
+            ? `Només hi ha ${availableStock} packs disponibles.`
+            : `Només hi ha ${availableStock} unitats disponibles.`,
+      })
+    }
+  }
+
+  const handleAddToCart = async () => {
+    setNotification(null)
+
+    if (isOutOfStock || !isQuantityAvailable) {
+      setNotification({
+        id: Date.now(),
+        type: "info",
+        message: isOutOfStock
+          ? "Aquest producte no té estoc disponible."
+          : isPack
+            ? `Només hi ha ${availableStock} packs disponibles.`
+            : `Només hi ha ${availableStock} unitats disponibles.`,
+      })
+      return
+    }
+
+    setIsAddingToCart(true)
+
+    try {
+      let wasAdded = false
+
+      if (user) {
+        const response = isPack
+          ? await addPackToCart({
+            pack_id: product.id,
+            quantity,
+          })
+          : await addProductToCart({
+            product_id: product.id,
+            quantity,
+          })
+
+        wasAdded = Boolean(response.data?.added)
+      } else {
+        const result = addProductToLocalCart({
+          ...product,
+          stock: availableStock,
+        }, quantity, isPack ? "pack" : "product")
+        wasAdded = result.added
+      }
+
+      setNotification({
+        id: Date.now(),
+        type: wasAdded ? "success" : "info",
+        message: wasAdded
+          ? `${product.name} s'ha afegit al carret.`
+          : `${product.name} ja és al carret. Modifica la quantitat des del carret.`,
+      })
+    } catch {
+      setNotification({
+        id: Date.now(),
+        type: "error",
+        message: "No hem pogut afegir el producte al carret.",
+      })
+    } finally {
+      setIsAddingToCart(false)
+    }
   }
 
   const modalTitleId = `product-detail-title-${product.id}`
   const modalDescriptionId = `product-detail-description-${product.id}`
   const quantityInputId = `quantity-${product.id}`
+  const cartFeedbackId = `cart-feedback-${product.id}`
 
   return (
     <div
@@ -67,6 +151,15 @@ function ProductDetailModal({
       aria-modal="true"
       aria-describedby={product.description ? modalDescriptionId : undefined}
     >
+      {notification && (
+        <Notifications
+          key={notification.id}
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className="modal-backdrop join" onClick={onClose}>
         <button aria-label="Tancar el modal"></button>
       </div>
@@ -213,19 +306,32 @@ function ProductDetailModal({
                   type="number"
                   min="1"
                   step="1"
+                  max={availableStock}
                   value={quantity}
                   onChange={handleQuantityChange}
                   className="input input-bordered product-pack-show__quantity-input"
+                  aria-describedby={cartFeedbackId}
                 />
 
                 <button
                   type="button"
                   className="btn btn-primary product-pack-show__cart-button"
                   aria-label={`Afegir ${quantity} unitats de ${product.name} al carret`}
+                  aria-describedby={cartFeedbackId}
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart || isOutOfStock || !isQuantityAvailable}
                 >
                   <HiOutlineShoppingCart className="product-pack-show__cart-icon" />
-                  Afegir al carret
+                  {isAddingToCart ? "Afegint..." : "Afegir al carret"}
                 </button>
+
+                <p id={cartFeedbackId} className="product-pack-show__cart-feedback text-base-400">
+                  {isOutOfStock
+                    ? "Aquest producte no té estoc disponible."
+                    : isPack
+                      ? `${availableStock} packs disponibles.`
+                      : `${availableStock} unitats disponibles.`}
+                </p>
               </div>
             )}
           </div>

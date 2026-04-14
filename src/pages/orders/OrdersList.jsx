@@ -6,6 +6,20 @@ import { HiDocumentDownload, HiTrash, HiEye } from 'react-icons/hi'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
+import { formatPrice, getCartTotals } from '../../utils/cartTotals'
+
+const getOrderCustomerName = (order) => (
+  [
+    order.customer_name ?? order.user?.name,
+    order.customer_last_name_one ?? order.user?.last_name_one,
+    order.customer_last_name_second ?? order.user?.last_name_second,
+  ].filter(Boolean).join(' ')
+)
+
+const getOrderItems = (order) => [
+  ...(order.products || []).map((product) => ({ ...product, cartItemType: 'product' })),
+  ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
+]
 
 function OrdersList() {
   const { user } = useContext(AuthContext)
@@ -187,7 +201,7 @@ function OrdersList() {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">INV-{order.id.toString().padStart(6, '0')}</td>
-                  {isAdmin && <td>{order.user?.name || ''} {order.user?.last_name_one || ''} {order.user?.last_name_second || ''}</td>}
+                  {isAdmin && <td>{getOrderCustomerName(order) || 'Client sense usuari'}</td>}
                   <td>{formatDate(order.created_at)}</td>
                   <td>
                     {order.shipped_at ? formatDate(order.shipped_at) : ''}
@@ -225,26 +239,22 @@ function OrdersList() {
                    </td>
                    <td>
                      {(() => {
-                       const subtotal = order.products?.reduce((sum, product) =>
-                         sum + (parseFloat(product.price) * product.pivot.quantity), 0
-                       ) || 0
+                       const { subtotal } = getCartTotals(getOrderItems(order))
                        const iva = subtotal * 0.21
                        return (
                          <div className="text-left text-sm">
-                           <div>Subtotal: {subtotal.toFixed(2)}€</div>
-                           <div>IVA: {iva.toFixed(2)}€</div>
+                           <div>Subtotal: {formatPrice(subtotal)}</div>
+                           <div>IVA: {formatPrice(iva)}</div>
                          </div>
                        )
                      })()}
                    </td>
                    <td className="font-bold text-primary">
                      {(() => {
-                       const subtotal = order.products?.reduce((sum, product) =>
-                         sum + (parseFloat(product.price) * product.pivot.quantity), 0
-                       ) || 0
+                       const { subtotal } = getCartTotals(getOrderItems(order))
                        const iva = subtotal * 0.21
                        const total = subtotal + iva
-                       return total.toFixed(2) + '€'
+                       return formatPrice(total)
                      })()}
                    </td>
                    <td>

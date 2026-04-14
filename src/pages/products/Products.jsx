@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
 import { getProducts } from "../../api/products_api"
@@ -7,16 +7,23 @@ import LoadingAnimation from "../../components/LoadingAnimation"
 import Notifications from "../../components/Notifications"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
-import { HiOutlineAdjustmentsHorizontal, HiMagnifyingGlass, HiXMark, HiOutlineFunnel } from "react-icons/hi2";
+import { HiOutlineAdjustmentsHorizontal, HiXMark, HiOutlineFunnel } from "react-icons/hi2";
 import { getCategories } from "../../api/categories_api";
 import { getFeatures, getFeatureTypes } from "../../api/features_api";
 import '../../../scss/main_shop.scss'
 
 function Products() {
+  const location = useLocation()
+  const locationState = location.state
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notification, setNotification] = useState(locationState?.notificationMessage ? {
+    id: "location-notification",
+    type: locationState.notificationType || "info",
+    message: locationState.notificationMessage,
+  } : null)
 
   // Caché para productos
   const { data: productsData, isLoading: isLoadingProducts } = useQuery({
@@ -144,6 +151,10 @@ function Products() {
 
   return loading ? <LoadingAnimation /> : (
     <div className='products-page'>
+      {notification && (
+        <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)} />
+      )}
+
       <div className="products-page__container">
         <div className="products-page__body">
           <div className="products-top">

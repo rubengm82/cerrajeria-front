@@ -3,6 +3,20 @@ import { useParams, Link } from 'react-router-dom'
 import { getOrder } from '../../api/orders_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
+import { formatPrice, getCartTotals, getProductPrice } from '../../utils/cartTotals'
+
+const getOrderCustomerName = (order) => (
+  [
+    order.customer_name ?? order.user?.name,
+    order.customer_last_name_one ?? order.user?.last_name_one,
+    order.customer_last_name_second ?? order.user?.last_name_second,
+  ].filter(Boolean).join(' ')
+)
+
+const getOrderItems = (order) => [
+  ...(order.products || []).map((product) => ({ ...product, cartItemType: 'product' })),
+  ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
+]
 
 function OrderShow() {
   const { id } = useParams()
@@ -76,9 +90,8 @@ function OrderShow() {
     )
   }
 
-  const subtotal = order.products?.reduce((sum, product) =>
-    sum + (parseFloat(product.price) * product.pivot.quantity), 0
-  ) || 0
+  const orderItems = getOrderItems(order)
+  const { subtotal } = getCartTotals(orderItems)
   const iva = subtotal * 0.21
   const total = subtotal + iva
 
@@ -122,9 +135,12 @@ function OrderShow() {
           <div>
             <h2 className="text-xl font-semibold mb-2">Informació del Client</h2>
             <div className="space-y-1 text-sm">
-              <p><span className="font-medium">Nom:</span> {order.user?.name || ''} {order.user?.last_name_one || ''} {order.user?.last_name_second || ''}</p>
-              <p><span className="font-medium">Correu:</span> {order.user?.email || ''}</p>
-              <p><span className="font-medium">Telèfon:</span> {order.user?.phone || ''}</p>
+              <p><span className="font-medium">Nom:</span> {getOrderCustomerName(order)}</p>
+              <p><span className="font-medium">Correu:</span> {order.customer_email || order.user?.email || ''}</p>
+              <p><span className="font-medium">Telèfon:</span> {order.customer_phone || order.user?.phone || ''}</p>
+              <p><span className="font-medium">DNI:</span> {order.customer_dni || order.user?.dni || ''}</p>
+              <p><span className="font-medium">Adreça:</span> {order.customer_address || order.user?.address || ''}</p>
+              <p><span className="font-medium">Codi postal:</span> {order.customer_zip_code || order.user?.zip_code || ''}</p>
               <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address}</p>
               <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>
               {order.shipped_at && (
@@ -149,13 +165,13 @@ function OrderShow() {
                 </tr>
               </thead>
               <tbody>
-                {order.products?.map((product) => (
-                  <tr key={product.id}>
-                    <td className="font-medium">{product.name}</td>
-                    <td className="text-base-400">{product.code}</td>
+                {orderItems.map((product) => (
+                  <tr key={`${product.cartItemType}-${product.id}`}>
+                    <td className="font-medium">{product.cartItemType === 'pack' ? 'Pack: ' : ''}{product.name}</td>
+                    <td className="text-base-400">{product.code || '-'}</td>
                     <td className="text-center">{product.pivot.quantity}</td>
-                    <td className="text-right">{parseFloat(product.price).toFixed(2)}€</td>
-                    <td className="text-right font-medium">{(parseFloat(product.price) * product.pivot.quantity).toFixed(2)}€</td>
+                    <td className="text-right">{formatPrice(getProductPrice(product))}</td>
+                    <td className="text-right font-medium">{formatPrice(getProductPrice(product) * product.pivot.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -169,15 +185,15 @@ function OrderShow() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{subtotal.toFixed(2)}€</span>
+                <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>IVA (21%):</span>
-                <span>{iva.toFixed(2)}€</span>
+                <span>{formatPrice(iva)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total:</span>
-                <span>{total.toFixed(2)}€</span>
+                <span>{formatPrice(total)}</span>
               </div>
             </div>
           </div>

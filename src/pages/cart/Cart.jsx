@@ -1,20 +1,27 @@
-import { useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react"
+import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
-import { getCartOrder } from "../../api/orders_api"
+import { getPack } from "../../api/packs_api"
+import { getCartOrder, removeCartPack, removeCartProduct, updateCartPack, updateCartProduct } from "../../api/orders_api"
+import ConfirmableModal from "../../components/ConfirmableModal"
 import LoadingAnimation from "../../components/LoadingAnimation"
+import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
+import ProductDetailModal from "../../components/ProductDetailModal"
 import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
+import { getLocalCartItems, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
   product?.images?.find((image) => image.is_important === true || image.is_important === 1) || product?.images?.[0]
 )
 
-function CartItem({ product }) {
+function CartItem({ product, onQuantityChange, onRemove, onView }) {
   const quantity = Number(product?.pivot?.quantity || 1)
+  const availableStock = Number(product?.stock || 0)
+  const isPack = product.cartItemType === "pack"
   const quantityId = `cart-quantity-${product.id}`
   const descriptionId = `cart-item-description-${product.id}`
   const currentPrice = getProductPrice(product)
@@ -46,13 +53,21 @@ function CartItem({ product }) {
       <div className="cart-item__body">
         <div className="cart-item__heading">
           <div className="cart-item__copy">
-            <p className="cart-item__category">{product.category?.name || "Producte"}</p>
-            <h2 className="cart-item__name">{product.name}</h2>
+            <p className="cart-item__category">{isPack ? "Pack" : product.category?.name || "Producte"}</p>
+            <button type="button" className="cart-item__name-button" onClick={() => onView(product)} aria-label={`Veure el detall de ${product.name}`}>
+              <h2 className="cart-item__name">{product.name}</h2>
+            </button>
           </div>
 
-          <button type="button" className="cart-item__remove" aria-label={`Eliminar ${product.name} del carret`}>
-            <HiOutlineTrash aria-hidden="true" />
-          </button>
+          <ConfirmableModal
+            title="Eliminar del carret"
+            message={`Vols eliminar ${product.name} del carret?`}
+            onConfirm={() => onRemove(product)}
+          >
+            <button type="button" className="cart-item__remove" aria-label={`Eliminar ${product.name} del carret`}>
+              <HiOutlineTrash aria-hidden="true" />
+            </button>
+          </ConfirmableModal>
         </div>
 
         <p id={descriptionId} className="cart-item__description text-base-400">
@@ -66,7 +81,9 @@ function CartItem({ product }) {
               id={quantityId}
               type="number"
               min="1"
-              defaultValue={quantity}
+              max={availableStock}
+              value={quantity}
+              onChange={(event) => onQuantityChange(product, Number(event.target.value || 1))}
               aria-label={`Quantitat de ${product.name}`}
             />
           </label>
@@ -82,9 +99,13 @@ function CartItem({ product }) {
 }
 
 function Cart() {
-  const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
-  const { data: cartOrder, isLoading, isError } = useQuery({
+  const [notification, setNotification] = useState(null)
+  const [localCartVersion, setLocalCartVersion] = useState(0)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoadingSelectedItem, setIsLoadingSelectedItem] = useState(false)
+  const { data: cartOrder, isLoading, isError, refetch } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
       const response = await getCartOrder()
@@ -94,39 +115,117 @@ function Cart() {
     retry: 1,
   })
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/products", {
-        replace: true,
-        state: {
-          notificationType: "error",
-          notificationMessage: "Primer has d'iniciar sessió per veure el carret.",
-        },
-      })
+  const showNotification = (type, message) => {
+    setNotification({
+      id: Date.now(),
+      type,
+      message,
+    })
+  }
+
+  const products = user ? cartOrder?.products || [] : getLocalCartItems(localCartVersion)
+  const packs = user ? cartOrder?.packs || [] : []
+  const cartItems = [
+    ...products.map((product) => ({ ...product, cartItemType: product.cartItemType || "product" })),
+    ...packs.map((pack) => {
+      const packStock = Math.min(...(pack.products || []).map((packProduct) => Number(packProduct.stock || 0)))
+      return { ...pack, cartItemType: "pack", stock: Number.isFinite(packStock) ? packStock : 0 }
+    }),
+  ]
+  const { itemCount, subtotal, shipping, total } = getCartTotals(cartItems)
+
+  const handleQuantityChange = async (product, nextQuantity) => {
+    const availableStock = Number(product.stock || 0)
+    const quantity = Math.max(1, nextQuantity)
+
+    if (quantity > availableStock) {
+      showNotification("info", `Només hi ha ${availableStock} unitats disponibles de ${product.name}.`)
+      return
     }
-  }, [authLoading, navigate, user])
 
-  const products = cartOrder?.products || []
-  const { itemCount, subtotal, shipping, total } = getCartTotals(products)
+    try {
+      if (user) {
+        if (product.cartItemType === "pack") {
+          await updateCartPack(product.id, { quantity })
+        } else {
+          await updateCartProduct(product.id, { quantity })
+        }
+        await refetch()
+      } else {
+        updateLocalCartProduct(product.id, quantity, product.cartItemType || "product")
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    } catch (error) {
+      showNotification("error", error.response?.data?.message || "No hem pogut actualitzar la quantitat.")
+    }
+  }
 
-  const content = authLoading || !user || isLoading ? (
+  const handleRemove = async (product) => {
+    try {
+      if (user) {
+        if (product.cartItemType === "pack") {
+          await removeCartPack(product.id)
+        } else {
+          await removeCartProduct(product.id)
+        }
+        await refetch()
+      } else {
+        removeLocalCartProduct(product.id, product.cartItemType || "product")
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+
+      showNotification("success", `${product.name} s'ha eliminat del carret.`)
+    } catch {
+      showNotification("error", "No hem pogut eliminar el producte del carret.")
+    }
+  }
+
+  const handleViewItem = async (product) => {
+    setSelectedItem(product)
+    setIsModalOpen(true)
+
+    if (product.cartItemType === "pack") {
+      setIsLoadingSelectedItem(true)
+
+      try {
+        const response = await getPack(product.id)
+        setSelectedItem({
+          ...response.data,
+          cartItemType: "pack",
+          pivot: product.pivot,
+        })
+      } catch {
+        showNotification("error", "No hem pogut carregar el detall del pack.")
+      } finally {
+        setIsLoadingSelectedItem(false)
+      }
+    }
+  }
+
+  const closeItemModal = () => {
+    setIsModalOpen(false)
+    setSelectedItem(null)
+    setIsLoadingSelectedItem(false)
+  }
+
+  const content = authLoading || (user && isLoading) ? (
     <LoadingAnimation heightClass="h-32" />
-  ) : isError ? (
+  ) : user && isError ? (
     <div className="cart-page__empty border-base-300 bg-base-100">
       <h2>No hem pogut carregar el carret</h2>
       <p className="text-base-400">Torna-ho a provar d'aquí a uns instants.</p>
     </div>
-  ) : !cartOrder || products.length === 0 ? (
-    <div className="cart-page__empty border-base-300 bg-base-100">
-      <h2>El carret és buit</h2>
-      <p className="text-base-400">Afegeix productes al carret per continuar amb la comanda.</p>
-      <Link to="/products" className="btn btn-primary">Veure productes</Link>
+  ) : (user && !cartOrder) || cartItems.length === 0 ? (
+    <div className="cart-page__empty">
+      <h2>No tens productes al carret</h2>
+      <p>Afegeix productes per preparar la teva comanda.</p>
+      <Link to="/products" className="btn btn-primary">Afegir productes al carret</Link>
     </div>
   ) : (
     <div className="cart-page__layout">
       <div className="cart-page__items" aria-label="Productes del carret">
-        {products.map((product) => (
-          <CartItem key={product.id} product={product} />
+        {cartItems.map((product) => (
+          <CartItem key={`${product.cartItemType}-${product.id}`} product={product} onQuantityChange={handleQuantityChange} onRemove={handleRemove} onView={handleViewItem} />
         ))}
       </div>
 
@@ -142,6 +241,15 @@ function Cart() {
 
   return (
     <section className="cart-page" aria-label="Carret">
+      {notification && (
+        <Notifications
+          key={notification.id}
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className="cart-page__container">
         <Link to="/products" className="cart-page__back text-primary">
           <HiArrowLeft className="cart-page__back-icon" aria-hidden="true" />
@@ -157,6 +265,15 @@ function Cart() {
 
         {content}
       </div>
+
+      <ProductDetailModal
+        key={selectedItem ? `${selectedItem.cartItemType}-${selectedItem.id}` : "cart-no-item"}
+        product={selectedItem}
+        isOpen={isModalOpen}
+        onClose={closeItemModal}
+        entityType={selectedItem?.cartItemType === "pack" ? "pack" : "product"}
+        isLoading={isLoadingSelectedItem}
+      />
     </section>
   )
 }

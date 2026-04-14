@@ -8,6 +8,10 @@ function OrderSummary({
   total = 0,
   itemCount = 0,
   actionTo,
+  buttonType = "button",
+  formId,
+  disabled = false,
+  onAction,
   buttonLabel = "Tramitar comanda",
 }) {
   const actionClassName = "btn btn-primary order-summary__button"
@@ -38,7 +42,7 @@ function OrderSummary({
           {buttonLabel}
         </Link>
       ) : (
-        <button type="button" className={actionClassName} aria-label={buttonLabel}>
+        <button type={buttonType} form={formId} className={actionClassName} aria-label={buttonLabel} disabled={disabled} onClick={onAction}>
           {buttonLabel}
         </button>
       )}

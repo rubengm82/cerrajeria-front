@@ -5,6 +5,7 @@ import { forceDeleteCustomSolution, getCustomSolutions, updateCustomSolution } f
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
+import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 
 const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pendent', selectClassName: 'bg-warning border-warning-content text-warning-content' },
@@ -94,7 +95,15 @@ export default function AdminCustomSolutionsList() {
             <h1 className='text-2xl font-bold text-base-content'>Solucions personalitzades</h1>
           </div>
 
-          <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
+          <SearchBarTableSimple
+            data={customSolutions}
+            searchFields={['id', 'email', 'phone', 'description', 'created_at', 'updated_at']}
+            placeholder='Buscar solució personalitzada...'
+            inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+          >
+            {(filteredSolutions) => (
+              <>
+                <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
             <table className="table">
               <thead>
                 <tr className='text-neutral'>
@@ -109,7 +118,7 @@ export default function AdminCustomSolutionsList() {
                 </tr>
               </thead>
               <tbody>
-                {customSolutions.length > 0 ? customSolutions.map((solution) => (
+                {filteredSolutions.length > 0 ? filteredSolutions.map((solution) => (
                   <tr key={solution.id} className='hover:bg-[#F9F6F5]'>
                     <td className='border-base-300 font-bold'>#{solution.id}</td>
                     <td className='border-base-300'>
@@ -149,8 +158,7 @@ export default function AdminCustomSolutionsList() {
                   <tr>
                     <td colSpan={8} className='p-6'>
                       <div className='w-full flex justify-center items-center gap-2'>
-                        <p>Actualment no hi ha solucions personalitzades registrades</p>
-                        <Link to="/custom-solutions" className='text-primary'>anar al formulari</Link>
+                        <p>No s'ha trobat cap solució personalitzada</p>
                       </div>
                     </td>
                   </tr>
@@ -158,6 +166,9 @@ export default function AdminCustomSolutionsList() {
               </tbody>
             </table>
           </div>
+              </>
+            )}
+          </SearchBarTableSimple>
         </>
       )}
     </div>

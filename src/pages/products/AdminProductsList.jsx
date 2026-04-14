@@ -4,6 +4,7 @@ import { getProductsWithTrashed, deleteProduct, restoreProduct, forceDeleteProdu
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
+import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 import { HiOutlinePhoto, HiTrash, HiPencilSquare, HiEye } from 'react-icons/hi2'
 
 function AdminProductsList() {
@@ -90,27 +91,15 @@ function AdminProductsList() {
         <h1 className='text-2xl font-bold text-base-content'>Productes</h1>
         <button onClick={() => navigate('/admin/products/new')} className='btn btn-primary flex items-center'> Nou producte</button>
       </div>
-      {/* Buscador */}
-      <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Cerca un producte per número, client...' className='w-full md:w-[50%] lg:w-[70%] p-2 rounded-lg bg-base-100 border border-base-300'/>
-
-          <div className='flex flex-row gap-2 w-full md:w-[50%] lg:w-[30%]'>
-            <select name="status" id="status-category" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
-                <option value="Test1">Test1</option>
-                <option value="Test2">Test2</option>
-            </select>
-
-            <select name="status" id="status-stock" className='flex-1 p-2 rounded-lg bg-base-100 border border-base-300'>
-                <option value="Test1">Test1</option>
-                <option value="Test2">Test2</option>
-            </select>
-
-            <button className='btn btn-secondary flex-1 border-base-300 bg-transparent px-1'>
-                Descarregar
-            </button>
-          </div>
-      </div>
-      {/* Tabla de productos */}
+      <SearchBarTableSimple
+        data={products}
+        searchFields={['name', 'code', 'category.name', 'price', 'stock']}
+        placeholder='Buscar producte...'
+        inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+      >
+        {(filteredProducts) => (
+          <>
+            {/* Tabla de productos */}
       <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
         <table className="table">
           <thead>
@@ -126,7 +115,7 @@ function AdminProductsList() {
               </tr>
           </thead>
           <tbody>
-            {products.length > 0 ? products.map((product) => {
+            {filteredProducts.length > 0 ? filteredProducts.map((product) => {
               const importantImage = product.images?.find((image) => image.is_important == 1)
               return (
               <tr key={product.id} className='hover:bg-[#F9F6F5]'>
@@ -178,18 +167,20 @@ function AdminProductsList() {
                   </div>
                 </td>
               </tr>
-            )}) :
+            )            }) :
               <tr>
                 <td colSpan={8} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
-                    <p>Actualment no hi ha productes creats</p>
-                    <Link to="/admin/products/new" className='text-primary'>crea'n un de nou!</Link>
+                    <p>No s'ha trobat cap producte</p>
                   </div>
                 </td>
               </tr>}
           </tbody>
         </table>
       </div>
+          </>
+        )}
+      </SearchBarTableSimple>
     </div>
   )
 }

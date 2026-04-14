@@ -6,6 +6,7 @@ import { HiDocumentDownload, HiTrash, HiEye } from 'react-icons/hi'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
+import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 
 function OrdersList() {
   const { user } = useContext(AuthContext)
@@ -159,7 +160,15 @@ function OrdersList() {
         <p className="text-base-400">{pageDescription}</p>
       </div>
 
-      {orders.length === 0 ? (
+      <SearchBarTableSimple
+        data={orders}
+        searchFields={isAdmin ? ['id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['id', 'created_at', 'shipped_at', 'payment_method', 'status']}
+        placeholder='Buscar comanda...'
+        inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+      >
+        {(filteredOrders) => (
+          <>
+            {filteredOrders.length === 0 ? (
         <div className="text-center py-10 bg-base-100 rounded-lg border border-base-300">
           <p className="text-base-400">
             {isAdmin ? 'No hi ha cap comanda registrada.' : 'No tens cap comanda encara.'}
@@ -184,7 +193,7 @@ function OrdersList() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">INV-{order.id.toString().padStart(6, '0')}</td>
                   {isAdmin && <td>{order.user?.name || ''} {order.user?.last_name_one || ''} {order.user?.last_name_second || ''}</td>}
@@ -291,6 +300,9 @@ function OrdersList() {
           </table>
         </div>
       )}
+          </>
+        )}
+      </SearchBarTableSimple>
     </div>
   )
 }

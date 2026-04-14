@@ -100,10 +100,6 @@ function AdminCategoriesList() {
         <button onClick={() => navigate('/admin/categories/new')} className='btn btn-primary flex items-center'> Nova categoria</button>
       </div>
 
-      <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Cerca una categoria per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
-      </div>
-
       {/* Tabla de categorías */}
       <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
         <table className="table">

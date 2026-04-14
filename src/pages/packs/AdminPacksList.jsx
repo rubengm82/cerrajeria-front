@@ -4,6 +4,7 @@ import { getPacksWithTrashed, deletePack, restorePack, forceDeletePack } from '.
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
+import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 import { HiPhoto, HiTrash, HiPencilSquare, HiEye } from 'react-icons/hi2'
 
 function AdminPacksList() {
@@ -88,11 +89,15 @@ function AdminPacksList() {
         <button onClick={() => navigate('/admin/packs/new')} className='btn btn-primary flex items-center'> Nou pack</button>
       </div>
 
-      <div className='flex flex-col md:flex-row gap-4 w-full mb-5'>
-          <input type="search" name="search" id="search" placeholder='Cerca un pack per nom...' className='w-full p-2 rounded-lg bg-base-100 border border-base-300'/>
-      </div>
-
-      <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
+      <SearchBarTableSimple
+        data={packs}
+        searchFields={['name', 'description', 'total_price']}
+        placeholder='Buscar pack...'
+        inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+      >
+        {(filteredPacks) => (
+          <>
+            <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
         <table className="table">
           <thead>
               <tr className='text-neutral'>
@@ -106,7 +111,7 @@ function AdminPacksList() {
               </tr>
           </thead>
           <tbody>
-            {packs.length > 0 ? packs.map((pack) => (
+            {filteredPacks.length > 0 ? filteredPacks.map((pack) => (
               <tr key={pack.id} className='hover:bg-[#F9F6F5]'>
                 <td className='border-base-300'>
                   <div className="flex items-center gap-3">
@@ -165,14 +170,16 @@ function AdminPacksList() {
               <tr>
                 <td colSpan={7} className='p-6'>
                   <div className='w-full flex justify-center items-center gap-2'>
-                    <p>Actualment no hi ha packs creats</p>
-                    <Link to="/admin/packs/new" className='text-primary'>crea'n un de nou!</Link>
+                    <p>No s'ha trobat cap pack</p>
                   </div>
                 </td>
               </tr>}
           </tbody>
         </table>
       </div>
+          </>
+        )}
+      </SearchBarTableSimple>
     </div>
   )
 }

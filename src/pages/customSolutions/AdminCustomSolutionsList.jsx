@@ -7,11 +7,13 @@ import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pendent', selectClassName: 'bg-warning border-warning-content text-warning-content' },
-  { value: 'contacted', label: 'Contactada', selectClassName: 'bg-info border-info-content text-info-content' },
-  { value: 'waiting_installation', label: 'Esperant instal·lació', selectClassName: 'bg-secondary border-secondary-content text-secondary-content' },
-  { value: 'installed', label: 'Instal·lada', selectClassName: 'bg-success border-success-content text-success-content' },
-  { value: 'rejected', label: 'Rebutjada', selectClassName: 'bg-error border-error-content text-error-content' },
+  { value: 'nova', label: 'Nova', selectClassName: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'contactat', label: 'Contactat', selectClassName: 'bg-info border-info-content text-info-content' },
+  { value: 'pressupost_aprovat', label: 'Pressupost aprovat', selectClassName: 'bg-success border-success-content text-success-content' },
+  { value: 'en_curs', label: 'En curs', selectClassName: 'bg-secondary border-secondary-content text-secondary-content' },
+  { value: 'en_transit', label: 'En trànsit', selectClassName: 'bg-accent border-accent-content text-accent-content' },
+  { value: 'finalitzat', label: 'Finalitzat', selectClassName: 'bg-success border-success-content text-success-content' },
+  { value: 'rebutjat', label: 'Rebutjat', selectClassName: 'bg-error border-error-content text-error-content' },
 ]
 
 function getStatusOption(status) {
@@ -122,11 +124,11 @@ export default function AdminCustomSolutionsList() {
                       <p className='line-clamp-3 whitespace-pre-wrap'>{solution.description || ''}</p>
                     </td>
                     <td className='border-base-300 text-base-400'>{formatDate(solution.created_at)}</td>
-                    <td className='border-base-300 text-base-400'>{solution.status === 'installed' || solution.status === 'rejected' ? formatDate(solution.updated_at) : "Encara no s'ha tancat"}</td>
+                    <td className='border-base-300 text-base-400'>{solution.status === 'finalitzat' || solution.status === 'rebutjat' ? formatDate(solution.updated_at) : "Encara no s'ha tancat"}</td>
                     <td className='border-base-300 text-center'>
-                        <select value={solution.status} onChange={(event) => handleStatusChange(solution, event.target.value)} className="select select-sm select-bordered text-center" disabled={updatingStatusId === solution.id}>
+                        <select value={solution.status} onChange={(event) => handleStatusChange(solution, event.target.value)} className={`select select-sm select-bordered w-44 text-center font-medium ${getStatusOption(solution.status).selectClassName}`} disabled={updatingStatusId === solution.id}>
                           {STATUS_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
+                            <option key={option.value} value={option.value} className={option.selectClassName}>
                               {option.label}
                             </option>
                           ))}

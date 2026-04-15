@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { HiArrowLeft, HiOutlinePhoto } from "react-icons/hi2"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../../context/AuthContext"
 import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
@@ -53,6 +54,7 @@ function CheckoutReviewProduct({ product }) {
 
 function CheckoutReview() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { user, loading: authLoading } = useAuth()
   const [cartOrder, setCartOrder] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -164,14 +166,21 @@ function CheckoutReview() {
 
       sessionStorage.removeItem(checkoutDataKey)
       sessionStorage.removeItem(checkoutPaymentKey)
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["packs"] })
+      queryClient.invalidateQueries({ queryKey: ["cart-order"] })
       navigate(user ? "/my-orders" : "/products", {
         state: {
           notificationType: "success",
           notificationMessage: "La comanda s'ha generat correctament.",
         },
       })
-    } catch {
-      setErrorMessage("No hem pogut generar la comanda. Revisa les dades i torna-ho a provar.")
+    } catch (error) {
+      const validationMessage = error.response?.data?.errors
+        ? Object.values(error.response.data.errors)[0]?.[0]
+        : null
+
+      setErrorMessage(validationMessage || error.response?.data?.message || "No hem pogut generar la comanda. Revisa les dades i torna-ho a provar.")
     } finally {
       setIsConfirming(false)
     }

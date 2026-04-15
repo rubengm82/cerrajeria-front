@@ -70,3 +70,11 @@ export const getLocalCartItems = () => getStoredCart()
 export const clearLocalCart = () => {
   localStorage.removeItem(localCartKey)
 }
+
+export const getLocalCartMergeItems = () => getStoredCart()
+  .map((item) => ({
+    type: (item.cartItemType || "product") === "pack" ? "pack" : "product",
+    id: item.id,
+    quantity: Number(item.pivot?.quantity || 1),
+  }))
+  .filter((item) => item.id && item.quantity > 0)

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '../../api/auth_api'
+import { mergeGuestCart } from '../../api/orders_api'
+import { clearLocalCart, getLocalCartMergeItems } from '../../utils/localCart'
 
 function Register() {
   const navigate = useNavigate()
@@ -32,7 +34,18 @@ function Register() {
     setSuccess('')
 
     try {
-      await register(formData)
+      const response = await register(formData)
+      const guestCartItems = getLocalCartMergeItems()
+
+      if (response.token && guestCartItems.length > 0) {
+        try {
+          await mergeGuestCart(guestCartItems, response.token)
+          clearLocalCart()
+        } catch (error) {
+          console.error("No s'ha pogut sincronitzar el carret local.", error)
+        }
+      }
+
       setSuccess('Usuari creat correctament! Revisa el teu correu electrònic per verificar el teu compte.')
       // No redirigimos, mostramos el mensaje
     } catch (err) {

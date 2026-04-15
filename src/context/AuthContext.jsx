@@ -1,5 +1,7 @@
 import { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
+import { mergeGuestCart } from '../api/orders_api'
+import { clearLocalCart, getLocalCartMergeItems } from '../utils/localCart'
 
 export const AuthContext = createContext()
 
@@ -34,6 +36,17 @@ export function AuthProvider({ children }) {
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(user))
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+    const guestCartItems = getLocalCartMergeItems()
+    if (guestCartItems.length > 0) {
+      try {
+        await mergeGuestCart(guestCartItems)
+        clearLocalCart()
+      } catch (error) {
+        console.error("No s'ha pogut sincronitzar el carret local.", error)
+      }
+    }
+
     setUser(user)
   }
 

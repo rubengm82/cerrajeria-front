@@ -12,6 +12,13 @@ export const getOrder = (id) => api.get(`/orders/${id}`)
 // Obtener el carrito del usuario autenticado
 export const getCartOrder = () => api.get('/orders/cart')
 
+// Fusionar el carrito invitado con el carrito autenticado
+export const mergeGuestCart = (items, token = null) => api.post(
+  '/orders/cart/merge',
+  { items },
+  token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+)
+
 // Crear un pedido desde checkout público o invitado
 export const createCheckoutOrder = (checkoutData) => api.post('/checkout/orders', checkoutData)
 

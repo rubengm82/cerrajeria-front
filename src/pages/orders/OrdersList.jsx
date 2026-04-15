@@ -21,6 +21,17 @@ const getOrderItems = (order) => [
   ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
 ]
 
+const ORDER_STATUS_OPTIONS = [
+  { value: 'in_cart', label: 'En cistella', className: 'bg-base-200 border-base-300 text-base-content' },
+  { value: 'pending', label: 'Pendent', className: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'shipped', label: 'Enviat', className: 'bg-info border-info-content text-info-content' },
+  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-success border-success-content text-success-content' },
+]
+
+function getOrderStatusOption(status) {
+  return ORDER_STATUS_OPTIONS.find((option) => option.value === status) || ORDER_STATUS_OPTIONS[0]
+}
+
 function OrdersList() {
   const { user } = useContext(AuthContext)
   const [orders, setOrders] = useState([])
@@ -214,12 +225,13 @@ function OrdersList() {
                        <select
                          value={order.status}
                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                         className="select select-sm select-bordered"
+                         className={`select select-sm select-bordered w-auto min-w-36 text-center font-medium ${getOrderStatusOption(order.status).className}`}
                        >
-                         <option value="in_cart">En cistella</option>
-                         <option value="pending">Pendent</option>
-                         <option value="shipped">Enviat</option>
-                         <option value="installation_confirmed">Instal·lació confirmada</option>
+                         {ORDER_STATUS_OPTIONS.map((option) => (
+                           <option key={option.value} value={option.value} className={option.className}>
+                             {option.label}
+                           </option>
+                         ))}
                        </select>
                      ) : (
                        <span className={`badge ${

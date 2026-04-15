@@ -6,11 +6,13 @@ import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 
 const STATUS_LABELS = {
-  pending: 'Pendent',
-  contacted: 'Contactada',
-  waiting_installation: 'Esperant instal·lació',
-  installed: 'Instal·lada',
-  rejected: 'Rebutjada',
+  nova: 'Nova',
+  contactat: 'Contactat',
+  pressupost_aprovat: 'Pressupost aprovat',
+  en_curs: 'En curs',
+  en_transit: 'En trànsit',
+  finalitzat: 'Finalitzat',
+  rebutjat: 'Rebutjat',
 }
 
 function formatDate(dateString) {
@@ -122,7 +124,7 @@ export default function AdminCustomSolutionsShow() {
                 </div>
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2 border-b border-base-300">
                   <p className="font-semibold text-base-400">Data de tancament</p>
-                  <p className="text-left sm:text-right">{customSolution.status === 'installed' || customSolution.status === 'rejected' ? formatDate(customSolution.updated_at) : "Encara no s'ha tancat"}</p>
+                  <p className="text-left sm:text-right">{customSolution.status === 'finalitzat' || customSolution.status === 'rebutjat' ? formatDate(customSolution.updated_at) : "Encara no s'ha tancat"}</p>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 py-2">
                   <p className="font-semibold text-base-400">Estat</p>

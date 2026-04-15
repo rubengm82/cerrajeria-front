@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
 import { getOrders, getOrdersWithTrashed, updateOrder, deleteOrder, restoreOrder, forceDeleteOrder } from '../../api/orders_api'
@@ -7,6 +7,7 @@ import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
 import { formatPrice, getCartTotals } from '../../utils/cartTotals'
+import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 
 const getOrderCustomerName = (order) => (
   [
@@ -41,11 +42,7 @@ function OrdersList() {
 
   const isAdmin = user?.role === 'admin'
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
       const response = isAdmin ? await getOrdersWithTrashed() : await getOrders()
@@ -56,7 +53,11 @@ function OrdersList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [isAdmin])
+
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -184,7 +185,15 @@ function OrdersList() {
         <p className="text-base-400">{pageDescription}</p>
       </div>
 
-      {orders.length === 0 ? (
+      <SearchBarTableSimple
+        data={orders}
+        searchFields={isAdmin ? ['id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['id', 'created_at', 'shipped_at', 'payment_method', 'status']}
+        placeholder='Buscar comanda...'
+        inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+      >
+        {(filteredOrders) => (
+          <>
+            {filteredOrders.length === 0 ? (
         <div className="text-center py-10 bg-base-100 rounded-lg border border-base-300">
           <p className="text-base-400">
             {isAdmin ? 'No hi ha cap comanda registrada.' : 'No tens cap comanda encara.'}
@@ -209,7 +218,7 @@ function OrdersList() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {filteredOrders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">INV-{order.id.toString().padStart(6, '0')}</td>
                   {isAdmin && <td>{getOrderCustomerName(order) || 'Client sense usuari'}</td>}
@@ -225,7 +234,7 @@ function OrdersList() {
                        <select
                          value={order.status}
                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                         className={`select select-sm select-bordered w-auto min-w-36 text-center font-medium ${getOrderStatusOption(order.status).className}`}
+                         className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
                        >
                          {ORDER_STATUS_OPTIONS.map((option) => (
                            <option key={option.value} value={option.value} className={option.className}>
@@ -313,6 +322,9 @@ function OrdersList() {
           </table>
         </div>
       )}
+          </>
+        )}
+      </SearchBarTableSimple>
     </div>
   )
 }

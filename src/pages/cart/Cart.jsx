@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
@@ -11,7 +11,7 @@ import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
-import { getLocalCartItems, localCartKey, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
+import { getLocalCartItems, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
@@ -169,18 +169,6 @@ function Cart() {
       message,
     })
   }
-
-  useEffect(() => {
-    const handleStorage = (event) => {
-      if (event.key === localCartKey) {
-        setLocalCartVersion((currentVersion) => currentVersion + 1)
-      }
-    }
-
-    window.addEventListener("storage", handleStorage)
-
-    return () => window.removeEventListener("storage", handleStorage)
-  }, [])
 
   const products = user ? cartOrder?.products || [] : getLocalCartItems(localCartVersion)
   const packs = user ? cartOrder?.packs || [] : []

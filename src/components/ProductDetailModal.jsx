@@ -5,7 +5,7 @@ import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
 import LoadingAnimation from "./LoadingAnimation"
 import Notifications from "./Notifications"
 import { addPackToCart, addProductToCart, getCartOrder } from "../api/orders_api"
-import { addProductToLocalCart, getLocalCartItems, localCartKey } from "../utils/localCart"
+import { addProductToLocalCart, getLocalCartItems } from "../utils/localCart"
 
 const formatPrice = (price) => {
   const numericPrice = Number(price || 0)
@@ -47,7 +47,7 @@ function ProductDetailModal({
   const [notification, setNotification] = useState(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [localCartVersion, setLocalCartVersion] = useState(0)
-  const { data: cartOrder, refetch: refetchCartOrder } = useQuery({
+  const { data: cartOrder } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
       const response = await getCartOrder()
@@ -103,32 +103,6 @@ function ProductDetailModal({
     setActiveImageIndex(0)
     setNotification(null)
   }, [entityType, product?.id])
-
-  useEffect(() => {
-    const handleStorage = (event) => {
-      if (event.key === localCartKey) {
-        setLocalCartVersion((currentVersion) => currentVersion + 1)
-      }
-    }
-
-    window.addEventListener("storage", handleStorage)
-
-    return () => window.removeEventListener("storage", handleStorage)
-  }, [])
-
-  useEffect(() => {
-    const handleFocus = () => {
-      if (user && isOpen && !isAdmin) {
-        refetchCartOrder()
-      } else {
-        setLocalCartVersion((currentVersion) => currentVersion + 1)
-      }
-    }
-
-    window.addEventListener("focus", handleFocus)
-
-    return () => window.removeEventListener("focus", handleFocus)
-  }, [isAdmin, isOpen, refetchCartOrder, user])
 
   useEffect(() => {
     if (normalizedAvailableStock <= 0) {
@@ -199,7 +173,10 @@ function ProductDetailModal({
           queryClient.invalidateQueries({ queryKey: ["cart-order"] })
         }
       } else {
-        const result = addProductToLocalCart(product, quantity, isPack ? "pack" : "product")
+        const result = addProductToLocalCart({
+          ...product,
+          stock: normalizedAvailableStock,
+        }, quantity, isPack ? "pack" : "product")
         wasAdded = result.added
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }

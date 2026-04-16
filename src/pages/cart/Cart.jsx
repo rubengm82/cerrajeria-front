@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
@@ -11,12 +11,58 @@ import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
-import { getLocalCartItems, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
+import { getLocalCartItems, localCartKey, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
   product?.images?.find((image) => image.is_important === true || image.is_important === 1) || product?.images?.[0]
 )
+
+const getItemQuantity = (item) => Number(item?.pivot?.quantity || 1)
+
+const getPackProductIds = (pack) => (pack.products || [])
+  .filter((packProduct) => !packProduct?.deleted_at)
+  .map((packProduct) => packProduct.id)
+
+const getOtherCartDemandForProduct = (cartItems, currentItem, productId) => cartItems.reduce((total, item) => {
+  if (item === currentItem) {
+    return total
+  }
+
+  const quantity = getItemQuantity(item)
+
+  if (item.cartItemType === "pack") {
+    return getPackProductIds(item).includes(productId) ? total + quantity : total
+  }
+
+  return item.id === productId ? total + quantity : total
+}, 0)
+
+const getAvailableStockForCartItem = (item, cartItems) => {
+  if (item.cartItemType !== "pack") {
+    const otherDemand = getOtherCartDemandForProduct(cartItems, item, item.id)
+    return Math.max(0, Number(item.stock || 0) - otherDemand)
+  }
+
+  const packStocks = (item.products || [])
+    .filter((packProduct) => !packProduct?.deleted_at)
+    .map((packProduct) => {
+      const otherDemand = getOtherCartDemandForProduct(cartItems, item, packProduct.id)
+      return Number(packProduct.stock || 0) - otherDemand
+    })
+
+  const availableStock = Math.min(...packStocks)
+
+  return Number.isFinite(availableStock) ? Math.max(0, availableStock) : 0
+}
+
+const getApiErrorMessage = (error, fallbackMessage) => {
+  const validationMessage = error.response?.data?.errors
+    ? Object.values(error.response.data.errors)[0]?.[0]
+    : null
+
+  return validationMessage || error.response?.data?.message || fallbackMessage
+}
 
 function CartItem({ product, onQuantityChange, onRemove, onView }) {
   const quantity = Number(product?.pivot?.quantity || 1)
@@ -99,6 +145,7 @@ function CartItem({ product, onQuantityChange, onRemove, onView }) {
 }
 
 function Cart() {
+  const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
   const [notification, setNotification] = useState(null)
   const [localCartVersion, setLocalCartVersion] = useState(0)
@@ -123,23 +170,40 @@ function Cart() {
     })
   }
 
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key === localCartKey) {
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    }
+
+    window.addEventListener("storage", handleStorage)
+
+    return () => window.removeEventListener("storage", handleStorage)
+  }, [])
+
   const products = user ? cartOrder?.products || [] : getLocalCartItems(localCartVersion)
   const packs = user ? cartOrder?.packs || [] : []
-  const cartItems = [
+  const rawCartItems = [
     ...products.map((product) => ({ ...product, cartItemType: product.cartItemType || "product" })),
-    ...packs.map((pack) => {
-      const packStock = Math.min(...(pack.products || []).map((packProduct) => Number(packProduct.stock || 0)))
-      return { ...pack, cartItemType: "pack", stock: Number.isFinite(packStock) ? packStock : 0 }
-    }),
+    ...packs.map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
+  const cartItems = rawCartItems.map((item) => ({
+    ...item,
+    stock: getAvailableStockForCartItem(item, rawCartItems),
+  }))
   const { itemCount, subtotal, shipping, total } = getCartTotals(cartItems)
+  const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
   const handleQuantityChange = async (product, nextQuantity) => {
     const availableStock = Number(product.stock || 0)
     const quantity = Math.max(1, nextQuantity)
 
     if (quantity > availableStock) {
-      showNotification("info", `Només hi ha ${availableStock} unitats disponibles de ${product.name}.`)
+      showNotification("info", product.cartItemType === "pack"
+        ? `Només hi ha ${availableStock} packs disponibles de ${product.name} tenint en compte la resta del carret.`
+        : `Només hi ha ${availableStock} unitats disponibles de ${product.name} tenint en compte la resta del carret.`
+      )
       return
     }
 
@@ -156,8 +220,20 @@ function Cart() {
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
     } catch (error) {
-      showNotification("error", error.response?.data?.message || "No hem pogut actualitzar la quantitat.")
+      showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la quantitat."))
     }
+  }
+
+  const handleCheckout = () => {
+    if (stockConflictItem) {
+      showNotification("error", stockConflictItem.cartItemType === "pack"
+        ? `Redueix la quantitat de ${stockConflictItem.name}. Només hi ha ${stockConflictItem.stock} packs disponibles tenint en compte la resta del carret.`
+        : `Redueix la quantitat de ${stockConflictItem.name}. Només hi ha ${stockConflictItem.stock} unitats disponibles tenint en compte la resta del carret.`
+      )
+      return
+    }
+
+    navigate("/checkout")
   }
 
   const handleRemove = async (product) => {
@@ -234,7 +310,7 @@ function Cart() {
         shipping={shipping}
         total={total}
         itemCount={itemCount}
-        actionTo="/checkout"
+        onAction={handleCheckout}
       />
     </div>
   )

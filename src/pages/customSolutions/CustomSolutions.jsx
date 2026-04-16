@@ -138,7 +138,6 @@ export default function CustomSolutions() {
     payload.append('email', formData.email)
     payload.append('phone', formData.phone)
     payload.append('description', formData.description)
-    payload.append('status', 'nova')
 
     images.forEach((image) => {
       payload.append('images[]', image)

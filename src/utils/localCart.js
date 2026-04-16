@@ -1,4 +1,4 @@
-const localCartKey = "guestCart"
+export const localCartKey = "guestCart"
 
 const getStoredCart = () => {
   try {
@@ -16,10 +16,44 @@ const getProductSnapshot = (product, quantity, cartItemType = product.cartItemTy
   },
 })
 
+const getItemQuantity = (item) => Number(item?.pivot?.quantity || 1)
+
+const getPackProductIds = (pack) => (pack.products || [])
+  .filter((packProduct) => !packProduct?.deleted_at)
+  .map((packProduct) => packProduct.id)
+
+const getCartDemandForProduct = (cartItems, productId, ignoredItem) => cartItems.reduce((total, item) => {
+  if (item === ignoredItem) {
+    return total
+  }
+
+  const quantity = getItemQuantity(item)
+
+  if ((item.cartItemType || "product") === "pack") {
+    return getPackProductIds(item).includes(productId) ? total + quantity : total
+  }
+
+  return item.id === productId ? total + quantity : total
+}, 0)
+
+const getAvailableStockForItem = (product, cartItems, cartItemType = product.cartItemType || "product", ignoredItem) => {
+  if (cartItemType === "pack") {
+    const packStocks = (product.products || [])
+      .filter((packProduct) => !packProduct?.deleted_at)
+      .map((packProduct) => Number(packProduct.stock || 0) - getCartDemandForProduct(cartItems, packProduct.id, ignoredItem))
+
+    const availableStock = Math.min(...packStocks)
+
+    return Number.isFinite(availableStock) ? Math.max(0, availableStock) : 0
+  }
+
+  return Math.max(0, Number(product.stock || 0) - getCartDemandForProduct(cartItems, product.id, ignoredItem))
+}
+
 export const addProductToLocalCart = (product, quantity = 1, cartItemType = "product") => {
   const cartItems = getStoredCart()
   const existingItem = cartItems.find((item) => item.id === product.id && (item.cartItemType || "product") === cartItemType)
-  const availableStock = Number(product.stock || 0)
+  const availableStock = getAvailableStockForItem(product, cartItems, cartItemType)
 
   if (availableStock <= 0) {
     return {
@@ -46,11 +80,15 @@ export const addProductToLocalCart = (product, quantity = 1, cartItemType = "pro
 }
 
 export const updateLocalCartProduct = (productId, quantity, cartItemType = "product") => {
-  const nextCartItems = getStoredCart().map((item) => (
-    item.id === productId && (item.cartItemType || "product") === cartItemType
-      ? getProductSnapshot(item, Math.min(quantity, Number(item.stock || 0)))
-      : item
-  ))
+  const cartItems = getStoredCart()
+  const nextCartItems = cartItems.map((item) => {
+    if (item.id !== productId || (item.cartItemType || "product") !== cartItemType) {
+      return item
+    }
+
+    const availableStock = getAvailableStockForItem(item, cartItems, cartItemType, item)
+    return getProductSnapshot(item, Math.min(quantity, Math.max(1, availableStock)))
+  })
 
   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
 

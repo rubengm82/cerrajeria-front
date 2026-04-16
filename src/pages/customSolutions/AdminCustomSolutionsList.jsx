@@ -160,7 +160,10 @@ export default function AdminCustomSolutionsList() {
                   <tr>
                     <td colSpan={8} className='p-6'>
                       <div className='w-full flex justify-center items-center gap-2'>
-                        <p>No s'ha trobat cap solució personalitzada</p>
+                        <p>
+                          No s'ha trobat cap solució personalitzada.{' '}
+                          <Link to="/custom-solutions" className="text-primary link link-hover">Anar al formulari</Link>
+                        </p>
                       </div>
                     </td>
                   </tr>

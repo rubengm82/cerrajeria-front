@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext"
 import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import LoadingAnimation from "../../components/LoadingAnimation"
+import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
 import { clearLocalCart, getLocalCartItems } from "../../utils/localCart"
@@ -60,7 +61,7 @@ function CheckoutReview() {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
+  const [notification, setNotification] = useState(null)
   const customerData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
   const paymentMethod = sessionStorage.getItem(checkoutPaymentKey) || ""
 
@@ -96,7 +97,7 @@ function CheckoutReview() {
   const hasPaymentMethod = Boolean(paymentMethod)
 
   const handleConfirm = () => {
-    setErrorMessage("")
+    setNotification(null)
 
     if (!hasCustomerData) {
       navigate("/checkout", {
@@ -180,7 +181,11 @@ function CheckoutReview() {
         ? Object.values(error.response.data.errors)[0]?.[0]
         : null
 
-      setErrorMessage(validationMessage || error.response?.data?.message || "No hem pogut generar la comanda. Revisa les dades i torna-ho a provar.")
+      setNotification({
+        id: Date.now(),
+        type: "error",
+        message: validationMessage || error.response?.data?.message || "No hem pogut generar la comanda. Revisa les dades i torna-ho a provar.",
+      })
     } finally {
       setIsConfirming(false)
     }
@@ -209,8 +214,6 @@ function CheckoutReview() {
             <h2 id="checkout-review-title">Resum de la comanda</h2>
             <p id={reviewDescriptionId} className="text-base-400">Revisa les dades abans de confirmar la compra.</p>
           </header>
-
-          {errorMessage && <p className="checkout-review__error text-error" role="alert">{errorMessage}</p>}
 
           <div className="checkout-review">
             <section className="checkout-review__section" aria-labelledby="checkout-review-customer-title">
@@ -264,6 +267,15 @@ function CheckoutReview() {
 
   return (
     <section className="checkout-page" aria-label="Revisar comanda">
+      {notification && (
+        <Notifications
+          key={notification.id}
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className="checkout-page__container">
         <Link to="/checkout/payment" className="checkout-page__back text-primary">
           <HiArrowLeft className="checkout-page__back-icon" aria-hidden="true" />

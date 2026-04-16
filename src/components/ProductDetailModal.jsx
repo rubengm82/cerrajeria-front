@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../context/AuthContext"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
 import LoadingAnimation from "./LoadingAnimation"
 import Notifications from "./Notifications"
-import { addPackToCart, addProductToCart } from "../api/orders_api"
-import { addProductToLocalCart } from "../utils/localCart"
+import { addPackToCart, addProductToCart, getCartOrder } from "../api/orders_api"
+import { addProductToLocalCart, getLocalCartItems, localCartKey } from "../utils/localCart"
 
 const formatPrice = (price) => {
   const numericPrice = Number(price || 0)
@@ -14,6 +15,22 @@ const formatPrice = (price) => {
   }).format(numericPrice)
 }
 
+const getItemQuantity = (item) => Number(item?.pivot?.quantity || 1)
+
+const getPackProductIds = (pack) => (pack.products || [])
+  .filter((packProduct) => !packProduct?.deleted_at)
+  .map((packProduct) => packProduct.id)
+
+const getCartDemandForProduct = (cartItems, productId) => cartItems.reduce((total, item) => {
+  const quantity = getItemQuantity(item)
+
+  if (item.cartItemType === "pack") {
+    return getPackProductIds(item).includes(productId) ? total + quantity : total
+  }
+
+  return item.id === productId ? total + quantity : total
+}, 0)
+
 function ProductDetailModal({
   product,
   isOpen,
@@ -22,58 +39,122 @@ function ProductDetailModal({
   isLoading = false,
 }) {
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const isAdmin = user?.role === "admin"
 
   const [quantity, setQuantity] = useState(1)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [notification, setNotification] = useState(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
-
-  if (!product) return null
+  const [localCartVersion, setLocalCartVersion] = useState(0)
+  const { data: cartOrder, refetch: refetchCartOrder } = useQuery({
+    queryKey: ["cart-order"],
+    queryFn: async () => {
+      const response = await getCartOrder()
+      return response.data
+    },
+    enabled: Boolean(user && isOpen && !isAdmin),
+    retry: 1,
+  })
 
   const isPack = entityType === "pack"
 
   const productImages = [
-    ...(product.images || []).filter((img) => img.is_important),
-    ...(product.images || []).filter((img) => !img.is_important),
+    ...(product?.images || []).filter((img) => img.is_important),
+    ...(product?.images || []).filter((img) => !img.is_important),
   ]
 
   const activeImage = productImages[activeImageIndex]
 
   const productFeatures =
-    product.features?.filter(
+    product?.features?.filter(
       (f) => f?.type?.name && f?.value
     ) || []
 
   const packProducts =
-    product.products?.filter((p) => !p?.deleted_at) || []
+    product?.products?.filter((p) => !p?.deleted_at) || []
+
+  const cartItems = user
+    ? [
+      ...(cartOrder?.products || []).map((cartProduct) => ({ ...cartProduct, cartItemType: "product" })),
+      ...(cartOrder?.packs || []).map((cartPack) => ({ ...cartPack, cartItemType: "pack" })),
+    ]
+    : getLocalCartItems(localCartVersion)
 
   const availableStock = isPack && packProducts.length > 0
-    ? Math.min(...packProducts.map((packProduct) => Number(packProduct.stock || 0)))
-    : Number(product.stock || 0)
-  const isQuantityAvailable = quantity <= availableStock
-  const isOutOfStock = availableStock <= 0 || !Number.isFinite(availableStock)
+    ? Math.min(...packProducts.map((packProduct) => {
+      const cartDemand = getCartDemandForProduct(cartItems, packProduct.id)
+      return Number(packProduct.stock || 0) - cartDemand
+    }))
+    : Number(product?.stock || 0) - getCartDemandForProduct(cartItems, product?.id)
+  const normalizedAvailableStock = Number.isFinite(availableStock) ? Math.max(0, availableStock) : 0
+  const maxQuantity = normalizedAvailableStock > 0 ? normalizedAvailableStock : 1
+  const isQuantityAvailable = quantity <= normalizedAvailableStock
+  const isOutOfStock = normalizedAvailableStock <= 0
 
   const currentPrice = isPack
-    ? product.total_price
-    : product.discount > 0
+    ? product?.total_price
+    : product?.discount > 0
     ? (product.price * (1 - product.discount / 100)).toFixed(2)
-    : product.price
+    : product?.price
+
+  useEffect(() => {
+    setQuantity(1)
+    setActiveImageIndex(0)
+    setNotification(null)
+  }, [entityType, product?.id])
+
+  useEffect(() => {
+    const handleStorage = (event) => {
+      if (event.key === localCartKey) {
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    }
+
+    window.addEventListener("storage", handleStorage)
+
+    return () => window.removeEventListener("storage", handleStorage)
+  }, [])
+
+  useEffect(() => {
+    const handleFocus = () => {
+      if (user && isOpen && !isAdmin) {
+        refetchCartOrder()
+      } else {
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    }
+
+    window.addEventListener("focus", handleFocus)
+
+    return () => window.removeEventListener("focus", handleFocus)
+  }, [isAdmin, isOpen, refetchCartOrder, user])
+
+  useEffect(() => {
+    if (normalizedAvailableStock <= 0) {
+      setQuantity(1)
+      return
+    }
+
+    setQuantity((currentQuantity) => Math.min(Math.max(1, currentQuantity), normalizedAvailableStock))
+  }, [normalizedAvailableStock])
+
+  if (!product) return null
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
-    const nextQuantity = Math.max(1, value)
+    const nextQuantity = Math.min(Math.max(1, value), maxQuantity)
     setQuantity(nextQuantity)
 
-    if (nextQuantity > availableStock) {
+    if (value > normalizedAvailableStock) {
       setNotification({
         id: Date.now(),
         type: "info",
         message: isOutOfStock
           ? "Aquest producte no té estoc disponible."
           : isPack
-            ? `Només hi ha ${availableStock} packs disponibles.`
-            : `Només hi ha ${availableStock} unitats disponibles.`,
+            ? `Només hi ha ${normalizedAvailableStock} packs disponibles tenint en compte el carret.`
+            : `Només hi ha ${normalizedAvailableStock} unitats disponibles tenint en compte el carret.`,
       })
     }
   }
@@ -88,8 +169,8 @@ function ProductDetailModal({
         message: isOutOfStock
           ? "Aquest producte no té estoc disponible."
           : isPack
-            ? `Només hi ha ${availableStock} packs disponibles.`
-            : `Només hi ha ${availableStock} unitats disponibles.`,
+            ? `Només hi ha ${normalizedAvailableStock} packs disponibles tenint en compte el carret.`
+            : `Només hi ha ${normalizedAvailableStock} unitats disponibles tenint en compte el carret.`,
       })
       return
     }
@@ -111,12 +192,16 @@ function ProductDetailModal({
           })
 
         wasAdded = Boolean(response.data?.added)
+
+        if (response.data?.order) {
+          queryClient.setQueryData(["cart-order"], response.data.order)
+        } else {
+          queryClient.invalidateQueries({ queryKey: ["cart-order"] })
+        }
       } else {
-        const result = addProductToLocalCart({
-          ...product,
-          stock: availableStock,
-        }, quantity, isPack ? "pack" : "product")
+        const result = addProductToLocalCart(product, quantity, isPack ? "pack" : "product")
         wasAdded = result.added
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
 
       setNotification({
@@ -126,11 +211,15 @@ function ProductDetailModal({
           ? `${product.name} s'ha afegit al carret.`
           : `${product.name} ja és al carret. Modifica la quantitat des del carret.`,
       })
-    } catch {
+    } catch (error) {
+      const validationMessage = error.response?.data?.errors
+        ? Object.values(error.response.data.errors)[0]?.[0]
+        : null
+
       setNotification({
         id: Date.now(),
         type: "error",
-        message: "No hem pogut afegir el producte al carret.",
+        message: validationMessage || error.response?.data?.message || "No hem pogut afegir el producte al carret.",
       })
     } finally {
       setIsAddingToCart(false)
@@ -306,7 +395,7 @@ function ProductDetailModal({
                   type="number"
                   min="1"
                   step="1"
-                  max={availableStock}
+                  max={normalizedAvailableStock}
                   value={quantity}
                   onChange={handleQuantityChange}
                   className="input input-bordered product-pack-show__quantity-input"
@@ -329,8 +418,8 @@ function ProductDetailModal({
                   {isOutOfStock
                     ? "Aquest producte no té estoc disponible."
                     : isPack
-                      ? `${availableStock} packs disponibles.`
-                      : `${availableStock} unitats disponibles.`}
+                      ? `${normalizedAvailableStock} packs disponibles.`
+                      : `${normalizedAvailableStock} unitats disponibles.`}
                 </p>
               </div>
             )}

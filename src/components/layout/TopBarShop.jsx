@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
+import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3, HiOutlineEye } from "react-icons/hi2";
+import SearchBar from '../SearchBar'
 
 
 export default function TopBarShop() {
@@ -13,13 +14,18 @@ export default function TopBarShop() {
 
       <div className="drawer-content">
         <div className="navbar bg-white/90 backdrop-blur-sm shadow-sm" role="banner">
-          <div className="navbar-start">
+          <div className="navbar-start flex items-center gap-2">
             <label htmlFor="shop-drawer" aria-label="obre el menú lateral" className="btn btn-square btn-ghost lg:hidden">
               <HiOutlineBars3 className="shop-tobar-end__icon" aria-hidden="true" />
             </label>
             <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold" aria-label="Anar a la pàgina d'inici">
               Serralleria Solidària
             </Link>
+            
+            {/* Barra de búsqueda - Visible en sm y superior, oculta en mobilexs */}
+            <div className="hidden sm:block w-32 md:w-64 lg:w-80 xl:w-96">
+              <SearchBar />
+            </div>
           </div>
 
           <nav className="navbar-center hidden lg:flex" aria-label="Navegació principal">
@@ -32,7 +38,12 @@ export default function TopBarShop() {
             </ul>
           </nav>
 
-          <div className="navbar-end">
+          <div className="navbar-end flex items-center gap-2">
+            {/* Icono de búsqueda para mobile (visible solo en xs) */}
+            <Link to="/search" className="btn btn-ghost btn-square sm:hidden" aria-label="Buscar">
+              <HiOutlineEye className="shop-tobar-end__icon" aria-hidden="true" />
+            </Link>
+
             <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
               <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
             </Link>

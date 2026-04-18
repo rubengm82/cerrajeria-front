@@ -55,10 +55,10 @@ function ProductDetailModal({
   const isOutOfStock = availableStock <= 0 || !Number.isFinite(availableStock)
 
   const currentPrice = isPack
-    ? product.total_price
+    ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
     : product.discount > 0
-    ? (product.price * (1 - product.discount / 100)).toFixed(2)
-    : product.price
+      ? (parseFloat(product.price || 0) * (1 - product.discount / 100)).toFixed(2)
+      : parseFloat(product.price || 0).toFixed(2)
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1

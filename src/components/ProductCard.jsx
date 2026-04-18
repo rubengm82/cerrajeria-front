@@ -6,7 +6,11 @@ function ProductCard({product, onView}) {
   const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
   const imagePath = mainImage?.path
   const handleCardClick = () => onView?.(product)
-  const currentPrice = isPack ? product.total_price : product.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product.price
+  const currentPrice = isPack 
+    ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
+    : product.discount > 0 
+      ? (parseFloat(product.price || 0) * (1 - product.discount / 100)).toFixed(2) 
+      : parseFloat(product.price || 0).toFixed(2)
   const actionLabel = isPack ? `Veure el detall del pack ${product?.name}` : `Veure el detall del producte ${product?.name}`
   const cardLabel = isPack ? `${product?.name}. Pack. Preu ${currentPrice} euros` : `${product?.name}. Categoria ${product?.category?.name || 'sense categoria'}. Preu ${currentPrice} euros`
   const productDescriptionId = product ? `product-card-${product.id}-description` : undefined
@@ -83,7 +87,7 @@ function ProductCard({product, onView}) {
               {currentPrice}€
             </p>
             {!isPack && product.discount > 0 && (
-              <p className="product-card__old-price text-base-300" aria-label={`Preu anterior ${product.price} euros`}>{product.price}€</p>
+              <p className="product-card__old-price text-base-300" aria-label={`Preu anterior ${parseFloat(product.price || 0).toFixed(2)} euros`}>{parseFloat(product.price || 0).toFixed(2)}€</p>
             )}
           </div>
 

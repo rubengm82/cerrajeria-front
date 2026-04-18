@@ -35,6 +35,59 @@
     transition: filter 0.7s ease;
   }
 
+  &__stock-break {
+    position: absolute;
+    top: clamp(0.5rem, 2vw, 0.75rem);
+    right: clamp(0.5rem, 2vw, 0.75rem);
+    z-index: 12;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__stock-break-icon {
+    display: inline-flex;
+    width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ff3838;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgb(0 0 0 / 0.18);
+    transition: filter 0.7s ease;
+  }
+
+  &__stock-break-tooltip {
+    pointer-events: none;
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: max-content;
+    max-width: min(15rem, calc(100vw - 2rem));
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    background: #1f2937;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    opacity: 0;
+    transform: translateY(-0.25rem);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: normal;
+  }
+
+  &__stock-break:hover,
+  &__stock-break:focus-within {
+    .product-card__stock-break-tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   &__image-box {
     position: relative;
     width: 100%;
@@ -184,7 +237,8 @@
   &:hover,
   &:active,
   &:focus-within {
-    .product-card__discount {
+    .product-card__discount,
+    .product-card__stock-break-icon {
       filter: blur(2px);
     }
 

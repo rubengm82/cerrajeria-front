@@ -3,6 +3,7 @@ import { HiOutlinePhoto, HiOutlineEye } from "react-icons/hi2";
 
 function ProductCard({product, onView}) {
   const isPack = product?.total_price != null
+  const isStockBreak = !isPack && !!product?.is_stock_break
   const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
   const imagePath = mainImage?.path
   const handleCardClick = () => onView?.(product)
@@ -34,6 +35,19 @@ function ProductCard({product, onView}) {
         {!isPack && product.discount > 0 && (
           <div className="product-card__discount bg-primary" aria-label={`Descompte del ${parseInt(product.discount)} per cent`}>
             <p>-{parseInt(product.discount)}%</p>
+          </div>
+        )}
+
+        {isStockBreak && (
+          <div
+            className="product-card__stock-break"
+            aria-label="Este producto esta en rotura de stock"
+            title="Este producto esta en rotura de stock"
+          >
+            <span className="product-card__stock-break-icon" aria-hidden="true">R</span>
+            <span className="product-card__stock-break-tooltip" role="tooltip">
+              Este producto esta en rotura de stock
+            </span>
           </div>
         )}
 

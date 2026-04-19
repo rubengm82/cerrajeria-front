@@ -74,6 +74,11 @@ html {
   animation: slide-in 0.3s ease-out;
 }
 
+.skeleton {
+  background-color: color-mix(in srgb, #afafaf 32%, var(--color-base-100)) !important;
+  background-image: linear-gradient(105deg, transparent 0 40%, #afafaf 50%, transparent 60% 100%) !important;
+}
+
 /* NO BORDERS EN LOS INPUT, SELECT, TEXTAREA ETC... */
 .select,
 .textarea,

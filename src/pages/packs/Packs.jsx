@@ -3,10 +3,11 @@ import { Link } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
 import { getPack, getPacks } from "../../api/packs_api"
-import LoadingAnimation from "../../components/LoadingAnimation"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import '../../../scss/main_shop.scss'
+
+const packSkeletons = Array.from({ length: 8 })
 
 function Packs() {
   const [selectedPack, setSelectedPack] = useState(null);
@@ -48,7 +49,7 @@ function Packs() {
     setIsLoadingSelectedPack(false);
   };
 
-  return isLoadingPacks ? <LoadingAnimation /> : (
+  return (
     <div className='products-page'>
       <div className="products-page__container">
         <div className="products-page__body">
@@ -64,7 +65,7 @@ function Packs() {
 
             <div className="products-top__actions">
               <p className="products-top__count text-base-400">
-                Mostrant {packs.length} packs
+                {isLoadingPacks ? "Carregant packs" : `Mostrant ${packs.length} packs`}
               </p>
             </div>
           </div>
@@ -72,7 +73,17 @@ function Packs() {
           <div className="products-layout">
             <div>
               <div className="products-list">
-                { packs.length > 0 ?
+                {isLoadingPacks ? packSkeletons.map((_, index) => (
+                  <div className="product-card-skeleton" key={`pack-skeleton-${index}`} aria-hidden="true">
+                    <div className="skeleton product-card-skeleton__media"></div>
+                    <div className="product-card-skeleton__body">
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--tag"></div>
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--title"></div>
+                      <div className="skeleton product-card-skeleton__line"></div>
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--short"></div>
+                    </div>
+                  </div>
+                )) : packs.length > 0 ?
                   packs.map((pack) => (
                   <ProductCard key={pack.id} product={pack} onView={openProductModal} />
                   )) :

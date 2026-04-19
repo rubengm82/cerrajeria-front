@@ -326,6 +326,8 @@
 
 .promo-banner,
 .contact-banner {
+  position: relative;
+  overflow: hidden;
   display: flex;
   width: 100%;
   align-items: center;
@@ -336,7 +338,18 @@
 .promo-banner {
   padding: 2.5rem 1rem;
 
+  &::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 0 32%, rgb(255 255 255 / 0.22) 44%, transparent 56% 100%);
+    content: "";
+    transform: translateX(-70%);
+    animation: shop-banner-sheen 5s ease-in-out infinite;
+  }
+
   &__text {
+    position: relative;
+    z-index: 1;
     font-family: sans-serif;
     font-size: clamp(1.125rem, 3vw, 1.5rem);
     font-style: italic;
@@ -419,6 +432,17 @@
   }
 }
 
+@keyframes shop-banner-sheen {
+  0%,
+  35% {
+    transform: translateX(-70%);
+  }
+
+  100% {
+    transform: translateX(70%);
+  }
+}
+
 @media (min-width: 640px) {
   .hero-box {
     &__line--nowrap {
@@ -481,6 +505,7 @@
   .hero-orbit__outer-ring,
   .hero-orbit__items,
   .hero-orbit__card,
+  .promo-banner::before,
   .shop-card-reveal {
     animation: none;
   }

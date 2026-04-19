@@ -5,12 +5,13 @@ import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import ProductDetailModal from '../components/ProductDetailModal'
-import LoadingAnimation from '../components/LoadingAnimation'
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
 import '../../scss/main_shop.scss'
 
+const productSkeletons = Array.from({ length: 4 })
+const categorySkeletons = Array.from({ length: 3 })
 
 function Shop() {
   const navigate = useNavigate()
@@ -41,10 +42,6 @@ function Shop() {
     staleTime: 1000 * 60 * 5,
     retry: 1,
   });
-
-  if (isLoadingProducts || isLoadingCategories) {
-    return <LoadingAnimation />
-  }
 
   const openProductModal = async (product) => {
     try {
@@ -139,7 +136,17 @@ function Shop() {
             </div>
 
             <div className="products-grid">
-              { importantProducts && importantProducts.length > 0 ? importantProducts.map((product, index) => (
+              {isLoadingProducts ? productSkeletons.map((_, index) => (
+                <div className="product-card-skeleton" key={`featured-product-skeleton-${index}`} aria-hidden="true">
+                  <div className="skeleton product-card-skeleton__media"></div>
+                  <div className="product-card-skeleton__body">
+                    <div className="skeleton product-card-skeleton__line product-card-skeleton__line--tag"></div>
+                    <div className="skeleton product-card-skeleton__line product-card-skeleton__line--title"></div>
+                    <div className="skeleton product-card-skeleton__line"></div>
+                    <div className="skeleton product-card-skeleton__line product-card-skeleton__line--short"></div>
+                  </div>
+                </div>
+              )) : importantProducts && importantProducts.length > 0 ? importantProducts.map((product, index) => (
                 <div className="shop-card-reveal" key={product.id} style={{ '--reveal-delay': `${Math.min(index, 5) * 70}ms` }}>
                   <ProductCard product={product} onView={openProductModal} />
                 </div>
@@ -177,7 +184,11 @@ function Shop() {
           </div>
 
           <div className="categories-grid">
-            {importantCategories && importantCategories.length > 0 ? importantCategories.map((category, index) => (
+            {isLoadingCategories ? categorySkeletons.map((_, index) => (
+              <div className="category-card-skeleton skeleton" key={`featured-category-skeleton-${index}`} aria-hidden="true">
+                <div className="skeleton category-card-skeleton__line"></div>
+              </div>
+            )) : importantCategories && importantCategories.length > 0 ? importantCategories.map((category, index) => (
               <div className="shop-card-reveal" key={category.id} style={{ '--reveal-delay': `${Math.min(index, 5) * 70}ms` }}>
                 <CategoryCard category={category} />
               </div>

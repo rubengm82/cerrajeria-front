@@ -221,6 +221,45 @@
   }
 }
 
+.product-card-skeleton {
+  overflow: hidden;
+  border-width: 1px;
+  border-radius: 1rem;
+  background: var(--color-base-100);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+
+  &__media {
+    width: 100%;
+    height: clamp(10rem, 15vw, 14rem);
+    border-radius: 0;
+  }
+
+  &__body {
+    display: grid;
+    gap: 0.65rem;
+    padding: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  &__line {
+    height: 0.9rem;
+    width: 100%;
+
+    &--tag {
+      width: 42%;
+      height: 0.75rem;
+    }
+
+    &--title {
+      width: 78%;
+      height: 1.25rem;
+    }
+
+    &--short {
+      width: 58%;
+    }
+  }
+}
+
 @media (min-width: 640px) {
   .product-card {
     &__action--view {

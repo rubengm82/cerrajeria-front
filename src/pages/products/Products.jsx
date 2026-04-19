@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
 import { getProducts } from "../../api/products_api"
-import LoadingAnimation from "../../components/LoadingAnimation"
 import Notifications from "../../components/Notifications"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
@@ -11,6 +10,8 @@ import { HiOutlineAdjustmentsHorizontal, HiXMark, HiOutlineFunnel } from "react-
 import { getCategories } from "../../api/categories_api";
 import { getFeatures, getFeatureTypes } from "../../api/features_api";
 import '../../../scss/main_shop.scss'
+
+const productSkeletons = Array.from({ length: 8 })
 
 function Products() {
   const location = useLocation()
@@ -149,7 +150,7 @@ function Products() {
   });
 
 
-  return loading ? <LoadingAnimation /> : (
+  return (
     <div className='products-page'>
       {notification && (
         <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)} />
@@ -169,10 +170,10 @@ function Products() {
 
             <div className="products-top__actions">
               <p className="products-top__count text-base-400">
-                Mostrant {filteredProducts.length} productes
+                {loading ? "Carregant productes" : `Mostrant ${filteredProducts.length} productes`}
               </p>
 
-              <button type="button" className="btn products-top__filters-button" onClick={() => document.getElementById("products-filters-modal").showModal()} aria-label="Obrir filtres de productes">
+              <button type="button" className="btn products-top__filters-button" disabled={loading} onClick={() => document.getElementById("products-filters-modal").showModal()} aria-label="Obrir filtres de productes">
                 <HiOutlineAdjustmentsHorizontal className="filters-box__icon" aria-hidden="true" />
                 Filtres
               </button>
@@ -182,7 +183,17 @@ function Products() {
           <div className="products-layout">
             <div>
               <div className="products-list">
-                { filteredProducts.length > 0 ?
+                {loading ? productSkeletons.map((_, index) => (
+                  <div className="product-card-skeleton" key={`product-skeleton-${index}`} aria-hidden="true">
+                    <div className="skeleton product-card-skeleton__media"></div>
+                    <div className="product-card-skeleton__body">
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--tag"></div>
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--title"></div>
+                      <div className="skeleton product-card-skeleton__line"></div>
+                      <div className="skeleton product-card-skeleton__line product-card-skeleton__line--short"></div>
+                    </div>
+                  </div>
+                )) : filteredProducts.length > 0 ?
                   filteredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} onView={openProductModal} />
                   )) :
@@ -191,7 +202,7 @@ function Products() {
             </div>
           </div>
 
-          <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle">
+          {!loading && <dialog id="products-filters-modal" className="modal modal-bottom sm:modal-middle">
             <div className="modal-box filters-modal">
               <div className="filters-box">
                 <div className="filters-box__head">
@@ -279,7 +290,7 @@ function Products() {
                 </div>
               </div>
             </div>
-          </dialog>
+          </dialog>}
 
         </div>
       </div>

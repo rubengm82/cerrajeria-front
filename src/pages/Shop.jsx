@@ -67,8 +67,9 @@ function Shop() {
     <div className="shop-home">
       <div className='shop-home__top'>
         <div className="shop-home__container shop-home__container--hero">
-          <section className="hero-box bg-base-200">
+          <section className="hero-box">
             <div className="hero-box__content">
+              <p className="hero-box__eyebrow text-primary">Ferreteria professional</p>
               <h1 id="shop-hero-title" className="hero-box__title">
                 <span className="hero-box__line hero-box__line--nowrap">
                   El millor <span className="text-primary">servei</span>
@@ -138,8 +139,10 @@ function Shop() {
             </div>
 
             <div className="products-grid">
-              { importantProducts && importantProducts.length > 0 ? importantProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onView={openProductModal} />
+              { importantProducts && importantProducts.length > 0 ? importantProducts.map((product, index) => (
+                <div className="shop-card-reveal" key={product.id} style={{ '--reveal-delay': `${Math.min(index, 5) * 70}ms` }}>
+                  <ProductCard product={product} onView={openProductModal} />
+                </div>
               )) :
               <p className='shop-empty'>Actualment no hi ha productes destacats</p>
               }
@@ -174,8 +177,10 @@ function Shop() {
           </div>
 
           <div className="categories-grid">
-            {importantCategories && importantCategories.length > 0 ? importantCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
+            {importantCategories && importantCategories.length > 0 ? importantCategories.map((category, index) => (
+              <div className="shop-card-reveal" key={category.id} style={{ '--reveal-delay': `${Math.min(index, 5) * 70}ms` }}>
+                <CategoryCard category={category} />
+              </div>
             )) : (
               <p className="shop-empty">Actualment no hi ha categories destacades</p>
             )}

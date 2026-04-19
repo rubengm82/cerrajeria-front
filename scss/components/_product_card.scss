@@ -6,6 +6,7 @@
   border-radius: 1rem;
   background: #fff;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 
   &--interactive {
     cursor: pointer;
@@ -76,16 +77,21 @@
   }
 
   &__action {
-    padding: 1rem;
-    border-radius: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 0;
+    border-radius: 5rem;
     cursor: pointer;
     transition: all 0.5s ease;
   }
 
   &__action--view {
-    &:hover {
-      background: oklch(100% 0 0);
-    }
+    padding: 0.5rem 0.75rem;
+    background: var(--color-base-100);
+    color: var(-color-base-400) ;
+
   }
 
   &__action--buy {
@@ -99,6 +105,12 @@
   &__action-icon {
     width: 1.5rem;
     height: 1.5rem;
+  }
+
+  &__action-text {
+    font-size: 0.875rem;
+    line-height: 1;
+    white-space: nowrap;
   }
 
   &__body {
@@ -184,6 +196,14 @@
   &:hover,
   &:active,
   &:focus-within {
+    border-color: color-mix(in srgb, var(--color-primary) 50%, var(--color-base-300));
+    box-shadow: 0 1rem 2.5rem rgb(10 13 16 / 0.12);
+    transform: translateY(-0.35rem);
+
+    .product-card__name {
+      color: var(--color-primary);
+    }
+
     .product-card__discount {
       filter: blur(2px);
     }
@@ -217,6 +237,25 @@
   .product-card {
     &__action--view {
       display: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card__discount,
+  .product-card__image,
+  .product-card__empty,
+  .product-card__actions,
+  .product-card__action {
+    transition: none;
+  }
+
+  .product-card {
+    &:hover,
+    &:active,
+    &:focus-within {
+      transform: none;
     }
   }
 }

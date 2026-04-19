@@ -1,10 +1,10 @@
 .shop-home {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding-top: 1rem;
 
   &__top,
   &__categories {
@@ -15,11 +15,28 @@
     justify-content: center;
   }
 
+  &__top {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 34%),
+        radial-gradient(circle at 86% 16%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 24rem);
+      content: "";
+    }
+  }
+
   &__categories {
     padding: 1.5rem 1rem;
   }
 
   &__container {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 96rem;
   }
@@ -43,10 +60,19 @@
   gap: 2.5rem;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr));
   align-items: center;
+  animation: shop-rise 650ms ease both;
 
   &__content {
     max-width: 56rem;
     padding-top: 1rem;
+    animation: shop-slide-up 700ms 120ms ease both;
+  }
+
+  &__eyebrow {
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
   }
 
   &__title {
@@ -82,6 +108,7 @@
   &__image-wrap {
     width: 100%;
     justify-self: end;
+    animation: shop-image-in 750ms 220ms ease both;
   }
 
   &__image {
@@ -178,6 +205,16 @@
   gap: clamp(0.75rem, 2vw, 1.25rem);
 }
 
+.shop-card-reveal {
+  --reveal-delay: 0ms;
+  min-width: 0;
+  animation: shop-slide-up 620ms var(--reveal-delay) ease both;
+
+  > * {
+    height: 100%;
+  }
+}
+
 .categories-grid {
   margin-top: 2rem;
   display: grid;
@@ -234,6 +271,42 @@
   }
 }
 
+@keyframes shop-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shop-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shop-image-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
 @media (min-width: 640px) {
   .hero-box {
     &__line--nowrap {
@@ -286,5 +359,18 @@
 
   .feature-list__item {
     gap: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-box,
+  .hero-box__content,
+  .hero-box__image-wrap,
+  .shop-card-reveal {
+    animation: none;
+  }
+
+  .shop-card-reveal > * {
+    transition: none;
   }
 }

@@ -52,16 +52,11 @@ function ProductCard({product, onView}) {
              
             </button> */}
 
-            <button
-              type="button"
-              className='product-card__action product-card__action--view bg-base-100/80'
-              onClick={(event) => {
+            <button type="button" className='product-card__action product-card__action--view' onClick={(event) => {
                 event.stopPropagation()
-                handleCardClick()
-              }}
-              aria-label={actionLabel}
-            >
+                handleCardClick()}} aria-label={actionLabel}>
                <HiOutlineEye className="product-card__action-icon" aria-hidden="true"/>
+               <span className="product-card__action-text">Visualitzar</span>
             </button>
           </div>
         </div>

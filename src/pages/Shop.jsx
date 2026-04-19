@@ -1,5 +1,5 @@
 import { HiArrowRight } from 'react-icons/hi'
-import { FiHeadphones, FiShield, FiTruck } from 'react-icons/fi'
+import { FiHeadphones, FiKey, FiLock, FiSettings, FiShield, FiTool, FiTruck } from 'react-icons/fi'
 import { getImportantProducts, getProduct } from '../api/products_api'
 import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
@@ -66,7 +66,7 @@ function Shop() {
         <div className="shop-home__container shop-home__container--hero">
           <section className="hero-box">
             <div className="hero-box__content">
-              <p className="hero-box__eyebrow text-primary">Ferreteria professional</p>
+              <p className="hero-box__eyebrow text-primary">Serralleria professional</p>
               <h1 id="shop-hero-title" className="hero-box__title">
                 <span className="hero-box__line hero-box__line--nowrap">
                   El millor <span className="text-primary">servei</span>
@@ -75,7 +75,7 @@ function Shop() {
               </h1>
 
               <p className="hero-box__text text-base-400">
-                Descobreix la nostra selecció d'eines i materials de ferreteria professional. Qualitat garantida al millor preu.
+                Descobreix la nostra selecció d'eines i materials de serralleria professional. Qualitat garantida al millor preu.
               </p>
 
               <div className="hero-box__actions">
@@ -92,7 +92,40 @@ function Shop() {
             </div>
 
             <div className="hero-box__image-wrap">
-              <img src="/banner.jpg" alt="Serraller treballant en una porta" fetchPriority="high" className="hero-box__image"/>
+              <div className="hero-orbit" aria-label="Serveis de serralleria professional">
+                <div className="hero-orbit__outer-ring" aria-hidden="true"></div>
+                <div className="hero-orbit__inner-ring" aria-hidden="true"></div>
+
+                <div className="hero-orbit__center bg-primary text-base-100" aria-hidden="true">
+                  <FiKey className="hero-orbit__center-icon" />
+                </div>
+
+                <div className="hero-orbit__items">
+                  <div className="hero-orbit__item hero-orbit__item--unlock">
+                    <div className="hero-orbit__card tooltip" data-tip="Eines professionals" tabIndex={0} aria-label="Eines professionals">
+                      <FiTool />
+                    </div>
+                  </div>
+
+                  <div className="hero-orbit__item hero-orbit__item--lock">
+                    <div className="hero-orbit__card tooltip" data-tip="Panys i seguretat" tabIndex={0} aria-label="Panys i seguretat">
+                      <FiLock />
+                    </div>
+                  </div>
+
+                  <div className="hero-orbit__item hero-orbit__item--settings">
+                    <div className="hero-orbit__card tooltip" data-tip="Solucions a mida" tabIndex={0} aria-label="Solucions a mida">
+                      <FiSettings />
+                    </div>
+                  </div>
+
+                  <div className="hero-orbit__item hero-orbit__item--shield">
+                    <div className="hero-orbit__card tooltip" data-tip="Garantia de qualitat" tabIndex={0} aria-label="Garantia de qualitat">
+                      <FiShield />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 

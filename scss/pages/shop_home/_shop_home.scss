@@ -23,9 +23,7 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(120deg, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 34%),
-        radial-gradient(circle at 86% 16%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 24rem);
+
       content: "";
     }
   }
@@ -110,14 +108,112 @@
     justify-self: end;
     animation: shop-image-in 750ms 220ms ease both;
   }
+}
 
-  &__image {
-    display: block;
+.hero-orbit {
+  position: relative;
+  width: min(100%, 32rem);
+  aspect-ratio: 1;
+  min-height: clamp(18rem, 32vw, 26rem);
+  margin-inline: auto;
+
+  &__outer-ring,
+  &__inner-ring {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  &__outer-ring {
+    inset: 8%;
+    border: 2px dashed var(--color-primary);
+    animation: shop-orbit-spin 34s linear infinite;
+  }
+
+  &__inner-ring {
+    inset: 24%;
+    border: 1px solid var(--color-primary);
+  }
+
+  &__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: clamp(7rem, 15vw, 11rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 0 1.25rem 2.5rem rgb(10 13 16 / 0.16);
+    transform: translate(-50%, -50%);
+  }
+
+  &__center-icon {
+    width: 46%;
+    height: 46%;
+  }
+
+  &__items {
+    position: absolute;
+    inset: 8%;
+    z-index: 4;
+    border-radius: 50%;
+    animation: shop-orbit-spin 28s linear infinite;
+  }
+
+  &__item {
+    --item-angle: 0deg;
+    --card-angle: 0deg;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: clamp(3rem, 6vw, 4rem);
+    aspect-ratio: 1;
+    margin: calc(clamp(3rem, 6vw, 4rem) / -2);
+  }
+
+  &__item--unlock {
+    --item-angle: 235deg;
+    --card-angle: -235deg;
+    transform: rotate(var(--item-angle)) translateX(clamp(8.6rem, 18vw, 13rem));
+  }
+
+  &__item--lock {
+    --item-angle: 340deg;
+    --card-angle: -340deg;
+    transform: rotate(var(--item-angle)) translateX(clamp(8.6rem, 18vw, 13rem));
+  }
+
+  &__item--settings {
+    --item-angle: 66deg;
+    --card-angle: -66deg;
+    transform: rotate(var(--item-angle)) translateX(clamp(8.6rem, 18vw, 13rem));
+  }
+
+  &__item--shield {
+    --item-angle: 164deg;
+    --card-angle: -164deg;
+    transform: rotate(var(--item-angle)) translateX(clamp(8.6rem, 18vw, 13rem));
+  }
+
+  &__card {
+    display: grid;
+    place-items: center;
     width: 100%;
-    max-width: 100%;
-    height: clamp(18rem, 30vw, 24rem);
-    border-radius: 0.5rem;
-    object-fit: cover;
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--color-base-300) 38%, transparent);
+    border-radius: 50%;
+    background: var(--color-base-100);
+    color: var(--color-primary);
+    box-shadow: 0 0.7rem 1.5rem rgb(10 13 16 / 0.12);
+    animation: shop-orbit-counter-spin 28s linear infinite;
+    cursor: help;
+
+    svg {
+      width: 42%;
+      height: 42%;
+    }
   }
 }
 
@@ -307,6 +403,22 @@
   }
 }
 
+@keyframes shop-orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shop-orbit-counter-spin {
+  from {
+    transform: rotate(var(--card-angle));
+  }
+
+  to {
+    transform: rotate(calc(var(--card-angle) - 360deg));
+  }
+}
+
 @media (min-width: 640px) {
   .hero-box {
     &__line--nowrap {
@@ -366,8 +478,15 @@
   .hero-box,
   .hero-box__content,
   .hero-box__image-wrap,
+  .hero-orbit__outer-ring,
+  .hero-orbit__items,
+  .hero-orbit__card,
   .shop-card-reveal {
     animation: none;
+  }
+
+  .hero-orbit__card {
+    transform: rotate(var(--card-angle));
   }
 
   .shop-card-reveal > * {

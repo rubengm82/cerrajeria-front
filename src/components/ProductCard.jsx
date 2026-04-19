@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { HiOutlinePhoto, HiOutlineEye } from "react-icons/hi2";
 
-function ProductCard({product, onView}) {
+function ProductCard({ product, onView }) {
   const isPack = product?.total_price != null
-  const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
+  const mainImage = product?.images?.find((image) => image.is_important === 1) || product?.images?.[0]
   const imagePath = mainImage?.path
   const handleCardClick = () => onView?.(product)
   const currentPrice = isPack 

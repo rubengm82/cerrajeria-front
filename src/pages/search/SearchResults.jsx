@@ -33,22 +33,28 @@ function SearchResults() {
   const [notification, setNotification] = useState(null)
 
   // Fetch features and feature types for filter modal
-  const { data: featuresData, isLoading: isLoadingFeatures } = useQuery({
+  const { data: featuresData } = useQuery({
     queryKey: ['features'],
-    queryFn: () => getFeatures(),
+    queryFn: async () => {
+      const res = await getFeatures()
+      return res.data
+    },
     staleTime: 1000 * 60 * 5,
     retry: 1,
   })
 
-  const { data: featuresTypesData, isLoading: isLoadingFeatureTypes } = useQuery({
+  const { data: featuresTypesData } = useQuery({
     queryKey: ['featureTypes'],
-    queryFn: () => getFeatureTypes(),
+    queryFn: async () => {
+      const res = await getFeatureTypes()
+      return res.data
+    },
     staleTime: 1000 * 60 * 5,
     retry: 1,
   })
 
-  const features = featuresData?.data || []
-  const featuresTypes = featuresTypesData?.data || []
+  const features = Array.isArray(featuresData) ? featuresData : []
+  const featuresTypes = Array.isArray(featuresTypesData) ? featuresTypesData : []
 
   const { data: searchData, isLoading, error } = useQuery({
     queryKey: ['search', query, filters],
@@ -148,7 +154,7 @@ function SearchResults() {
         ? await getProduct(item.id)
         : await getPack(item.id)
       setSelectedItem(response.data)
-    } catch (error) {
+    } catch {
       setSelectedItem(item)
     } finally {
       setIsLoadingItem(false)

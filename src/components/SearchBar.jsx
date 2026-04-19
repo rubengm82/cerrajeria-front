@@ -42,12 +42,17 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
     }
   }
 
-  const handleResultClick = (type, id) => {
-    // Navegar a la página de resultados de búsqueda
-    // El usuario verá todos los resultados y podrá hacer clic en el item deseado
+  const handleResultClick = () => {
     navigate(`/search?q=${encodeURIComponent(query)}`)
     setIsOpen(false)
     setQuery('')
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleResultClick()
+    }
   }
 
   const handleFocus = () => {
@@ -111,10 +116,8 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
                         <button
                           type="button"
                           className="search-dropdown__item"
-                          onClick={() => handleResultClick('product', product.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleResultClick('product', product.id)
-                          }}
+                          onClick={handleResultClick}
+                          onKeyDown={handleKeyDown}
                         >
                           <div className="search-dropdown__item-image-wrap">
                             {product.images?.[0]?.path ? (
@@ -165,10 +168,8 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
                         <button
                           type="button"
                           className="search-dropdown__item search-dropdown__item--pack"
-                          onClick={() => handleResultClick('pack', pack.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleResultClick('pack', pack.id)
-                          }}
+                          onClick={handleResultClick}
+                          onKeyDown={handleKeyDown}
                         >
                           <div className="search-dropdown__item-image-wrap">
                             {pack.images?.[0]?.path ? (
@@ -209,17 +210,17 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
                 </div>
               )}
 
-              {/* Footer - Ver todos */}
-              <div className="search-dropdown__footer">
-                <button
-                  type="button"
-                  className="search-dropdown__see-all"
-                  onClick={() => handleSubmit({ preventDefault: () => {} })}
-                >
-                  Ver todos los resultados para "{query}"
-                  <HiOutlineEye />
-                </button>
-              </div>
+               {/* Footer - Ver todos */}
+               <div className="search-dropdown__footer">
+                 <button
+                   type="button"
+                   className="search-dropdown__see-all"
+                   onClick={handleResultClick}
+                 >
+                   Ver todos los resultados para "{query}"
+                   <HiOutlineEye />
+                 </button>
+               </div>
             </>
           ) : (
             <div className="search-dropdown__empty">

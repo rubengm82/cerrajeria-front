@@ -73,11 +73,11 @@ function Products() {
     retry: 1,
   });
 
-  // Estados con datos de cache o fallback
-  const products = productsData || [];
-  const categories = categoriesData || [];
-  const features = featuresData || [];
-  const featuresTypes = featuresTypesData || [];
+   // Estados con datos de cache o fallback
+   const products = productsData || []
+   const categories = categoriesData || []
+   const features = Array.isArray(featuresData) ? featuresData : (featuresData?.data || [])
+   const featuresTypes = Array.isArray(featuresTypesData) ? featuresTypesData : (featuresTypesData?.data || [])
 
   const loading = isLoadingProducts || isLoadingCategories || isLoadingFeatures || isLoadingFeaturesTypes;
 

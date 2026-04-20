@@ -67,9 +67,18 @@ function Shop() {
           <section className="hero-box">
             <div className="hero-box__content">
               <p className="hero-box__eyebrow text-primary">Serralleria professional</p>
-              <h1 id="shop-hero-title" className="hero-box__title">
-                <span className="hero-box__line hero-box__line--nowrap">
-                  El millor <span className="text-primary">servei</span>
+              <h1 id="shop-hero-title" className="hero-box__title text-5xl lg:text-7xl font-black leading-tight tracking-tighter">
+                <span className="hero-box__line hero-box__line--nowrap flex flex-wrap items-center gap-x-3 md:gap-x-4">
+                  <span>El millor</span>
+                  <span className="text-rotate text-primary duration-20000 inline-grid px-2">
+                    <span>
+                      <span>servei</span>
+                      <span>preu</span>
+                      <span>material</span>
+                      <span>suport</span>
+                      <span>estil</span>
+                    </span>
+                  </span>
                 </span>
                 <span className="hero-box__line">en un sol lloc</span>
               </h1>
@@ -92,6 +101,9 @@ function Shop() {
             </div>
 
             <div className="hero-box__image-wrap">
+              <img src="/banner.png" alt="Banner de serralleria professional" className='block w-[min(100%,32rem)] min-h-[clamp(18rem,32vw,26rem)] aspect-square mx-auto object-cover rounded-2xl' />
+
+              {/*
               <div className="hero-orbit" aria-label="Serveis de serralleria professional">
                 <div className="hero-orbit__outer-ring" aria-hidden="true"></div>
                 <div className="hero-orbit__inner-ring" aria-hidden="true"></div>
@@ -126,6 +138,7 @@ function Shop() {
                   </div>
                 </div>
               </div>
+              */}
             </div>
           </section>
 
@@ -196,8 +209,18 @@ function Shop() {
         </div>
       </div>
       {/* Banner naranja */}
-      <div className='promo-banner bg-primary' aria-label="Missatge destacat">
-        <h3 className='promo-banner__text text-base-100'>La clau de la teva tranquil·litat, a un sol clic</h3>
+      <div className='promo-banner bg-primary h-48 grid place-items-center' aria-label="Missatge destacat">
+        <h3 className='promo-banner__text m-0 h-full w-full flex items-center justify-center px-4 text-base-100 font-black text-center leading-tight'>
+          <span className="promo-banner__rotator">
+            <span>
+              <span className="promo-banner__phrase">"La clau de la teva tranquil·litat, a un sol clic"</span>
+              <span className="promo-banner__phrase">"Seguretat per a la teva llar, sense esperes"</span>
+              <span className="promo-banner__phrase">"Solucions de serralleria a mida per a tu"</span>
+              <span className="promo-banner__phrase">"Qualitat i confiança en cada pany"</span>
+              <span className="promo-banner__phrase">"El teu expert de confiança, sempre a prop"</span>
+            </span>
+          </span>
+        </h3>
       </div>
 
       {/* Categorias */}

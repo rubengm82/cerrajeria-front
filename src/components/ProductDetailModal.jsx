@@ -258,11 +258,11 @@ function ProductDetailModal({
                 {isPack ? "Productes inclosos" : "Especificacions"}
               </h2>
 
-              {isLoading ? (
-                <div className="flex justify-center py-6">
-                  <LoadingAnimation />
-                </div>
-              ) : isPack ? (
+               {isLoading ? (
+                 <div className="flex justify-center py-6">
+                   <LoadingAnimation heightClass="h-20" />
+                 </div>
+               ) : isPack ? (
                 packProducts.length > 0 ? (
                   <div className="product-pack-show__table">
                     {packProducts.map((p) => (

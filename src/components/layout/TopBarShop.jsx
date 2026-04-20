@@ -2,11 +2,45 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3, HiOutlineEye } from "react-icons/hi2";
 import SearchBar from '../SearchBar'
+import ProductDetailModal from '../ProductDetailModal'
+import { getProduct } from '../../api/products_api'
+import { getPack } from '../../api/packs_api'
+import { useState } from 'react'
 
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
   const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/dashboard' : '/dashboard'
+
+  // Estado para el modal de producto global (desde búsqueda)
+  const [globalProduct, setGlobalProduct] = useState(null)
+  const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false)
+  const [isLoadingGlobal, setIsLoadingGlobal] = useState(false)
+  const [globalProductType, setGlobalProductType] = useState(null)
+
+  const handleProductSelect = async (id, type) => {
+    setIsLoadingGlobal(true)
+    setIsGlobalModalOpen(true)
+    try {
+      const response = type === 'product' ? await getProduct(id) : await getPack(id)
+      // La API devuelve { data: ... } o directamente el objeto
+      let productData = response.data
+      setGlobalProduct(productData)
+      setGlobalProductType(type)
+    } catch (error) {
+      console.error('Error fetching product/pack for modal:', error)
+      setGlobalProduct(null)
+      setIsGlobalModalOpen(false)
+    } finally {
+      setIsLoadingGlobal(false)
+    }
+  }
+
+  const closeGlobalModal = () => {
+    setIsGlobalModalOpen(false)
+    setGlobalProduct(null)
+    setGlobalProductType(null)
+  }
 
   return (
     <div className="drawer">
@@ -22,10 +56,10 @@ export default function TopBarShop() {
               Serralleria Solidària
             </Link>
             
-            {/* Barra de búsqueda - Visible en sm y superior, oculta en mobilexs */}
-            <div className="hidden sm:block w-32 md:w-64 lg:w-80 xl:w-96">
-              <SearchBar />
-            </div>
+             {/* Barra de búsqueda - Visible en sm y superior, oculta en mobilexs */}
+             <div className="hidden sm:block w-32 md:w-64 lg:w-80 xl:w-96">
+               <SearchBar onItemSelect={handleProductSelect} />
+             </div>
           </div>
 
           <nav className="navbar-center hidden lg:flex" aria-label="Navegació principal">
@@ -90,6 +124,16 @@ export default function TopBarShop() {
           )}
         </ul>
       </div>
+
+      {/* Modal global de detalle de producto (desde búsqueda) */}
+      <ProductDetailModal
+        key={globalProduct?.id || 'no-global-product'}
+        product={globalProduct}
+        isOpen={isGlobalModalOpen}
+        onClose={closeGlobalModal}
+        entityType={globalProductType}
+        isLoading={isLoadingGlobal}
+      />
     </div>
   )
 }

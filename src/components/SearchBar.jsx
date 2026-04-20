@@ -6,7 +6,7 @@ import { HiOutlineEye, HiSparkles, HiSearch } from 'react-icons/hi'
 import { FiPackage } from 'react-icons/fi'
 import { BiCube } from 'react-icons/bi'
 
-const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
+const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItemSelect }) => {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
@@ -42,7 +42,19 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
     }
   }
 
-  const handleResultClick = () => {
+  const handleResultClick = (event) => {
+    const button = event.currentTarget
+    const id = button.dataset.id
+    const type = button.dataset.type
+
+    if (id && type && onItemSelect) {
+      onItemSelect(id, type)
+      setIsOpen(false)
+      setQuery('')
+      return
+    }
+
+    // Fallback: navigate to search page (for "Ver todos" button)
     navigate(`/search?q=${encodeURIComponent(query)}`)
     setIsOpen(false)
     setQuery('')
@@ -51,7 +63,7 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
-      handleResultClick()
+      handleResultClick(e)
     }
   }
 
@@ -116,6 +128,8 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
                         <button
                           type="button"
                           className="search-dropdown__item"
+                          data-id={product.id}
+                          data-type="product"
                           onClick={handleResultClick}
                           onKeyDown={handleKeyDown}
                         >
@@ -168,6 +182,8 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs..." }) => {
                         <button
                           type="button"
                           className="search-dropdown__item search-dropdown__item--pack"
+                          data-id={pack.id}
+                          data-type="pack"
                           onClick={handleResultClick}
                           onKeyDown={handleKeyDown}
                         >

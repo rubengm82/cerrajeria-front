@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { quickSearch } from '../api/search_api'
-import { HiOutlineEye, HiSparkles, HiSearch } from 'react-icons/hi'
+import { HiSparkles, HiSearch } from 'react-icons/hi'
 import { FiPackage } from 'react-icons/fi'
 import { BiCube } from 'react-icons/bi'
 
@@ -234,7 +234,6 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
                       onClick={handleResultClick}
                     >
                       Veure tots els resultats per a "{query}"
-                      <HiOutlineEye />
                     </button>
                </div>
             </>

@@ -145,17 +145,32 @@ function SearchResults() {
   }, [filters, updateFilters])
 
   const openItemModal = async (item, type) => {
-    setIsModalOpen(true)
+    // Set item immediately (search result data)
+    setSelectedItem(item)
     setSelectedType(type)
+    setIsModalOpen(true)
     setIsLoadingItem(true)
 
     try {
       const response = type === 'product'
         ? await getProduct(item.id)
         : await getPack(item.id)
-      setSelectedItem(response.data)
-    } catch {
-      setSelectedItem(item)
+
+      // Handle possible envelope response { data: ... }
+      let newItem = response.data
+      if (newItem?.data) {
+        newItem = newItem.data
+      }
+
+      // For products from search, preserve search-result features ONLY if they exist and have valid entries
+      if (type === 'product' && item.features && Array.isArray(item.features) && item.features.length > 0) {
+        newItem = { ...newItem, features: item.features }
+      }
+
+      setSelectedItem(newItem)
+    } catch (error) {
+      console.error('Error fetching item details:', error)
+      // Keep original item (already set)
     } finally {
       setIsLoadingItem(false)
     }

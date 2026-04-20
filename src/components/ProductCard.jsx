@@ -5,7 +5,16 @@ function ProductCard({ product, onView }) {
   const isPack = product?.total_price != null
   const mainImage = product?.images?.find((image) => image.is_important === 1) || product?.images?.[0]
   const imagePath = mainImage?.path
-  const handleCardClick = () => onView?.(product)
+  const handleCardClick = (event) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+      if (event.nativeEvent) {
+        event.nativeEvent.stopImmediatePropagation()
+      }
+    }
+    onView?.(product)
+  }
   const currentPrice = isPack 
     ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
     : product.discount > 0 
@@ -56,26 +65,23 @@ function ProductCard({ product, onView }) {
              
             </button> */}
 
-            <button
-              type="button"
+            <div
               className='product-card__action product-card__action--view bg-base-100/80'
-              onClick={(event) => {
-                event.stopPropagation()
-                handleCardClick()
-              }}
+              onClick={handleCardClick}
+              onKeyDown={handleCardKeyDown}
+              role="button"
+              tabIndex={0}
               aria-label={actionLabel}
             >
                <HiOutlineEye className="product-card__action-icon" aria-hidden="true"/>
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="product-card__body">
         <p className="product-card__category text-base-400">{isPack ? "Pack" : product.category?.name}</p>
-        <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()} aria-label={actionLabel}>
-          {product.name}
-        </Link>
+         <span className="product-card__name" role="button" tabIndex={0} onClick={handleCardClick} onKeyDown={handleCardKeyDown} aria-label={actionLabel}>{product.name}</span>
 
         <p id={productDescriptionId} className="product-card__desc text-base-300">
           {product.description || ''}

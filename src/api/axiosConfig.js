@@ -43,8 +43,8 @@ api.interceptors.response.use(
     }
 
     // Rutas públicas que no requieren autenticación
-    const publicRoutes = ['/', '/products', '/categories', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification']
-    const isPublicRoute = publicRoutes.some(route => currentPath === route || currentPath.startsWith('/categories/'))
+    const publicRoutes = ['/', '/products', '/packs', '/categories', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/resend-verification', '/search', '/custom-solutions']
+    const isPublicRoute = publicRoutes.some(route => currentPath === route || currentPath.startsWith('/categories/') || currentPath.startsWith('/packs/'))
 
     // Guardar el código de error en sessionStorage para mostrar la página correcta
     if (status) {

@@ -11,7 +11,7 @@ import { getCategories } from "../../api/categories_api";
 import { getFeatures, getFeatureTypes } from "../../api/features_api";
 import '../../../scss/main_shop.scss'
 
-const productSkeletons = Array.from({ length: 8 })
+const productSkeletons = Array.from({ length: 10 })
 
 function Products() {
   const location = useLocation()

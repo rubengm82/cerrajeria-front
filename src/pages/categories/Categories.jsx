@@ -5,7 +5,7 @@ import { getCategories } from "../../api/categories_api"
 import CategoryCard from "../../components/CategoryCard"
 import '../../../scss/main_shop.scss'
 
-const categorySkeletons = Array.from({ length: 6 })
+const categorySkeletons = Array.from({ length: 5 })
 
 function Categories() {
   // Caché para categorías

@@ -10,8 +10,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
 import '../../scss/main_shop.scss'
 
-const productSkeletons = Array.from({ length: 4 })
-const categorySkeletons = Array.from({ length: 3 })
+const productSkeletons = Array.from({ length: 5 })
+const categorySkeletons = Array.from({ length: 5 })
 
 function Shop() {
   const navigate = useNavigate()

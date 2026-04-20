@@ -7,7 +7,7 @@ import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import '../../../scss/main_shop.scss'
 
-const packSkeletons = Array.from({ length: 8 })
+const packSkeletons = Array.from({ length: 5 })
 
 function Packs() {
   const [selectedPack, setSelectedPack] = useState(null);

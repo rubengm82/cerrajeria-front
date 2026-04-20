@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { HiOutlineEnvelope, HiOutlineEye, HiOutlineEyeSlash, HiOutlineLockClosed } from 'react-icons/hi2'
 import { useAuth } from '../../context/AuthContext'
 import './SignIn.scss'
 
 function SignIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -28,16 +30,19 @@ function SignIn() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <form onSubmit={handleSubmit} className="card w-96 bg-base-100 shadow-xl p-6" aria-label="Formulari d'inici de sessió" aria-describedby={error ? "signin-error" : undefined}>
-        <h2 className="text-2xl font-bold text-center mb-4">Inicia sessió</h2>
+    <main className="auth-page" aria-labelledby="signin-title">
+      <form onSubmit={handleSubmit} className="auth-card" aria-label="Formulari d'inici de sessió" aria-describedby={error ? "signin-error" : "signin-description"}>
+        <header className="auth-card__header">
+          <h1 id="signin-title" className="auth-card__title">Benvingut de nou</h1>
+          <p id="signin-description" className="auth-card__subtitle">Inicia sessió per accedir de nou al teu compte</p>
+        </header>
         
         {error && 
-          <div className="mb-4">
-            <p id="signin-error" className="text-red-500 text-center mb-2">{error}</p>
+          <div className="auth-alert" role="alert">
+            <p id="signin-error">{error}</p>
             {error.includes('verificar') && (
-              <div className="text-center">
-                <Link to="/resend-verification" className="text-sm text-primary hover:underline">
+              <div className="auth-alert__action">
+                <Link to="/resend-verification" className="auth-link">
                   Reenviar correu de verificació
                 </Link>
               </div>
@@ -45,50 +50,68 @@ function SignIn() {
           </div>
         }
         
-        <input
-          type="email"
-          placeholder="Email"
-          className="input input-bordered w-full mb-3"
-          value={email}
-          onChange={event => setEmail(event.target.value)}
-          aria-label="Email"
-          required
-        />
+        <div className="auth-field">
+          <label className="auth-field__label" htmlFor="signin-email">Correu electrònic</label>
+          <div className="auth-field__control">
+            <HiOutlineEnvelope className="auth-field__icon" aria-hidden="true" />
+            <input
+              id="signin-email"
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+              autoComplete="email"
+              aria-label="Correu electrònic"
+              required
+            />
+          </div>
+        </div>
         
-        <input
-          type="password"
-          placeholder="Contrasenya"
-          className="input input-bordered w-full mb-4"
-          value={password}
-          onChange={event => setPassword(event.target.value)}
-          aria-label="Contrasenya"
-          required
-        />
-        
-        <button type="submit" className="btn btn-primary w-full mb-3">
+        <div className="auth-field">
+          <div className="auth-field__top">
+            <label className="auth-field__label" htmlFor="signin-password">Contrasenya</label>
+            <Link to="/forgot-password" className="auth-link auth-link--small">
+              Has oblidat la contrasenya?
+            </Link>
+          </div>
+          <div className="auth-field__control">
+            <HiOutlineLockClosed className="auth-field__icon" aria-hidden="true" />
+            <input
+              id="signin-password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Introdueix la contrasenya"
+              value={password}
+              onChange={event => setPassword(event.target.value)}
+              autoComplete="current-password"
+              aria-label="Contrasenya"
+              required
+            />
+            <button
+              type="button"
+              className="auth-field__toggle"
+              onClick={() => setShowPassword(current => !current)}
+              aria-label={showPassword ? 'Amagar la contrasenya' : 'Mostrar la contrasenya'}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? <HiOutlineEyeSlash aria-hidden="true" /> : <HiOutlineEye aria-hidden="true" />}
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" className="auth-button">
           Inicia sessió
         </button>
         
-        <button type="button" className="btn btn-ghost w-full" onClick={() => navigate('/')}>
-          Tornar
-        </button>
-        
-        <div className="mt-4 text-center">
-          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-            He oblidat la meva contrasenya
-          </Link>
-        </div>
-        
-        <div className="mt-2 text-center">
-          <p className="text-sm text-gray-500">
-            Encara no tens compte?{' '}
-            <Link to="/register" className="text-primary hover:underline">
-              Crear compte
+        <div className="auth-card__footer">
+          <p>
+            No tens un compte?{' '}
+            <Link to="/register" className="auth-link auth-link--strong">
+              Registra't
             </Link>
           </p>
         </div>
       </form>
-    </div>
+    </main>
   )
 }
 

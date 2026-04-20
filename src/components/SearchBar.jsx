@@ -6,7 +6,7 @@ import { HiOutlineEye, HiSparkles, HiSearch } from 'react-icons/hi'
 import { FiPackage } from 'react-icons/fi'
 import { BiCube } from 'react-icons/bi'
 
-const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItemSelect }) => {
+const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onItemSelect }) => {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
@@ -78,27 +78,27 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
       <form onSubmit={handleSubmit} className="search-bar-form">
         <div className="search-bar-input-container">
           <HiSearch className="search-bar-icon" aria-hidden="true" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={handleFocus}
-            placeholder={placeholder}
-            className="search-bar-input"
-            aria-label="Buscar productos"
-            aria-expanded={isOpen}
-            aria-autocomplete="list"
-            aria-controls="search-results-list"
-            autoComplete="off"
-          />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={handleFocus}
+              placeholder={placeholder}
+              className="search-bar-input"
+              aria-label="Cercar productes"
+              aria-expanded={isOpen}
+              aria-autocomplete="list"
+              aria-controls="search-results-list"
+              autoComplete="off"
+            />
           {query && (
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              className="search-bar-clear"
-              aria-label="Limpiar búsqueda"
-            >
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            className="search-bar-clear"
+            aria-label="Netejar cerca"
+          >
               ×
             </button>
           )}
@@ -111,17 +111,17 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
           {isLoading ? (
             <div className="search-dropdown__loading">
               <div className="loading-spinner"></div>
-              <span>Buscando...</span>
+              <span>Cercant...</span>
             </div>
           ) : hasResults ? (
             <>
               {/* Sección: Productos */}
               {results.products?.length > 0 && (
-                <div className="search-dropdown__section">
-                  <h3 className="search-dropdown__section-title">
-                    <HiSparkles className="search-dropdown__section-icon" />
-                    Productos
-                  </h3>
+               <div className="search-dropdown__section">
+                 <h3 className="search-dropdown__section-title">
+                   <HiSparkles className="search-dropdown__section-icon" />
+                   Productes
+                 </h3>
                   <ul className="search-dropdown__list">
                     {results.products.map((product) => (
                       <li key={`product-${product.id}`} role="option">
@@ -141,11 +141,11 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
                                 className="search-dropdown__item-image"
                                 loading="lazy"
                               />
-                            ) : (
-                              <div className="search-dropdown__item-placeholder">
-                                Sin imagen
-                              </div>
-                            )}
+                             ) : (
+                               <div className="search-dropdown__item-placeholder">
+                                 Sense imatge
+                               </div>
+                             )}
                           </div>
                           <div className="search-dropdown__item-content">
                             <span className="search-dropdown__item-title">
@@ -171,11 +171,11 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
 
               {/* Sección: Packs */}
               {results.packs?.length > 0 && (
-                <div className="search-dropdown__section">
-                  <h3 className="search-dropdown__section-title">
-                    <FiPackage className="search-dropdown__section-icon" />
-                    Packs
-                  </h3>
+               <div className="search-dropdown__section">
+                 <h3 className="search-dropdown__section-title">
+                   <FiPackage className="search-dropdown__section-icon" />
+                   Paquets
+                 </h3>
                   <ul className="search-dropdown__list">
                     {results.packs.map((pack) => (
                       <li key={`pack-${pack.id}`} role="option">
@@ -206,17 +206,17 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
                               {pack.name}
                             </span>
                             <span className="search-dropdown__item-meta">
-                              <span className="search-dropdown__badge search-dropdown__badge--pack">
-                                PACK
-                              </span>
+                               <span className="search-dropdown__badge search-dropdown__badge--pack">
+                                 PAQUET
+                               </span>
                                <span className="search-dropdown__price">
                                  {pack.price ? parseFloat(pack.price).toFixed(2) : '0.00'}€
                                </span>
-                              {pack.product_count && (
-                                <span className="search-dropdown__count">
-                                  {pack.product_count} productos
-                                </span>
-                              )}
+                               {pack.product_count && (
+                                 <span className="search-dropdown__count">
+                                   {pack.product_count} productes
+                                 </span>
+                               )}
                             </span>
                           </div>
                         </button>
@@ -228,24 +228,24 @@ const SearchBar = ({ placeholder = "Buscar productos, marcas o packs...", onItem
 
                {/* Footer - Ver todos */}
                <div className="search-dropdown__footer">
-                 <button
-                   type="button"
-                   className="search-dropdown__see-all"
-                   onClick={handleResultClick}
-                 >
-                   Ver todos los resultados para "{query}"
-                   <HiOutlineEye />
-                 </button>
+                    <button
+                      type="button"
+                      className="search-dropdown__see-all"
+                      onClick={handleResultClick}
+                    >
+                      Veure tots els resultats per a "{query}"
+                      <HiOutlineEye />
+                    </button>
                </div>
             </>
-          ) : (
-            <div className="search-dropdown__empty">
-              <p>No se encontraron resultados para "{query}"</p>
-              <span className="search-dropdown__empty-hint">
-                Intenta con otros términos o revisa la ortografía
-              </span>
-            </div>
-          )}
+           ) : (
+             <div className="search-dropdown__empty">
+               <p>No s'han trobat resultats per a "{query}"</p>
+               <span className="search-dropdown__empty-hint">
+                 Intenta amb altres termes o revisa l'ortografia
+               </span>
+             </div>
+           )}
         </div>
       )}
     </div>

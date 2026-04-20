@@ -258,30 +258,30 @@ function SearchResults() {
             </div>
           ) : (
             <>
-               {filteredProducts.length > 0 && (
-                 <section>
-                   <div className="search-results__section-header">
-                     <h2 className="search-results__section-title">Productes</h2>
-                   </div>
-                   <div className="search-results__grid">
-                     {filteredProducts.map(product => (
-                       <ProductCard
-                         key={product.id}
-                         product={product}
-                         onView={() => openItemModal(product, 'product')}
-                       />
-                     ))}
-                   </div>
-                 </section>
-               )}
+                {filteredProducts.length > 0 && (
+                  <section className="search-results__section">
+                    <div className="search-results__section-header">
+                      <h2 className="search-results__section-title">Productes</h2>
+                    </div>
+                    <div className="search-results__grid">
+                      {filteredProducts.map(product => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onView={() => openItemModal(product, 'product')}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
 
-               {filteredPacks.length > 0 && (
-                 <section>
-                   <div className="search-results__section-header">
-                     <h2 className="search-results__section-title">Packs</h2>
-                   </div>
-                   <div className="search-results__grid search-results__grid--packs">
-                     {filteredPacks.map(pack => (
+                {filteredPacks.length > 0 && (
+                  <section className="search-results__section search-results__section--packs">
+                    <div className="search-results__section-header">
+                      <h2 className="search-results__section-title">Packs</h2>
+                    </div>
+                    <div className="search-results__grid search-results__grid--packs">
+                      {filteredPacks.map(pack => (
                        <ProductCard
                          key={pack.id}
                          product={pack}

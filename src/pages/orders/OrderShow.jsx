@@ -139,7 +139,7 @@ function OrderShow() {
               <p><span className="font-medium">Correu:</span> {order.customer_email || order.user?.email || ''}</p>
               <p><span className="font-medium">Telèfon:</span> {order.customer_phone || order.user?.phone || ''}</p>
               <p><span className="font-medium">DNI:</span> {order.customer_dni || order.user?.dni || ''}</p>
-              <p><span className="font-medium">Adreça:</span> {order.customer_address || order.user?.address || ''}</p>
+               <p><span className="font-medium">Adreça:</span> {order.customer_address || order.user?.shipping_address || ''}</p>
               <p><span className="font-medium">Codi postal:</span> {order.customer_zip_code || order.user?.zip_code || ''}</p>
               <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address}</p>
               <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>

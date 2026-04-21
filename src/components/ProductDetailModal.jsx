@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../context/AuthContext"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
@@ -94,27 +94,10 @@ function ProductDetailModal({
   const isOutOfStock = normalizedAvailableStock <= 0
 
   const currentPrice = isPack
-    ? product?.total_price
-    : product?.discount > 0
-    ? (product.price * (1 - product.discount / 100)).toFixed(2)
-    : product?.price
-
-  useEffect(() => {
-    setQuantity(1)
-    setActiveImageIndex(0)
-    setNotification(null)
-  }, [entityType, product?.id])
-
-  useEffect(() => {
-    if (normalizedAvailableStock <= 0) {
-      setQuantity(1)
-      return
-    }
-
-    setQuantity((currentQuantity) => Math.min(Math.max(1, currentQuantity), normalizedAvailableStock))
-  }, [normalizedAvailableStock])
-
-  if (!product) return null
+    ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
+    : product.discount > 0
+      ? (parseFloat(product.price || 0) * (1 - product.discount / 100)).toFixed(2)
+      : parseFloat(product.price || 0).toFixed(2)
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
@@ -331,11 +314,11 @@ function ProductDetailModal({
                 {isPack ? "Productes inclosos" : "Especificacions"}
               </h2>
 
-              {isLoading ? (
-                <div className="flex justify-center py-6">
-                  <LoadingAnimation />
-                </div>
-              ) : isPack ? (
+               {isLoading ? (
+                 <div className="flex justify-center py-6">
+                   <LoadingAnimation heightClass="h-20" />
+                 </div>
+               ) : isPack ? (
                 packProducts.length > 0 ? (
                   <div className="product-pack-show__table product-pack-show__table--packs">
                     {packProducts.map((p) => (

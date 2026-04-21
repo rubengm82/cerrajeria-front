@@ -28,19 +28,20 @@ function Packs() {
   const packs = packsData || [];
 
   const openProductModal = async (pack) => {
-    setIsModalOpen(true);
-    setIsLoadingSelectedPack(true);
-    setSelectedPack(pack);
+    setIsLoadingSelectedPack(true)
 
     try {
-      const response = await getPack(pack.id);
-      setSelectedPack(response.data);
+      const response = await getPack(pack.id)
+      setSelectedPack(response.data)
+      setIsLoadingSelectedPack(false) // Finished loading before opening modal
+      setIsModalOpen(true)
     } catch (error) {
-      console.error("Error en carregar el detall del pack", error);
-    } finally {
-      setIsLoadingSelectedPack(false);
+      console.error("Error en carregar el detall del pack", error)
+      setIsLoadingSelectedPack(false)
+      setSelectedPack(pack)
+      setIsModalOpen(true)
     }
-  };
+  }
 
   const closeProductModal = () => {
     setIsModalOpen(false);

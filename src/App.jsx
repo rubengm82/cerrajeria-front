@@ -16,12 +16,14 @@ import './App.css'
 // Pages - Public/Store
 import Shop from './pages/Shop'
 import Products from './pages/products/Products'
+import Packs from './pages/packs/Packs'
 import Categories from './pages/categories/Categories'
 import CategoriesShow from './pages/categories/CategoriesShow'
 import Cart from './pages/cart/Cart'
 import Checkout from './pages/cart/Checkout'
 import CheckoutPayment from './pages/cart/CheckoutPayment'
 import CheckoutReview from './pages/cart/CheckoutReview'
+import SearchResults from './pages/search/SearchResults'
 
 // Pages - Auth
 import Login from './pages/auth/SignIn'
@@ -61,9 +63,6 @@ import Error403 from './pages/errors/error403'
 import Error419 from './pages/errors/error419'
 import Error500 from './pages/errors/error500'
 import Error503 from './pages/errors/error503'
-import Packs from './pages/packs/Packs'
-
-
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, loading } = useAuth()
@@ -112,6 +111,7 @@ function App() {
         <Route path="/checkout/payment" element={<CheckoutPayment />} />
         <Route path="/checkout/review" element={<CheckoutReview />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />
+        <Route path="/search" element={<SearchResults />} />
       </Route>
 
         <Route path="/login" element={<Login />} />

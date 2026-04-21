@@ -1,11 +1,46 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
+import SearchBar from '../SearchBar'
+import ProductDetailModal from '../ProductDetailModal'
+import { getProduct } from '../../api/products_api'
+import { getPack } from '../../api/packs_api'
+import { useState } from 'react'
 
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
   const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/dashboard' : '/dashboard'
+
+  // Estado para el modal de producto global (desde búsqueda)
+  const [globalProduct, setGlobalProduct] = useState(null)
+  const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false)
+  const [isLoadingGlobal, setIsLoadingGlobal] = useState(false)
+  const [globalProductType, setGlobalProductType] = useState(null)
+
+  const handleProductSelect = async (id, type) => {
+    setIsLoadingGlobal(true)
+    setIsGlobalModalOpen(true)
+    try {
+      const response = type === 'product' ? await getProduct(id) : await getPack(id)
+      // La API devuelve { data: ... } o directamente el objeto
+      let productData = response.data
+      setGlobalProduct(productData)
+      setGlobalProductType(type)
+    } catch (error) {
+      console.error('Error fetching product/pack for modal:', error)
+      setGlobalProduct(null)
+      setIsGlobalModalOpen(false)
+    } finally {
+      setIsLoadingGlobal(false)
+    }
+  }
+
+  const closeGlobalModal = () => {
+    setIsGlobalModalOpen(false)
+    setGlobalProduct(null)
+    setGlobalProductType(null)
+  }
 
   return (
     <div className="drawer">
@@ -13,16 +48,19 @@ export default function TopBarShop() {
 
       <div className="drawer-content">
         <div className="navbar bg-white/90 backdrop-blur-sm shadow-sm" role="banner">
-          <div className="navbar-start">
-            <label htmlFor="shop-drawer" aria-label="obre el menú lateral" className="btn btn-square btn-ghost lg:hidden">
+          <div className="navbar-start flex items-center gap-2">
+            <label htmlFor="shop-drawer" aria-label="obre el menú lateral" className="btn btn-square btn-ghost xl:hidden">
               <HiOutlineBars3 className="shop-tobar-end__icon" aria-hidden="true" />
             </label>
-            <Link to="/" className="shop-topbar__logo link link-hover text-primary text-xl font-bold" aria-label="Anar a la pàgina d'inici">
-              Serralleria Solidària
-            </Link>
+
+             {/* Barra de búsqueda - Siempre visible */}
+             <div className="w-55 sm:w-72 md:w-72 lg:w-96">
+               <SearchBar onItemSelect={handleProductSelect} />
+             </div>
           </div>
 
-          <nav className="navbar-center hidden lg:flex" aria-label="Navegació principal">
+          <nav className="navbar-center hidden xl:flex" aria-label="Navegació principal">
+
             <ul className="menu menu-horizontal px-1">
               <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
               <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
@@ -32,7 +70,7 @@ export default function TopBarShop() {
             </ul>
           </nav>
 
-          <div className="navbar-end">
+          <div className="navbar-end flex items-center gap-2">
             <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
               <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
             </Link>
@@ -79,6 +117,16 @@ export default function TopBarShop() {
           )}
         </ul>
       </div>
+
+      {/* Modal global de detalle de producto (desde búsqueda) */}
+      <ProductDetailModal
+        key={globalProduct?.id || 'no-global-product'}
+        product={globalProduct}
+        isOpen={isGlobalModalOpen}
+        onClose={closeGlobalModal}
+        entityType={globalProductType}
+        isLoading={isLoadingGlobal}
+      />
     </div>
   )
 }

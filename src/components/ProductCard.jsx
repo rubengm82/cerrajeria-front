@@ -1,13 +1,26 @@
 import { Link } from "react-router-dom";
 import { HiOutlinePhoto, HiOutlineEye } from "react-icons/hi2";
 
-function ProductCard({product, onView}) {
+function ProductCard({ product, onView }) {
   const isPack = product?.total_price != null
   const isStockBreak = !isPack && !!product?.is_stock_break
-  const mainImage = product?.images?.find((image) => image.is_important == 1) || product?.images?.[0]
+  const mainImage = product?.images?.find((image) => image.is_important === 1) || product?.images?.[0]
   const imagePath = mainImage?.path
-  const handleCardClick = () => onView?.(product)
-  const currentPrice = isPack ? product.total_price : product.discount > 0 ? (product.price * (1 - product.discount / 100)).toFixed(2) : product.price
+  const handleCardClick = (event) => {
+    if (event) {
+      event.preventDefault()
+      event.stopPropagation()
+      if (event.nativeEvent) {
+        event.nativeEvent.stopImmediatePropagation()
+      }
+    }
+    onView?.(product)
+  }
+  const currentPrice = isPack 
+    ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
+    : product.discount > 0 
+      ? (parseFloat(product.price || 0) * (1 - product.discount / 100)).toFixed(2) 
+      : parseFloat(product.price || 0).toFixed(2)
   const actionLabel = isPack ? `Veure el detall del pack ${product?.name}` : `Veure el detall del producte ${product?.name}`
   const cardLabel = isPack ? `${product?.name}. Pack. Preu ${currentPrice} euros` : `${product?.name}. Categoria ${product?.category?.name || 'sense categoria'}. Preu ${currentPrice} euros`
   const productDescriptionId = product ? `product-card-${product.id}-description` : undefined
@@ -66,26 +79,23 @@ function ProductCard({product, onView}) {
              
             </button> */}
 
-            <button
-              type="button"
+            <div
               className='product-card__action product-card__action--view bg-base-100/80'
-              onClick={(event) => {
-                event.stopPropagation()
-                handleCardClick()
-              }}
+              onClick={handleCardClick}
+              onKeyDown={handleCardKeyDown}
+              role="button"
+              tabIndex={0}
               aria-label={actionLabel}
             >
                <HiOutlineEye className="product-card__action-icon" aria-hidden="true"/>
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="product-card__body">
         <p className="product-card__category text-base-400">{isPack ? "Pack" : product.category?.name}</p>
-        <Link to='/products' className="product-card__name" onClick={(event) => onView && event.preventDefault()} aria-label={actionLabel}>
-          {product.name}
-        </Link>
+         <span className="product-card__name" role="button" tabIndex={0} onClick={handleCardClick} onKeyDown={handleCardKeyDown} aria-label={actionLabel}>{product.name}</span>
 
         <p id={productDescriptionId} className="product-card__desc text-base-300">
           {product.description || ''}
@@ -97,7 +107,7 @@ function ProductCard({product, onView}) {
               {currentPrice}€
             </p>
             {!isPack && product.discount > 0 && (
-              <p className="product-card__old-price text-base-300" aria-label={`Preu anterior ${product.price} euros`}>{product.price}€</p>
+              <p className="product-card__old-price text-base-300" aria-label={`Preu anterior ${parseFloat(product.price || 0).toFixed(2)} euros`}>{parseFloat(product.price || 0).toFixed(2)}€</p>
             )}
           </div>
 

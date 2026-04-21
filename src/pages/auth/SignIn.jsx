@@ -70,7 +70,7 @@ function SignIn() {
         <div className="auth-field">
           <div className="auth-field__top">
             <label className="auth-field__label" htmlFor="signin-password">Contrasenya</label>
-            <Link to="/forgot-password" className="auth-link auth-link--small">
+            <Link to="/forgot-password" className="auth-link auth-link--small" tabIndex="-1">
               Has oblidat la contrasenya?
             </Link>
           </div>
@@ -92,6 +92,7 @@ function SignIn() {
               onClick={() => setShowPassword(current => !current)}
               aria-label={showPassword ? 'Amagar la contrasenya' : 'Mostrar la contrasenya'}
               aria-pressed={showPassword}
+              tabIndex="-1"
             >
               {showPassword ? <HiOutlineEyeSlash aria-hidden="true" /> : <HiOutlineEye aria-hidden="true" />}
             </button>

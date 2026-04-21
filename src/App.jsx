@@ -78,11 +78,10 @@ function ProtectedRoute({ children, requiredRole }) {
   // Verificar rol si se requiere uno específico
   if (requiredRole) {
     const isAdmin = user.role === 'admin' || user.role === 1
-    const isUser = user.role === 'user' || user.role === 'admin' || user.role === 1
     if (requiredRole === 'admin' && !isAdmin) {
       return <Navigate to="/error403" />
     }
-    if (requiredRole === 'user' && !isUser) {
+    if (requiredRole === 'user' && isAdmin) {
       return <Navigate to="/error403" />
     }
   }
@@ -123,15 +122,7 @@ function App() {
 
       {/* Rutas con Layout (Topbar + Sidebar) */}
       <Route element={<LayoutDashboard />}>
-        <Route path="/dashboard" element={
-          <ProtectedRoute requiredRole="user">
-            <UserDashboard />
-          </ProtectedRoute>
-        } />
 
-        <Route path="/services" element={<div className="p-4"><h1 className="text-2xl font-bold">Serveis</h1><p>Properament...</p></div>} />
-        <Route path="/products" element={<div className="p-4"><h1 className="text-2xl font-bold">Productes</h1><p>Properament...</p></div>} />
-        <Route path="/categories" element={<div className="p-4"><h1 className="text-2xl font-bold">Categories</h1><p>Properament...</p></div>} />
         <Route path="/orders" element={
           <ProtectedRoute requiredRole="admin">
             <OrdersList />
@@ -142,12 +133,13 @@ function App() {
             <OrderShow />
           </ProtectedRoute>
         } />
-        <Route path="/reports" element={<div className="p-4"><h1 className="text-2xl font-bold">Informes</h1><p>Properament...</p></div>} />
-        <Route path="/settings" element={<div className="p-4"><h1 className="text-2xl font-bold">Configuració</h1><p>Properament...</p></div>} />
 
         {/* Rutes d'usuari normal */}
-        <Route path="/my-orders" element={<OrdersList />} />
-        <Route path="/my-services" element={<div className="p-4"><h1 className="text-2xl font-bold">Els Meus Serveis</h1><p>Properament...</p></div>} />
+        <Route path="/my-orders" element={
+          <ProtectedRoute requiredRole="user">
+            <OrdersList />
+          </ProtectedRoute>
+        } />
 
         {/* Rutas de Admin - Protegidas por rol */}
         <Route path="/users" element={

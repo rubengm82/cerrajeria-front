@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
   // LOGOUT
   const logout = async () => {
     // Rutas protegidas del dashboard
-    const protectedRoutes = ['/admin', '/perfil', '/users', '/services', '/orders', '/reports', '/settings', '/my-', '/dashboard', '/products', '/categories']
+    const protectedRoutes = ['/admin', '/perfil', '/users', '/services', '/orders', '/reports', '/settings', '/my-', '/products', '/categories']
     const currentPath = window.location.pathname
     const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route))
     

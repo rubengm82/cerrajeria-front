@@ -6,15 +6,21 @@ export default function SideBarDashboard({ userRole }) {
   const location = useLocation()
   const isAdmin = userRole === 'admin' || userRole === 1
 
-  // Links comuns per a tots els usuaris (sense "Tornar a la botiga")
-  const commonLinks = [
-    { to: isAdmin ? '/admin/dashboard' : '/dashboard', label: 'Tauler', icon: (
-      <HiOutlineSquares2X2 className="size-6" aria-hidden="true" />
-    ) },
-    { to: '/perfil', label: 'El Meu Perfil', icon: (
-      <HiOutlineUser className="size-6" aria-hidden="true" />
-    ) },
-  ]
+   // Links comuns per a tots els usuaris (sense "Tornar a la botiga")
+   const commonLinks = [
+     { to: '/perfil', label: 'El Meu Perfil', icon: (
+       <HiOutlineUser className="size-6" aria-hidden="true" />
+     ) },
+   ]
+
+   // Links d'ordres - separat per rol
+   const orderLinks = isAdmin
+     ? []
+     : [
+       { to: '/my-orders', label: 'Les Meves Comandes', icon: (
+         <HiOutlineSquares2X2 className="size-6" aria-hidden="true" />
+       ) },
+     ]
 
   // Links específics per a administradors (ordenats alfabèticament)
   const adminLinks = [
@@ -30,17 +36,9 @@ export default function SideBarDashboard({ userRole }) {
     { to: '/admin/features-manager', label: 'Característiques', parent: 'Productes', icon: (
       <HiOutlineSwatch className="size-6" aria-hidden="true" />
     ) },
-    // Característiques - anidat dins Productes (mantener para compatibilidad)
-    // { to: '/admin/features', label: 'Característiques - Valors', parent: 'Productes', icon: (
-    //   <HiOutlineViewColumns className="size-6" />
-    // ) },
     // Packs - anidat dins Productes
     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
       <HiOutlineCube className="size-6" aria-hidden="true" />
-    ) },
-    // Serveis
-    { to: '/services', label: 'Serveis', icon: (
-      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
     ) },
     // Solucions personalitzades
     { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (
@@ -60,20 +58,13 @@ export default function SideBarDashboard({ userRole }) {
     ) },
   ]
 
-  // Links específics per a usuaris normals
-  const userLinks = [
-    { to: '/my-orders', label: 'Les Meves Comandes', icon: (
-      <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
-    ) },
-    { to: '/my-services', label: 'Els Meus Serveis', icon: (
-      <HiOutlineWrenchScrewdriver className="size-6" aria-hidden="true" />
-    ) },
-  ]
+   // Links específics per a usuaris normals
+   const userLinks = []
 
   // Combinar links segons el rol
   const links = isAdmin
     ? [...commonLinks, ...adminLinks]
-    : [...commonLinks, ...userLinks]
+    : [...commonLinks, ...orderLinks, ...userLinks]
 
   // Obtenir els pares (menús nidificats)
   const parentMenus = [...new Set(links.filter(l => l.parent).map(l => l.parent))]

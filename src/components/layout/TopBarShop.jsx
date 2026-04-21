@@ -10,7 +10,7 @@ import { useState } from 'react'
 
 export default function TopBarShop() {
   const { user, logout } = useAuth()
-  const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/dashboard' : '/dashboard'
+  const dashboardUrl = user?.role === 'admin' || user?.role === 1 ? '/admin/reports' : '/my-orders'
 
   // Estado para el modal de producto global (desde búsqueda)
   const [globalProduct, setGlobalProduct] = useState(null)

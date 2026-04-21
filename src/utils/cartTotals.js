@@ -18,8 +18,12 @@ export const getProductPrice = (product) => {
   return discount <= 0 ? price : price * (1 - discount / 100)
 }
 
+export const isProductInstallable = (product) => (
+  product?.cartItemType !== "pack" && (product?.is_installable === true || product?.is_installable === 1 || product?.is_installable === "1")
+)
+
 export const hasInstallationSelected = (products = []) => products.some((product) => (
-  product?.cartItemType !== "pack" && Boolean(product?.pivot?.installation_requested)
+  isProductInstallable(product) && Boolean(product?.pivot?.installation_requested)
 ))
 
 export const getInstallationPrice = (subtotal = 0, products = [], settings = {}) => {

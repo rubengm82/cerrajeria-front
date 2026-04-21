@@ -94,10 +94,10 @@ function ProductDetailModal({
   const isOutOfStock = normalizedAvailableStock <= 0
 
   const currentPrice = isPack
-    ? (product.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
-    : product.discount > 0
-      ? (parseFloat(product.price || 0) * (1 - product.discount / 100)).toFixed(2)
-      : parseFloat(product.price || 0).toFixed(2)
+    ? (product?.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
+    : product?.discount > 0
+      ? (parseFloat(product?.price || 0) * (1 - (product?.discount || 0) / 100)).toFixed(2)
+      : parseFloat(product?.price || 0).toFixed(2)
 
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value) || 1
@@ -139,15 +139,15 @@ function ProductDetailModal({
       let wasAdded = false
 
       if (user) {
-        const response = isPack
-          ? await addPackToCart({
-            pack_id: product.id,
-            quantity,
-          })
-          : await addProductToCart({
-            product_id: product.id,
-            quantity,
-          })
+         const response = isPack
+           ? await addPackToCart({
+             pack_id: product?.id,
+             quantity,
+           })
+           : await addProductToCart({
+             product_id: product?.id,
+             quantity,
+           })
 
         wasAdded = Boolean(response.data?.added)
 
@@ -157,21 +157,21 @@ function ProductDetailModal({
           queryClient.invalidateQueries({ queryKey: ["cart-order"] })
         }
       } else {
-        const result = addProductToLocalCart({
-          ...product,
-          stock: normalizedAvailableStock,
+         const result = addProductToLocalCart({
+           ...(product || {}),
+           stock: normalizedAvailableStock,
         }, quantity, isPack ? "pack" : "product")
         wasAdded = result.added
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
 
-      setNotification({
-        id: Date.now(),
-        type: wasAdded ? "success" : "info",
-        message: wasAdded
-          ? `${product.name} s'ha afegit al carret.`
-          : `${product.name} ja és al carret. Modifica la quantitat des del carret.`,
-      })
+       setNotification({
+         id: Date.now(),
+         type: wasAdded ? "success" : "info",
+         message: wasAdded
+           ? `${product?.name || 'Producte'} s'ha afegit al carret.`
+           : `${product?.name || 'Producte'} ja és al carret. Modifica la quantitat des del carret.`,
+       })
     } catch (error) {
       const validationMessage = error.response?.data?.errors
         ? Object.values(error.response.data.errors)[0]?.[0]
@@ -187,10 +187,10 @@ function ProductDetailModal({
     }
   }
 
-  const modalTitleId = `product-detail-title-${product.id}`
-  const modalDescriptionId = `product-detail-description-${product.id}`
-  const quantityInputId = `quantity-${product.id}`
-  const cartFeedbackId = `cart-feedback-${product.id}`
+  const modalTitleId = `product-detail-title-${product?.id || 'null'}`
+  const modalDescriptionId = `product-detail-description-${product?.id || 'null'}`
+  const quantityInputId = `quantity-${product?.id || 'null'}`
+  const cartFeedbackId = `cart-feedback-${product?.id || 'null'}`
 
   return (
     <div
@@ -199,7 +199,7 @@ function ProductDetailModal({
       open={isOpen}
       role="dialog"
       aria-modal="true"
-      aria-describedby={product.description ? modalDescriptionId : undefined}
+       aria-describedby={product?.description ? modalDescriptionId : undefined}
     >
       {notification && (
         <Notifications
@@ -233,10 +233,10 @@ function ProductDetailModal({
           <div className="product-pack-show__gallery">
             <div className="product-pack-show__main-image bg-base-500">
               {activeImage ? (
-                <img
-                  src={`/storage/${activeImage.path}`}
-                  alt={product.name}
-                />
+                 <img
+                   src={`/storage/${activeImage.path}`}
+                   alt={product?.name || ''}
+                 />
               ) : (
                 <HiOutlinePhoto className="product-pack-show__placeholder text-base-300" />
               )}
@@ -270,26 +270,26 @@ function ProductDetailModal({
           {/* Content */}
           <div className="product-pack-show__content">
             <div className="product-pack-show__info">
-              {!isPack && (
-                <p className="product-pack-show__category text-primary">
-                  {product.category?.name || "Sense categoria"}
-                </p>
-              )}
+               {!isPack && (
+                 <p className="product-pack-show__category text-primary">
+                   {product?.category?.name || "Sense categoria"}
+                 </p>
+               )}
 
-              <h3 id={modalTitleId} className="product-pack-show__title">
-                {product.name}
-              </h3>
+               <h3 id={modalTitleId} className="product-pack-show__title">
+                 {product?.name || ''}
+               </h3>
 
               <div className="product-pack-show__price-row">
                 <p className="product-pack-show__price">
                   {formatPrice(currentPrice)}
                 </p>
 
-                {!isPack && product.discount > 0 && (
-                  <p className="product-pack-show__old-price text-base-400">
-                    {formatPrice(product.price)}
-                  </p>
-                )}
+                  {!isPack && product?.discount > 0 && (
+                   <p className="product-pack-show__old-price text-base-400">
+                     {formatPrice(product?.price)}
+                   </p>
+                 )}
               </div>
 
               {isStockBreak && (
@@ -298,14 +298,14 @@ function ProductDetailModal({
                 </p>
               )}
 
-              {product.description && (
-                <p
-                  id={modalDescriptionId}
-                  className="product-pack-show__description text-base-400"
-                >
-                  {product.description}
-                </p>
-              )}
+               {product?.description && (
+                 <p
+                   id={modalDescriptionId}
+                   className="product-pack-show__description text-base-400"
+                 >
+                   {product.description}
+                 </p>
+               )}
             </div>
 
             {/* Details */}
@@ -385,14 +385,14 @@ function ProductDetailModal({
                   aria-describedby={cartFeedbackId}
                 />
 
-                <button
-                  type="button"
-                  className="btn btn-primary product-pack-show__cart-button"
-                  aria-label={`Afegir ${quantity} unitats de ${product.name} al carret`}
-                  aria-describedby={cartFeedbackId}
-                  onClick={handleAddToCart}
-                  disabled={isAddingToCart || isOutOfStock || !isQuantityAvailable}
-                >
+                 <button
+                   type="button"
+                   className="btn btn-primary product-pack-show__cart-button"
+                   aria-label={`Afegir ${quantity} unitats de ${product?.name || 'producte'} al carret`}
+                   aria-describedby={cartFeedbackId}
+                   onClick={handleAddToCart}
+                   disabled={isAddingToCart || isOutOfStock || !isQuantityAvailable}
+                 >
                   <HiOutlineShoppingCart className="product-pack-show__cart-icon" />
                   {isAddingToCart ? "Afegint..." : "Afegir al carret"}
                 </button>

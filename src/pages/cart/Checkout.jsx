@@ -25,8 +25,6 @@ const getInitialFormData = (user) => {
     email: savedData.email || user?.email || "",
     address: savedData.address || user?.shipping_address || user?.address || "",
     zip_code: savedData.zip_code || user?.shipping_zip_code || user?.zip_code || "",
-    installation_address: savedData.installation_address || user?.shipping_address || user?.address || "",
-    shipping_address: savedData.shipping_address || user?.shipping_address || user?.address || "",
     // Guardamos también la dirección de facturación del usuario para referencia
     billing_address: savedData.billing_address || user?.billing_address || "",
     billing_zip_code: savedData.billing_zip_code || user?.billing_zip_code || "",
@@ -220,15 +218,7 @@ function Checkout() {
                 <input id="checkout-zip-code" className="input input-bordered" type="text" name="zip_code" value={getFieldValue("zip_code")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
               </label>
 
-              <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-installation-address">
-                <span>Adreça d'instal·lació *</span>
-                <input id="checkout-installation-address" className="input input-bordered" type="text" name="installation_address" value={getFieldValue("installation_address")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
-              </label>
 
-              <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-shipping-address">
-                <span>Adreça d'enviament *</span>
-                <input id="checkout-shipping-address" className="input input-bordered" type="text" name="shipping_address" value={getFieldValue("shipping_address")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
-              </label>
             </div>
           </form>
         </section>

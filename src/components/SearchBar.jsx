@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { quickSearch } from '../api/search_api'
 import { HiSparkles, HiSearch } from 'react-icons/hi'
+import { HiOutlinePhoto } from 'react-icons/hi2'
 import { FiPackage } from 'react-icons/fi'
 import { BiCube } from 'react-icons/bi'
 
@@ -42,13 +43,13 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
     }
   }
 
-  const handleResultClick = (event) => {
+  const handleResultClick = (event, selectedItem = null) => {
     const button = event.currentTarget
     const id = button.dataset.id
     const type = button.dataset.type
 
     if (id && type && onItemSelect) {
-      onItemSelect(id, type)
+      onItemSelect(id, type, selectedItem)
       setIsOpen(false)
       setQuery('')
       return
@@ -130,7 +131,7 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
                           className="search-dropdown__item"
                           data-id={product.id}
                           data-type="product"
-                          onClick={handleResultClick}
+                          onClick={(event) => handleResultClick(event, product)}
                           onKeyDown={handleKeyDown}
                         >
                           <div className="search-dropdown__item-image-wrap">
@@ -142,8 +143,8 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
                                 loading="lazy"
                               />
                              ) : (
-                               <div className="search-dropdown__item-placeholder">
-                                 Sense imatge
+                               <div className="search-dropdown__item-placeholder search-dropdown__item-placeholder--product" aria-label={`Sense imatge per a ${product.name}`}>
+                                 <HiOutlinePhoto className="search-dropdown__item-placeholder-icon" aria-hidden="true" />
                                </div>
                              )}
                           </div>
@@ -184,7 +185,7 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
                           className="search-dropdown__item search-dropdown__item--pack"
                           data-id={pack.id}
                           data-type="pack"
-                          onClick={handleResultClick}
+                          onClick={(event) => handleResultClick(event, pack)}
                           onKeyDown={handleKeyDown}
                         >
                           <div className="search-dropdown__item-image-wrap">

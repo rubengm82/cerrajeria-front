@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
-import { getProducts } from "../../api/products_api"
+import { getProduct, getProducts } from "../../api/products_api"
 import Notifications from "../../components/Notifications"
 import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
@@ -20,6 +20,7 @@ function Products() {
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState(false);
   const [notification, setNotification] = useState(locationState?.notificationMessage ? {
     id: "location-notification",
     type: locationState.notificationType || "info",
@@ -82,14 +83,26 @@ function Products() {
 
   const loading = isLoadingProducts || isLoadingCategories || isLoadingFeatures || isLoadingFeaturesTypes;
 
-  const openProductModal = (product) => {
+  const openProductModal = async (product) => {
     setSelectedProduct(product);
+    setIsLoadingSelectedProduct(true);
     setIsModalOpen(true);
+
+    try {
+      const response = await getProduct(product.id)
+      setSelectedProduct(response.data)
+    } catch (error) {
+      console.error("Error en carregar el detall del producte", error)
+      setSelectedProduct(product)
+    } finally {
+      setIsLoadingSelectedProduct(false)
+    }
   };
 
   const closeProductModal = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
+    setIsLoadingSelectedProduct(false);
   };
 
   const toggleCategory = (categoryName) => {
@@ -301,6 +314,7 @@ function Products() {
         product={selectedProduct} 
         isOpen={isModalOpen} 
         onClose={closeProductModal}
+        isLoading={isLoadingSelectedProduct}
       />
     </div>
   )

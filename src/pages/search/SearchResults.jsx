@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { HiArrowLeft, HiXMark, HiOutlineAdjustmentsHorizontal, HiSparkles, HiOutlineFunnel } from 'react-icons/hi2'
@@ -8,22 +8,25 @@ import { search } from '../../api/search_api'
 import { getProduct } from '../../api/products_api'
 import { getPack } from '../../api/packs_api'
 import { getFeatures, getFeatureTypes } from '../../api/features_api'
-import LoadingAnimation from '../../components/LoadingAnimation'
 import ProductCard from '../../components/ProductCard'
 import ProductDetailModal from '../../components/ProductDetailModal'
 import Notifications from '../../components/Notifications'
 import '../../../scss/main_shop.scss'
 
+const searchSkeletons = Array.from({ length: 5 })
+
+const getFiltersFromSearchParams = (searchParams) => ({
+  category: searchParams.get('category') ? Number(searchParams.get('category')) : null,
+  price_min: searchParams.get('price_min') || null,
+  price_max: searchParams.get('price_max') || null,
+  only_packs: searchParams.get('only_packs') === 'true' || false,
+})
+
 function SearchResults() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const query = searchParams.get('q') || ''
 
-  const [filters, setFilters] = useState({
-    category: searchParams.get('category') ? Number(searchParams.get('category')) : null,
-    price_min: searchParams.get('price_min') || null,
-    price_max: searchParams.get('price_max') || null,
-    only_packs: searchParams.get('only_packs') === 'true' || false,
-  })
+  const [filters, setFilters] = useState(() => getFiltersFromSearchParams(searchParams))
 
   const [selectedFeatures, setSelectedFeatures] = useState([])
   const [selectedItem, setSelectedItem] = useState(null)
@@ -31,6 +34,11 @@ function SearchResults() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoadingItem, setIsLoadingItem] = useState(false)
   const [notification, setNotification] = useState(null)
+
+  useEffect(() => {
+    setFilters(getFiltersFromSearchParams(searchParams))
+    setSelectedFeatures([])
+  }, [query, searchParams])
 
   // Fetch features and feature types for filter modal
   const { data: featuresData } = useQuery({
@@ -57,13 +65,13 @@ function SearchResults() {
   const featuresTypes = Array.isArray(featuresTypesData) ? featuresTypesData : []
 
   const { data: searchData, isLoading, error } = useQuery({
-    queryKey: ['search', query, filters],
-    queryFn: () => search(query, filters, 50),
+    queryKey: ['search', query],
+    queryFn: () => search(query, {}, 50),
     enabled: !!query && query.length >= 2,
     staleTime: 2 * 60 * 1000,
   })
 
-  const { products = [], packs = [], total = 0, categories = [] } = searchData || {}
+  const { products = [], packs = [], categories = [] } = searchData || {}
 
   const filteredProducts = useMemo(() => {
     // If only_packs filter is active, show no products
@@ -80,10 +88,18 @@ function SearchResults() {
       result = result.filter(p => p.category?.id === filters.category)
     }
     if (selectedFeatures.length > 0) {
+      const featuresByType = {}
+      selectedFeatures.forEach(featureKey => {
+        const [typeName, value] = featureKey.split('-')
+        if (!featuresByType[typeName]) {
+          featuresByType[typeName] = []
+        }
+        featuresByType[typeName].push(value)
+      })
+
       result = result.filter(product => {
-        return selectedFeatures.every(featureKey => {
-          const [typeName, value] = featureKey.split('-')
-          return product.features?.some(f => f.type?.name === typeName && f.value === value)
+        return Object.entries(featuresByType).every(([typeName, values]) => {
+          return product.features?.some(f => f.type?.name === typeName && values.includes(f.value))
         })
       })
     }
@@ -91,32 +107,41 @@ function SearchResults() {
   }, [products, filters, selectedFeatures])
 
   const filteredPacks = useMemo(() => {
-    let result = packs
+    let result = [...packs]
+    if (filters.price_min) {
+      result = result.filter(p => parseFloat(p.total_price || p.price || 0) >= parseFloat(filters.price_min))
+    }
+    if (filters.price_max) {
+      result = result.filter(p => parseFloat(p.total_price || p.price || 0) <= parseFloat(filters.price_max))
+    }
     if (selectedFeatures.length > 0) {
+      const featuresByType = {}
+      selectedFeatures.forEach(featureKey => {
+        const [typeName, value] = featureKey.split('-')
+        if (!featuresByType[typeName]) {
+          featuresByType[typeName] = []
+        }
+        featuresByType[typeName].push(value)
+      })
+
       result = result.filter(pack => {
-        return selectedFeatures.every(featureKey => {
-          const [typeName, value] = featureKey.split('-')
-          return pack.features?.some(f => f.type?.name === typeName && f.value === value)
+        return Object.entries(featuresByType).every(([typeName, values]) => {
+          return pack.features?.some(f => f.type?.name === typeName && values.includes(f.value))
         })
       })
     }
     return result
-  }, [packs, selectedFeatures])
+  }, [packs, filters.price_min, filters.price_max, selectedFeatures])
 
   const resultsExist = useMemo(() => {
     return filteredProducts.length > 0 || filteredPacks.length > 0
   }, [filteredProducts, filteredPacks])
 
+  const filteredTotal = filteredProducts.length + filteredPacks.length
+
   const updateFilters = useCallback((newFilters) => {
     setFilters(newFilters)
-    const params = new URLSearchParams()
-    params.set('q', query)
-    if (newFilters.category) params.set('category', newFilters.category)
-    if (newFilters.price_min) params.set('price_min', newFilters.price_min)
-    if (newFilters.price_max) params.set('price_max', newFilters.price_max)
-    if (newFilters.only_packs) params.set('only_packs', 'true')
-    setSearchParams(params)
-  }, [query, setSearchParams])
+  }, [])
 
   // Función para crear un identificador único combinando tipo + valor
   const getFeatureKey = (typeName, value) => `${typeName}-${value}`
@@ -146,7 +171,9 @@ function SearchResults() {
 
   const openItemModal = async (item, type) => {
     setSelectedType(type)
+    setSelectedItem(item)
     setIsLoadingItem(true)
+    setIsModalOpen(true)
 
     try {
       const response = type === 'product'
@@ -163,13 +190,11 @@ function SearchResults() {
       }
 
       setSelectedItem(newItem)
-      setIsLoadingItem(false) // Finished loading before opening modal
-      setIsModalOpen(true)
     } catch (error) {
       console.error('Error fetching item details:', error)
-      setIsLoadingItem(false)
       setSelectedItem(item)
-      setIsModalOpen(true)
+    } finally {
+      setIsLoadingItem(false)
     }
   }
 
@@ -195,8 +220,6 @@ function SearchResults() {
       </div>
     )
   }
-
-  if (isLoading) return <LoadingAnimation />
 
   if (error) {
     return (
@@ -234,10 +257,13 @@ function SearchResults() {
             </div>
 
             <div className="products-top__actions">
-              <p className="products-top__count text-base-400">{total} resultats trobats</p>
+              <p className="products-top__count text-base-400">
+                {isLoading ? "Carregant resultats" : `${filteredTotal} resultats trobats`}
+              </p>
               <button
                 type="button"
                 className="btn products-top__filters-button"
+                disabled={isLoading}
                 onClick={() => document.getElementById("search-filters-modal").showModal()}
                 aria-label="Obrir filtres de cerca"
               >
@@ -248,7 +274,47 @@ function SearchResults() {
           </div>
 
           <main className="search-results">
-          {!resultsExist ? (
+          {isLoading ? (
+            <>
+              <section className="search-results__section">
+                <div className="search-results__section-header">
+                  <h2 className="search-results__section-title">Productes</h2>
+                </div>
+                <div className="search-results__grid">
+                  {searchSkeletons.map((_, index) => (
+                    <div className="product-card-skeleton" key={`search-product-skeleton-${index}`} aria-hidden="true">
+                      <div className="skeleton product-card-skeleton__media"></div>
+                      <div className="product-card-skeleton__body">
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--tag"></div>
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--title"></div>
+                        <div className="skeleton product-card-skeleton__line"></div>
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--short"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="search-results__section search-results__section--packs">
+                <div className="search-results__section-header">
+                  <h2 className="search-results__section-title">Packs</h2>
+                </div>
+                <div className="search-results__grid search-results__grid--packs">
+                  {searchSkeletons.map((_, index) => (
+                    <div className="product-card-skeleton" key={`search-pack-skeleton-${index}`} aria-hidden="true">
+                      <div className="skeleton product-card-skeleton__media"></div>
+                      <div className="product-card-skeleton__body">
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--tag"></div>
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--title"></div>
+                        <div className="skeleton product-card-skeleton__line"></div>
+                        <div className="skeleton product-card-skeleton__line product-card-skeleton__line--short"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </>
+          ) : !resultsExist ? (
             <div className="search-results__empty">
               <HiSparkles />
               <h2>No s'han trobat resultats</h2>

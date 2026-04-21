@@ -1,8 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../context/AuthContext"
 import { HiXMark, HiOutlinePhoto, HiOutlineShoppingCart } from "react-icons/hi2"
-import LoadingAnimation from "./LoadingAnimation"
 import Notifications from "./Notifications"
 import { addPackToCart, addProductToCart, getCartOrder } from "../api/orders_api"
 import { addProductToLocalCart, getLocalCartItems } from "../utils/localCart"
@@ -47,6 +46,7 @@ function ProductDetailModal({
   const [notification, setNotification] = useState(null)
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [localCartVersion, setLocalCartVersion] = useState(0)
+  const [isContentReady, setIsContentReady] = useState(false)
   const { data: cartOrder } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
@@ -59,6 +59,7 @@ function ProductDetailModal({
 
   const isPack = entityType === "pack"
   const isStockBreak = !isPack && !!product?.is_stock_break
+  const showSkeleton = !isContentReady
 
   const productImages = [
     ...(product?.images || []).filter((img) => img.is_important),
@@ -92,6 +93,22 @@ function ProductDetailModal({
   const maxQuantity = normalizedAvailableStock > 0 ? normalizedAvailableStock : 1
   const isQuantityAvailable = quantity <= normalizedAvailableStock
   const isOutOfStock = normalizedAvailableStock <= 0
+  const productId = product?.id || null
+  const hasProduct = Boolean(product)
+
+  useEffect(() => {
+    if (!isOpen || isLoading || !hasProduct) {
+      setIsContentReady(false)
+      return undefined
+    }
+
+    setIsContentReady(false)
+    const timeoutId = window.setTimeout(() => {
+      setIsContentReady(true)
+    }, 120)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [isOpen, isLoading, hasProduct, productId, entityType])
 
   const currentPrice = isPack
     ? (product?.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
@@ -192,6 +209,54 @@ function ProductDetailModal({
   const quantityInputId = `quantity-${product?.id || 'null'}`
   const cartFeedbackId = `cart-feedback-${product?.id || 'null'}`
 
+  const skeletonContent = (
+    <div className="product-pack-show__skeleton" aria-hidden="true">
+        <div className="product-pack-show__skeleton-gallery">
+          <div className="skeleton product-pack-show__skeleton-main-image"></div>
+        {productImages.length > 1 && (
+          <div className="product-pack-show__skeleton-thumbs">
+            {productImages.map((image, index) => (
+              <div key={image.id || index} className="skeleton product-pack-show__skeleton-thumb"></div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="product-pack-show__skeleton-content">
+        <div className="product-pack-show__skeleton-info">
+          {!isPack && (
+            <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--tag"></div>
+          )}
+          <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--title"></div>
+          <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--price"></div>
+          {product?.description && (
+            <>
+              <div className="skeleton product-pack-show__skeleton-line"></div>
+              <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--short"></div>
+            </>
+          )}
+        </div>
+
+        <div className="product-pack-show__skeleton-details">
+          <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--label"></div>
+          <div className="product-pack-show__skeleton-table">
+            <div className="skeleton product-pack-show__skeleton-row"></div>
+            <div className="skeleton product-pack-show__skeleton-row"></div>
+            <div className="skeleton product-pack-show__skeleton-row"></div>
+          </div>
+        </div>
+
+        {!isAdmin && (
+          <div className="product-pack-show__skeleton-purchase">
+            <div className="skeleton product-pack-show__skeleton-quantity"></div>
+            <div className="skeleton product-pack-show__skeleton-button"></div>
+            <div className="skeleton product-pack-show__skeleton-line product-pack-show__skeleton-line--feedback"></div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <div
       id="product-view-modal"
@@ -225,6 +290,7 @@ function ProductDetailModal({
           </button>
         </div>
         <div className="product-pack-show__body">
+          {showSkeleton ? skeletonContent : (
           <section
             className="product-pack-show__summary"
             aria-labelledby={modalTitleId}
@@ -314,11 +380,7 @@ function ProductDetailModal({
                 {isPack ? "Productes inclosos" : "Especificacions"}
               </h2>
 
-               {isLoading ? (
-                 <div className="flex justify-center py-6">
-                   <LoadingAnimation heightClass="h-20" />
-                 </div>
-               ) : isPack ? (
+               {isPack ? (
                 packProducts.length > 0 ? (
                   <div className="product-pack-show__table product-pack-show__table--packs">
                     {packProducts.map((p) => (
@@ -371,7 +433,7 @@ function ProductDetailModal({
               )}
             </section>
 
-            {!isLoading && !isAdmin && (
+            {!showSkeleton && !isAdmin && (
               <div className="product-pack-show__purchase">
                 <input
                   id={quantityInputId}
@@ -408,6 +470,7 @@ function ProductDetailModal({
             )}
           </div>
         </section>
+          )}
         </div>
       </div>
     </div>

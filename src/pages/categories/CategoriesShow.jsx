@@ -6,13 +6,14 @@ import ProductCard from "../../components/ProductCard"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { HiArrowLeft } from "react-icons/hi2"
 import { getCategory } from "../../api/categories_api"
-import { getProducts } from "../../api/products_api"
+import { getProduct, getProducts } from "../../api/products_api"
 import '../../../scss/main_shop.scss'
 
 function CategoriesShow() {
   const {id} = useParams()
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState(false)
 
   // Caché para categoría con sus productos
   const { data: category = null, isLoading: loading } = useQuery({
@@ -41,15 +42,27 @@ function CategoriesShow() {
   const categoryProducts = Object.values(category?.products || {})
   const products = productsData || []
 
-  const openProductModal = (product) => {
-    const fullProduct = products.find(p => p.id === product.id)
-    setSelectedProduct(fullProduct || product)
+  const openProductModal = async (product) => {
+    setSelectedProduct(product)
+    setIsLoadingSelectedProduct(true)
     setIsModalOpen(true)
+
+    try {
+      const response = await getProduct(product.id)
+      setSelectedProduct(response.data)
+    } catch (error) {
+      console.error("Error en carregar el detall del producte", error)
+      const fullProduct = products.find(p => p.id === product.id)
+      setSelectedProduct(fullProduct || product)
+    } finally {
+      setIsLoadingSelectedProduct(false)
+    }
   }
 
   const closeProductModal = () => {
     setIsModalOpen(false)
     setSelectedProduct(null)
+    setIsLoadingSelectedProduct(false)
   }
 
   return loading ? <LoadingAnimation /> : (
@@ -72,6 +85,7 @@ function CategoriesShow() {
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={closeProductModal}
+        isLoading={isLoadingSelectedProduct}
       />
     </div>
   )

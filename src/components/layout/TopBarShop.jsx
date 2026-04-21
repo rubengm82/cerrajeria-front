@@ -18,7 +18,9 @@ export default function TopBarShop() {
   const [isLoadingGlobal, setIsLoadingGlobal] = useState(false)
   const [globalProductType, setGlobalProductType] = useState(null)
 
-  const handleProductSelect = async (id, type) => {
+  const handleProductSelect = async (id, type, previewItem = null) => {
+    setGlobalProduct(previewItem)
+    setGlobalProductType(type)
     setIsLoadingGlobal(true)
     setIsGlobalModalOpen(true)
     try {
@@ -26,7 +28,6 @@ export default function TopBarShop() {
       // La API devuelve { data: ... } o directamente el objeto
       let productData = response.data
       setGlobalProduct(productData)
-      setGlobalProductType(type)
     } catch (error) {
       console.error('Error fetching product/pack for modal:', error)
       setGlobalProduct(null)

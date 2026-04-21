@@ -244,8 +244,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 100%;
     font-size: 1.25rem;
     color: var(--color-base-400);
+
+    &--product {
+      background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+      color: var(--color-primary);
+    }
+  }
+
+  .search-dropdown__item-placeholder-icon {
+    width: 1.35rem;
+    height: 1.35rem;
   }
 }
 

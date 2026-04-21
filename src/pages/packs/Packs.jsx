@@ -29,18 +29,18 @@ function Packs() {
   const packs = packsData || [];
 
   const openProductModal = async (pack) => {
+    setSelectedPack(pack)
     setIsLoadingSelectedPack(true)
+    setIsModalOpen(true)
 
     try {
       const response = await getPack(pack.id)
       setSelectedPack(response.data)
-      setIsLoadingSelectedPack(false) // Finished loading before opening modal
-      setIsModalOpen(true)
     } catch (error) {
       console.error("Error en carregar el detall del pack", error)
-      setIsLoadingSelectedPack(false)
       setSelectedPack(pack)
-      setIsModalOpen(true)
+    } finally {
+      setIsLoadingSelectedPack(false)
     }
   }
 

@@ -18,6 +18,8 @@ const getOrderItems = (order) => [
   ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
 ]
 
+const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
+
 function OrderShow() {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
@@ -91,6 +93,7 @@ function OrderShow() {
   }
 
   const orderItems = getOrderItems(order)
+  const albaranNumber = formatAlbaranNumber(order.id)
   const { subtotal } = getCartTotals(orderItems)
   const iva = subtotal * 0.21
   const total = subtotal + iva
@@ -103,7 +106,7 @@ function OrderShow() {
           <p>Tornar a les Comandes</p>
         </Link>
         <h1 className="text-3xl font-bold text-base-content mb-2">Resum de la Comanda</h1>
-        <div className="text-base-400">INV-{order.id.toString().padStart(6, '0')}</div>
+        <div className="text-base-400">{albaranNumber}</div>
       </div>
 
       <div className="bg-base-100 rounded-lg shadow-md p-6 max-w-4xl mx-auto">
@@ -112,7 +115,7 @@ function OrderShow() {
           <div>
             <h2 className="text-xl font-semibold mb-2">Informació de la Comanda</h2>
             <div className="space-y-1 text-sm">
-              <p><span className="font-medium">ID:</span> INV-{order.id.toString().padStart(6, '0')}</p>
+              <p><span className="font-medium">ID:</span> {albaranNumber}</p>
               <p><span className="font-medium">Data:</span> {formatDate(order.created_at)}</p>
               <p><span className="font-medium">Estat:</span> 
                 <span className={`badge ml-2 ${

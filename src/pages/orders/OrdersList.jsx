@@ -22,6 +22,8 @@ const getOrderItems = (order) => [
   ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
 ]
 
+const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
+
 const ORDER_STATUS_OPTIONS = [
   { value: 'in_cart', label: 'En cistella', className: 'bg-base-200 border-base-300 text-base-content' },
   { value: 'pending', label: 'Pendent', className: 'bg-warning border-warning-content text-warning-content' },
@@ -98,17 +100,17 @@ function OrdersList() {
     }
   }
 
-  const downloadInvoice = async (orderId) => {
+  const downloadAlbaran = async (orderId) => {
     try {
       // Get the authentication token
       const token = localStorage.getItem('token')
       if (!token) {
-        alert('Debes iniciar sesión para descargar facturas')
+        alert('Debes iniciar sesión para descargar albaranes')
         return
       }
 
       // Make authenticated request to download the PDF
-      const response = await fetch(`http://localhost:8000/api/invoices/${orderId}/download`, {
+      const response = await fetch(`http://localhost:8000/api/albaranes/${orderId}/download`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -127,7 +129,7 @@ function OrdersList() {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `factura-INV-${orderId.toString().padStart(6, '0')}.pdf`
+      link.download = `albaran-${formatAlbaranNumber(orderId)}.pdf`
       document.body.appendChild(link)
       link.click()
 
@@ -135,8 +137,8 @@ function OrdersList() {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Error downloading invoice:', error)
-      alert('Error al descargar la factura. Verifica que tengas permisos.')
+      console.error('Error downloading albaran:', error)
+      alert('Error al descargar el albarán. Verifica que tengas permisos.')
     }
   }
 
@@ -150,13 +152,13 @@ function OrdersList() {
 
   const pageTitle = isAdmin ? 'Gestió de Comandes' : 'Les Meves Comandes'
   const pageDescription = isAdmin
-    ? 'Gestiona totes les comandes i descarrega les factures'
-    : 'Gestiona i descarrega les teves factures'
+    ? 'Gestiona totes les comandes i descarrega els albarans'
+    : 'Gestiona i descarrega els teus albarans'
 
-  // Add invoice_number field for searching with formatted ID (INV-000123)
-  const ordersWithInvoice = orders.map(order => ({
+  // Add albaran_number field for searching with formatted ID (ALB-000123)
+  const ordersWithAlbaran = orders.map(order => ({
     ...order,
-    invoice_number: `ALB-${order.id.toString().padStart(6, '0')}`
+    albaran_number: formatAlbaranNumber(order.id)
   }))
 
   if (loading) {
@@ -192,8 +194,8 @@ function OrdersList() {
       </div>
 
       <SearchBarTableSimple
-        data={ordersWithInvoice}
-        searchFields={isAdmin ? ['invoice_number', 'id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['invoice_number', 'id', 'created_at', 'shipped_at', 'payment_method', 'status']}
+        data={ordersWithAlbaran}
+        searchFields={isAdmin ? ['albaran_number', 'id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['albaran_number', 'id', 'created_at', 'shipped_at', 'payment_method', 'status']}
         placeholder='Buscar comanda...'
         inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
       >
@@ -212,7 +214,7 @@ function OrdersList() {
               <tr>
                 <th className="bg-base-200">ID Comanda</th>
                 {isAdmin && <th className="bg-base-200">Client</th>}
-                <th className="bg-base-200">Data Factura</th>
+                <th className="bg-base-200">Data Albarà</th>
                 <th className="bg-base-200">Enviament</th>
                  <th className="bg-base-200">Mètode Pagament</th>
                   <th className="bg-base-200">Estat Comanda</th>
@@ -226,7 +228,7 @@ function OrdersList() {
             <tbody>
               {filteredOrders.map((order) => (
                 <tr key={order.id}>
-                  <td className="font-semibold">INV-{order.id.toString().padStart(6, '0')}</td>
+                  <td className="font-semibold">{formatAlbaranNumber(order.id)}</td>
                   {isAdmin && <td>{getOrderCustomerName(order) || 'Client sense usuari'}</td>}
                   <td>{formatDate(order.created_at)}</td>
                   <td>
@@ -286,12 +288,12 @@ function OrdersList() {
                    </td>
                    <td>
                      <button
-                       onClick={() => downloadInvoice(order.id)}
+                       onClick={() => downloadAlbaran(order.id)}
                        className="btn btn-sm btn-primary"
-                       title="Descarregar Factura"
+                       title="Descarregar Albarà"
                      >
                        <HiDocumentDownload className="w-4 h-4" />
-                       Factura
+                       Albarà
                      </button>
                    </td>
                    {isAdmin && (
@@ -312,7 +314,7 @@ function OrdersList() {
                        </Link>
                          <ConfirmableModal
                            title="Eliminar comanda permanentment"
-                           message={`Segur que vols eliminar permanentment la comanda INV-${order.id.toString().padStart(6, '0')}? Aquesta acció no es pot desfer.`}
+                           message={`Segur que vols eliminar permanentment la comanda ${formatAlbaranNumber(order.id)}? Aquesta acció no es pot desfer.`}
                            onConfirm={() => handleForceDelete(order.id)}
                          >
                            <button className={`text-base-400 hover:text-error-content transition-colors cursor-pointer ${!order.deleted_at ? 'invisible' : ''}`}>

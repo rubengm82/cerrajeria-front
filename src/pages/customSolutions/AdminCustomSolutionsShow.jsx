@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { HiArrowLeft } from 'react-icons/hi2'
+import { HiArrowLeft, HiOutlineDocumentText } from 'react-icons/hi2'
 import { getCustomSolution } from '../../api/customSolutions_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
@@ -19,6 +19,14 @@ function formatDate(dateString) {
   const date = new Date(dateString)
 
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('ca-ES')
+}
+
+function getFileName(filePath = '') {
+  return filePath.split('/').pop() || filePath
+}
+
+function isImageFile(filePath = '') {
+  return ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg', 'webp'].includes(filePath.split('.').pop()?.toLowerCase())
 }
 
 export default function AdminCustomSolutionsShow() {
@@ -84,17 +92,29 @@ export default function AdminCustomSolutionsShow() {
               </div>
 
               <div className="simple-container">
-                <h3 className="text-[18px] font-semibold mb-4">Imatges adjuntes</h3>
+                <h3 className="text-[18px] font-semibold mb-4">Adjunts</h3>
                 {customSolution.files?.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {customSolution.files.map((file) => (
-                      <a key={file.id || file.file_path} href={`/storage/${file.file_path}`} target="_blank" rel="noreferrer" className="block">
-                        <img src={`/storage/${file.file_path}`} alt={`Adjunt de la solució personalitzada ${customSolution.id}`} className="rounded-lg aspect-square object-cover w-full border border-base-300"/>
-                      </a>
-                    ))}
+                    {customSolution.files.map((file) => {
+                      const fileUrl = `/storage/${file.file_path}`
+                      const fileName = file.original_name || getFileName(file.file_path)
+
+                      return (
+                        <a key={file.id || file.file_path} href={fileUrl} target="_blank" rel="noreferrer" className="block">
+                          {isImageFile(file.file_path) ? (
+                            <img src={fileUrl} alt={`Adjunt de la solució personalitzada ${customSolution.id}`} className="rounded-lg aspect-square object-cover w-full border border-base-300"/>
+                          ) : (
+                            <div className="rounded-lg aspect-square w-full border border-base-300 flex flex-col items-center justify-center gap-3 p-4 text-center">
+                              <HiOutlineDocumentText className="size-12 text-primary" aria-hidden="true" />
+                              <p className="font-medium break-all line-clamp-3">{fileName}</p>
+                            </div>
+                          )}
+                        </a>
+                      )
+                    })}
                   </div>
                 ) : (
-                  <p className="text-base-400">Aquesta solució personalitzada no té imatges adjuntes.</p>
+                  <p className="text-base-400">Aquesta solució personalitzada no té adjunts.</p>
                 )}
               </div>
             </div>

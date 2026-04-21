@@ -11,7 +11,24 @@ const initialFormData = {
   phone: '',
   description: '',
 }
-const MAX_IMAGES = 3
+const MAX_ATTACHMENTS = 3
+const ACCEPTED_ATTACHMENT_TYPES = [
+  'image/*',
+  'application/pdf',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.odt',
+  '.xls',
+  '.xlsx',
+].join(',')
+const ACCEPTED_ATTACHMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'odt', 'xls', 'xlsx']
+
+const isAllowedAttachment = (file) => (
+  file.type?.startsWith('image/')
+  || file.type === 'application/pdf'
+  || ACCEPTED_ATTACHMENT_EXTENSIONS.includes(file.name.split('.').pop()?.toLowerCase())
+)
 
 export default function CustomSolutions() {
   const { user } = useAuth()
@@ -21,7 +38,7 @@ export default function CustomSolutions() {
   const fileInputRef = useRef(null)
 
   const [formData, setFormData] = useState(initialFormData)
-  const [images, setImages] = useState([])
+  const [attachments, setAttachments] = useState([])
   const [isDraggingFiles, setIsDraggingFiles] = useState(false)
   const [loading, setLoading] = useState(false)
   const [notification, setNotification] = useState(null)
@@ -44,11 +61,19 @@ export default function CustomSolutions() {
     }
   }, [locationState])
 
-  const showMaxImagesNotification = () => {
+  const showMaxAttachmentsNotification = () => {
     setNotification({
       id: Date.now(),
       type: 'error',
-      message: `Només pots adjuntar fins a ${MAX_IMAGES} imatges.`,
+      message: `Només pots adjuntar fins a ${MAX_ATTACHMENTS} arxius.`,
+    })
+  }
+
+  const showInvalidAttachmentsNotification = () => {
+    setNotification({
+      id: Date.now(),
+      type: 'error',
+      message: 'Només pots adjuntar imatges, PDF, DOC, DOCX, ODT, XLS o XLSX.',
     })
   }
 
@@ -62,29 +87,34 @@ export default function CustomSolutions() {
     fileInputRef.current.files = dataTransfer.files
   }
 
-  const updateImages = (fileList) => {
-    const selectedImages = Array.from(fileList).filter((file) => file.type.startsWith('image/'))
+  const updateAttachments = (fileList) => {
+    const selectedFiles = Array.from(fileList)
+    const validAttachments = selectedFiles.filter(isAllowedAttachment)
 
-    setImages((prevImages) => {
-      const nextImages = [...prevImages, ...selectedImages].slice(0, MAX_IMAGES)
-      syncFileInputFiles(nextImages)
+    if (validAttachments.length < selectedFiles.length) {
+      showInvalidAttachmentsNotification()
+    }
 
-      if (prevImages.length + selectedImages.length > MAX_IMAGES) {
-        showMaxImagesNotification()
+    setAttachments((prevAttachments) => {
+      const nextAttachments = [...prevAttachments, ...validAttachments].slice(0, MAX_ATTACHMENTS)
+      syncFileInputFiles(nextAttachments)
+
+      if (prevAttachments.length + validAttachments.length > MAX_ATTACHMENTS) {
+        showMaxAttachmentsNotification()
       }
 
-      return nextImages
+      return nextAttachments
     })
   }
 
-  const handleRemoveImage = (imageToRemove) => {
-    setImages((prevImages) => {
-      const nextImages = prevImages.filter(
-        (image) => !(image.name === imageToRemove.name && image.lastModified === imageToRemove.lastModified)
+  const handleRemoveAttachment = (attachmentToRemove) => {
+    setAttachments((prevAttachments) => {
+      const nextAttachments = prevAttachments.filter(
+        (attachment) => !(attachment.name === attachmentToRemove.name && attachment.lastModified === attachmentToRemove.lastModified)
       )
 
-      syncFileInputFiles(nextImages)
-      return nextImages
+      syncFileInputFiles(nextAttachments)
+      return nextAttachments
     })
   }
 
@@ -92,7 +122,7 @@ export default function CustomSolutions() {
     const { name, value, type, files } = event.target
 
     if (type === 'file') {
-      updateImages(files)
+      updateAttachments(files)
       event.target.value = null
     } else {
       setFormData((prev) => ({...prev, [name]: value,}))
@@ -122,7 +152,7 @@ export default function CustomSolutions() {
   const handleDrop = (event) => {
     event.preventDefault()
     setIsDraggingFiles(false)
-    updateImages(event.dataTransfer.files)
+    updateAttachments(event.dataTransfer.files)
   }
 
   const handleOpenFilePicker = () => {
@@ -139,8 +169,8 @@ export default function CustomSolutions() {
     payload.append('phone', formData.phone)
     payload.append('description', formData.description)
 
-    images.forEach((image) => {
-      payload.append('images[]', image)
+    attachments.forEach((attachment) => {
+      payload.append('images[]', attachment)
     })
 
     try {
@@ -150,7 +180,7 @@ export default function CustomSolutions() {
         phone: user?.phone || '',
         description: '',
       })
-      setImages([])
+      setAttachments([])
       if (fileInputRef.current) {
         fileInputRef.current.value = null
       }
@@ -242,25 +272,25 @@ export default function CustomSolutions() {
 
                 <div>
                   <label className="label custom-solutions__field-label" htmlFor="images">
-                    <span className="text-sm font-medium">Imatges</span>
+                    <span className="text-sm font-medium">Adjunts</span>
                   </label>
                   <div className={`custom-solutions__upload-box ${isDraggingFiles ? 'custom-solutions__upload-box--dragging' : ''}`} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop} aria-describedby="custom-solutions-upload-help">
-                    <input ref={fileInputRef} id="images" name="images" type="file" accept="image/*" multiple onChange={handleChange} className="custom-solutions__file-input"/>
-                    <p className="custom-solutions__upload-text">Arrossega les imatges aquí</p>
+                    <input ref={fileInputRef} id="images" name="images" type="file" accept={ACCEPTED_ATTACHMENT_TYPES} multiple onChange={handleChange} className="custom-solutions__file-input"/>
+                    <p className="custom-solutions__upload-text">Arrossega les imatges o arxius aquí</p>
                     <p className="custom-solutions__upload-separator">O</p>
-                    <button type="button" className="btn btn-dash custom-solutions__upload-button" onClick={handleOpenFilePicker} aria-label="Pujar imatges per a la solució personalitzada">Pujar arxius</button>
-                    <p id="custom-solutions-upload-help" className="sr-only">Pots adjuntar fins a {MAX_IMAGES} imatges.</p>
-                    {images.length > 0 ? (
+                    <button type="button" className="btn btn-dash custom-solutions__upload-button" onClick={handleOpenFilePicker} aria-label="Pujar adjunts per a la solució personalitzada">Pujar arxius</button>
+                    <p id="custom-solutions-upload-help" className="sr-only">Pots adjuntar fins a {MAX_ATTACHMENTS} arxius.</p>
+                    {attachments.length > 0 ? (
                       <div className="custom-solutions__images-selected">
-                        {images.map((image) => (
-                          <div key={`${image.name}-${image.lastModified}`} className="flex items-center justify-between gap-2">
-                            <p>{image.name}</p>
-                            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveImage(image)} aria-label={`Eliminar la imatge ${image.name}`}>X</button>
+                        {attachments.map((attachment) => (
+                          <div key={`${attachment.name}-${attachment.lastModified}`} className="flex items-center justify-between gap-2">
+                            <p>{attachment.name}</p>
+                            <button type="button" className="btn btn-ghost btn-xs" onClick={() => handleRemoveAttachment(attachment)} aria-label={`Eliminar l'adjunt ${attachment.name}`}>X</button>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <p className="custom-solutions__images-selected">Màxim {MAX_IMAGES} imatges.</p>
+                      <p className="custom-solutions__images-selected">Màxim {MAX_ATTACHMENTS} arxius: imatges, PDF, DOC, DOCX, ODT, XLS o XLSX.</p>
                     )}
                   </div>
                 </div>

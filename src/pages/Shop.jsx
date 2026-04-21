@@ -19,6 +19,7 @@ function Shop() {
   // Estado para el modal de ver producto
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoadingSelectedProduct, setIsLoadingSelectedProduct] = useState(false);
   
   // Se obtiene el data de lo que retorna el usePersistedQuery
   const { data: importantProducts = [], isLoading: isLoadingProducts } = useQuery({
@@ -44,20 +45,25 @@ function Shop() {
   });
 
   const openProductModal = async (product) => {
+    setSelectedProduct(product)
+    setIsLoadingSelectedProduct(true)
+    setIsModalOpen(true)
+
     try {
       const response = await getProduct(product.id)
       setSelectedProduct(response.data)
     } catch (error) {
       console.error(error)
       setSelectedProduct(product)
+    } finally {
+      setIsLoadingSelectedProduct(false)
     }
-
-    setIsModalOpen(true);
   };
 
   const closeProductModal = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
+    setIsLoadingSelectedProduct(false);
   };
 
   return (
@@ -70,7 +76,7 @@ function Shop() {
               <h1 id="shop-hero-title" className="hero-box__title text-5xl lg:text-7xl font-black leading-tight tracking-tighter">
                 <span className="hero-box__line hero-box__line--nowrap flex flex-wrap items-center gap-x-3 md:gap-x-4">
                   <span>El millor</span>
-                  <span className="text-rotate text-primary duration-20000 inline-grid px-2">
+                  <span className="text-rotate text-primary duration-20000 inline-grid px-2 ml-2">
                     <span>
                       <span>servei</span>
                       <span>preu</span>
@@ -267,6 +273,7 @@ function Shop() {
         product={selectedProduct} 
         isOpen={isModalOpen} 
         onClose={closeProductModal}
+        isLoading={isLoadingSelectedProduct}
       />
 
       {/* Banner naranja de contacto */}

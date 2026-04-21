@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { HiOutlinePhoto, HiOutlineEye } from "react-icons/hi2";
+import { HiArrowRight } from "react-icons/hi";
 
 function CategoryCard({ category }) {
   const navigate = useNavigate()
@@ -39,7 +40,7 @@ function CategoryCard({ category }) {
       <div className="category-card__actions">
         <button
           type="button"
-          className="category-card__action category-card__action--view bg-base-100/80"
+          className="category-card__action category-card__action--view"
           onClick={(event) => {
             event.stopPropagation()
             handleNavigate()
@@ -47,11 +48,16 @@ function CategoryCard({ category }) {
           aria-label={`Veure la categoria ${category.name}`}
         >
           <HiOutlineEye className="category-card__action-icon" aria-hidden="true" />
+          <span className="category-card__action-text">Visualitzar</span>
         </button>
       </div>
 
       <div className="category-card__content">
         <h3 className="category-card__name">{category.name}</h3>
+        <p className="category-card__link text-primary">
+          Explorar col·lecció
+          <HiArrowRight className="category-card__link-icon" aria-hidden="true" />
+        </p>
       </div>
     </div>
   ) : null

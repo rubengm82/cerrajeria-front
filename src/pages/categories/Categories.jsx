@@ -3,8 +3,9 @@ import { HiArrowLeft } from "react-icons/hi2"
 import { useQuery } from "@tanstack/react-query"
 import { getCategories } from "../../api/categories_api"
 import CategoryCard from "../../components/CategoryCard"
-import LoadingAnimation from "../../components/LoadingAnimation"
 import '../../../scss/main_shop.scss'
+
+const categorySkeletons = Array.from({ length: 5 })
 
 function Categories() {
   // Caché para categorías
@@ -19,7 +20,7 @@ function Categories() {
     retry: 1,
   });
 
-  return loading ? <LoadingAnimation /> : (
+  return (
     <div className="categories-page">
       <div className="categories-page__container">
         <div className="categories-page__body">
@@ -28,10 +29,14 @@ function Categories() {
               <HiArrowLeft className="size-5" aria-hidden="true" />
               <p>Tornar a l'inici</p>
             </Link>
-            {categories.length > 0 && <h1 id="categories-page-title" className="categories-page__title">Categories:</h1>}
+            <h1 id="categories-page-title" className="categories-page__title">Categories:</h1>
           </div>
           <div className="categories-list">
-            {categories.length > 0 ? categories.map((category) => (
+            {loading ? categorySkeletons.map((_, index) => (
+              <div className="category-card-skeleton skeleton" key={`category-skeleton-${index}`} aria-hidden="true">
+                <div className="skeleton category-card-skeleton__line"></div>
+              </div>
+            )) : categories.length > 0 ? categories.map((category) => (
               <CategoryCard key={category.id} category={category} />
             )) : (
               <p className="categories-empty">Actualment no hi ha categories</p>

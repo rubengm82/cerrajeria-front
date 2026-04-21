@@ -58,6 +58,7 @@ function ProductDetailModal({
   })
 
   const isPack = entityType === "pack"
+  const isStockBreak = !isPack && !!product?.is_stock_break
 
   const productImages = [
     ...(product?.images || []).filter((img) => img.is_important),
@@ -308,6 +309,12 @@ function ProductDetailModal({
                 )}
               </div>
 
+              {isStockBreak && (
+                <p className="product-pack-show__stock-break" role="status">
+                  Este producto esta en rotura de stock
+                </p>
+              )}
+
               {product.description && (
                 <p
                   id={modalDescriptionId}
@@ -330,13 +337,29 @@ function ProductDetailModal({
                 </div>
               ) : isPack ? (
                 packProducts.length > 0 ? (
-                  <div className="product-pack-show__table">
+                  <div className="product-pack-show__table product-pack-show__table--packs">
                     {packProducts.map((p) => (
                       <div
                         key={p.id}
                         className="product-pack-show__table-row"
                       >
-                        <span>{p.name}</span>
+                        <span className="product-pack-show__pack-product-name">
+                          {p.name}
+                          {p.is_stock_break && (
+                            <span
+                              className="product-pack-show__pack-product-stock-break-wrap tooltip tooltip-top"
+                              data-tip="Este producto esta en rotura de stock"
+                              tabIndex={0}
+                            >
+                              <span
+                                className="product-pack-show__pack-product-stock-break"
+                                aria-label="Este producto esta en rotura de stock"
+                              >
+                                R
+                              </span>
+                            </span>
+                          )}
+                        </span>
                         <strong>{formatPrice(p.price)}</strong>
                       </div>
                     ))}

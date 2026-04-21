@@ -26,7 +26,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         images: [],
         is_installable: !!initialData.is_installable,
         is_important_to_show: !!initialData.is_important_to_show,
-        is_active: !!initialData.is_active,
+        is_stock_break: !!initialData.is_stock_break,
         feature_ids: initialData.features ? initialData.features.map(f => f.id) : []
       }
     }
@@ -43,7 +43,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       images: [],
       installation_price: 0,
       price_keys: 0,
-      is_active: true,
+      is_stock_break: false,
       feature_ids: []
     }
   })
@@ -116,6 +116,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
     setErrors({})
 
     const { images, ...formWithoutImage } = form
+    delete formWithoutImage.is_active
     const payload = {
       ...formWithoutImage,
       price: parseFloat(form.price) || 0,
@@ -126,7 +127,7 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       category_id: parseInt(form.category_id),
       is_installable: form.is_installable ? 1 : 0,
       is_important_to_show: form.is_important_to_show ? 1 : 0,
-      is_active: form.is_active ? 1 : 0,
+      is_stock_break: form.is_stock_break ? 1 : 0,
       feature_ids: form.feature_ids
     }
 
@@ -345,13 +346,13 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
         <div className='grid grid-cols-1 gap-6 p-6 bg-base-100 rounded-lg shadow-md border border-base-300'>
           <h3 className="text-[20px] font-semibold">Estat i visibilitat</h3>
 
-          {/* Producto activo */}
+          {/* Rotura de stock */}
           <div className="flex items-center justify-between w-full border border-base-300 p-3 rounded-lg">
             <div>
-              <label className="label text-base-content" htmlFor='is_active'>Producte actiu</label>
-              <p className='text-sm font-semibold text-base-content/55'>El producte està visible i disponible per a la venda</p>
+              <label className="label text-base-content" htmlFor='is_stock_break'>Rotura de stock</label>
+              <p className='text-sm font-semibold text-base-content/55'>Marca el producte com a temporalment en rotura de stock</p>
             </div>
-            <input id='is_active' name='is_active' type="checkbox" checked={!!form.is_active} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
+            <input id='is_stock_break' name='is_stock_break' type="checkbox" checked={!!form.is_stock_break} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
           </div>
           {/* Producto destacado */}
           <div className="flex items-center justify-between w-full border border-base-300 p-3 rounded-lg">

@@ -41,7 +41,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       is_installable: false,
       is_important_to_show: false,
       images: [],
-      installation_price: 0,
       price_keys: 0,
       is_stock_break: false,
       feature_ids: []
@@ -122,7 +121,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
       price: parseFloat(form.price) || 0,
       stock: parseInt(form.stock) || 0,
       discount: parseInt(form.discount) || 0,
-      installation_price: parseFloat(form.installation_price) || 0,
       price_keys: parseFloat(form.price_keys) || 0,
       category_id: parseInt(form.category_id),
       is_installable: form.is_installable ? 1 : 0,
@@ -327,12 +325,6 @@ function ProductForm({ initialData, submitText, title, subtitle, backLink }) {
               <p className='text-sm font-semibold text-base-content/55'>El producte es pot instal·lar</p>
             </div>
             <input id='is_installable' name='is_installable' type="checkbox" checked={!!form.is_installable} onChange={handleChange} className="toggle checked:border-primary checked:bg-primary checked:text-primary-content transition-all"/>
-          </div>
-
-          {/* Precio instalación */}
-          <div className="w-full">
-            <label className="label text-base-content" htmlFor='installation_price'>Preu d'instal·lació (€)</label>
-            <input type="number" name="installation_price" id='installation_price' autoComplete="off" value={form.installation_price} onChange={handleChange} placeholder="0.00" className="input w-full" step="0.01"/>
           </div>
 
           {/* Precio llaves */}

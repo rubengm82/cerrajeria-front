@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { HiArrowLeft, HiOutlinePhoto } from "react-icons/hi2"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../../context/AuthContext"
+import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import LoadingAnimation from "../../components/LoadingAnimation"
@@ -46,6 +47,9 @@ function CheckoutReviewProduct({ product }) {
         <p className="checkout-review-product__category text-base-400">{itemTypeLabel}</p>
         <h3>{product.name}</h3>
         <p className="text-base-400">{quantity} unitats x {formatPrice(currentPrice)}</p>
+        {product.pivot?.installation_requested && (
+          <p className="text-primary font-semibold">Amb instal·lació</p>
+        )}
       </div>
 
       <strong className="checkout-review-product__total">{formatPrice(lineTotal)}</strong>
@@ -64,6 +68,14 @@ function CheckoutReview() {
   const [notification, setNotification] = useState(null)
   const customerData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
   const paymentMethod = sessionStorage.getItem(checkoutPaymentKey) || ""
+  const { data: commerceSettings } = useQuery({
+    queryKey: ["commerce-settings"],
+    queryFn: async () => {
+      const response = await getCommerceSettings()
+      return response.data
+    },
+    retry: 1,
+  })
 
   useEffect(() => {
     const loadCartOrder = async () => {
@@ -91,7 +103,7 @@ function CheckoutReview() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotal, shipping, total } = getCartTotals(products)
+  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
   const hasCustomerData = Boolean(customerData.name && customerData.email && customerData.shipping_address && customerData.installation_address)
   const hasPaymentMethod = Boolean(paymentMethod)
@@ -159,6 +171,7 @@ function CheckoutReview() {
             type: product.cartItemType || "product",
             id: product.id,
             quantity: Number(product.pivot?.quantity || 1),
+            installation_requested: Boolean(product.pivot?.installation_requested),
           })),
         })
 
@@ -255,6 +268,7 @@ function CheckoutReview() {
         <OrderSummary
           subtotal={subtotal}
           shipping={shipping}
+          installation={installation}
           total={total}
           itemCount={itemCount}
           buttonLabel={isConfirming ? "Generant comanda..." : "Confirmar comanda"}

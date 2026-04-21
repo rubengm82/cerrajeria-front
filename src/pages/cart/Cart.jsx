@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
 import { getPack } from "../../api/packs_api"
+import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder, removeCartPack, removeCartProduct, updateCartPack, updateCartProduct } from "../../api/orders_api"
 import ConfirmableModal from "../../components/ConfirmableModal"
 import LoadingAnimation from "../../components/LoadingAnimation"
@@ -11,7 +12,7 @@ import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
-import { getLocalCartItems, removeLocalCartProduct, updateLocalCartProduct } from "../../utils/localCart"
+import { getLocalCartItems, removeLocalCartProduct, updateLocalCartProduct, updateLocalCartProductInstallation } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
@@ -64,10 +65,11 @@ const getApiErrorMessage = (error, fallbackMessage) => {
   return validationMessage || error.response?.data?.message || fallbackMessage
 }
 
-function CartItem({ product, onQuantityChange, onRemove, onView }) {
+function CartItem({ product, onQuantityChange, onInstallationChange, onRemove, onView }) {
   const quantity = Number(product?.pivot?.quantity || 1)
   const availableStock = Number(product?.stock || 0)
   const isPack = product.cartItemType === "pack"
+  const canRequestInstallation = !isPack && Boolean(product.is_installable)
   const quantityId = `cart-quantity-${product.id}`
   const descriptionId = `cart-item-description-${product.id}`
   const currentPrice = getProductPrice(product)
@@ -121,18 +123,32 @@ function CartItem({ product, onQuantityChange, onRemove, onView }) {
         </p>
 
         <div className="cart-item__footer">
-          <label className="cart-item__quantity" htmlFor={quantityId}>
-            <span>Quantitat</span>
-            <input
-              id={quantityId}
-              type="number"
-              min="1"
-              max={availableStock}
-              value={quantity}
-              onChange={(event) => onQuantityChange(product, Number(event.target.value || 1))}
-              aria-label={`Quantitat de ${product.name}`}
-            />
-          </label>
+          <div className="cart-item__controls">
+            <label className="cart-item__quantity" htmlFor={quantityId}>
+              <span>Quantitat</span>
+              <input
+                id={quantityId}
+                type="number"
+                min="1"
+                max={availableStock}
+                value={quantity}
+                onChange={(event) => onQuantityChange(product, Number(event.target.value || 1))}
+                aria-label={`Quantitat de ${product.name}`}
+              />
+            </label>
+
+            {canRequestInstallation && (
+              <label className="cart-item__installation">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary checkbox-sm"
+                  checked={Boolean(product.pivot?.installation_requested)}
+                  onChange={(event) => onInstallationChange(product, event.target.checked)}
+                />
+                <span>Instal·lació</span>
+              </label>
+            )}
+          </div>
 
           <div className="cart-item__prices">
             {hasDiscount && <span className="cart-item__old-price text-base-300">{formatPrice(oldLineTotal)}</span>}
@@ -161,6 +177,14 @@ function Cart() {
     enabled: Boolean(user),
     retry: 1,
   })
+  const { data: commerceSettings } = useQuery({
+    queryKey: ["commerce-settings"],
+    queryFn: async () => {
+      const response = await getCommerceSettings()
+      return response.data
+    },
+    retry: 1,
+  })
 
   const showNotification = (type, message) => {
     setNotification({
@@ -180,7 +204,7 @@ function Cart() {
     ...item,
     stock: getAvailableStockForCartItem(item, rawCartItems),
   }))
-  const { itemCount, subtotal, shipping, total } = getCartTotals(cartItems)
+  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(cartItems, commerceSettings)
   const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
   const handleQuantityChange = async (product, nextQuantity) => {
@@ -222,6 +246,23 @@ function Cart() {
     }
 
     navigate("/checkout")
+  }
+
+  const handleInstallationChange = async (product, installationRequested) => {
+    try {
+      if (user) {
+        await updateCartProduct(product.id, {
+          quantity: getItemQuantity(product),
+          installation_requested: installationRequested,
+        })
+        await refetch()
+      } else {
+        updateLocalCartProductInstallation(product.id, installationRequested)
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    } catch (error) {
+      showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la instal·lació."))
+    }
   }
 
   const handleRemove = async (product) => {
@@ -289,13 +330,14 @@ function Cart() {
     <div className="cart-page__layout">
       <div className="cart-page__items" aria-label="Productes del carret">
         {cartItems.map((product) => (
-          <CartItem key={`${product.cartItemType}-${product.id}`} product={product} onQuantityChange={handleQuantityChange} onRemove={handleRemove} onView={handleViewItem} />
+          <CartItem key={`${product.cartItemType}-${product.id}`} product={product} onQuantityChange={handleQuantityChange} onInstallationChange={handleInstallationChange} onRemove={handleRemove} onView={handleViewItem} />
         ))}
       </div>
 
       <OrderSummary
         subtotal={subtotal}
         shipping={shipping}
+        installation={installation}
         total={total}
         itemCount={itemCount}
         onAction={handleCheckout}

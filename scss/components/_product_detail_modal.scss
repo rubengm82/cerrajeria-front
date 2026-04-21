@@ -198,6 +198,16 @@
     margin-top: auto;
   }
 
+  &__installation {
+    grid-column: 1 / -1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
   &__quantity,
   &__quantity-input {
     width: 100%;

@@ -5,6 +5,7 @@ import { formatPrice } from "../utils/cartTotals"
 function OrderSummary({
   subtotal = 0,
   shipping = 0,
+  installation = 0,
   total = 0,
   itemCount = 0,
   actionTo,
@@ -30,6 +31,13 @@ function OrderSummary({
           <span>Enviament</span>
           <strong>{shipping > 0 ? formatPrice(shipping) : "Gratuït"}</strong>
         </div>
+
+        {installation > 0 && (
+          <div className="order-summary__line">
+            <span>Instal·lació</span>
+            <strong>{formatPrice(installation)}</strong>
+          </div>
+        )}
       </div>
 
       <div className="order-summary__total">

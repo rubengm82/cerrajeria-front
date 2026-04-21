@@ -47,6 +47,7 @@ function ProductDetailModal({
   const [isAddingToCart, setIsAddingToCart] = useState(false)
   const [localCartVersion, setLocalCartVersion] = useState(0)
   const [isContentReady, setIsContentReady] = useState(false)
+  const [installationRequested, setInstallationRequested] = useState(false)
   const { data: cartOrder } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
@@ -59,6 +60,7 @@ function ProductDetailModal({
 
   const isPack = entityType === "pack"
   const isStockBreak = !isPack && !!product?.is_stock_break
+  const canRequestInstallation = !isPack && Boolean(product?.is_installable)
   const showSkeleton = !isContentReady
 
   const productImages = [
@@ -103,6 +105,7 @@ function ProductDetailModal({
     }
 
     setIsContentReady(false)
+    setInstallationRequested(false)
     const timeoutId = window.setTimeout(() => {
       setIsContentReady(true)
     }, 120)
@@ -164,6 +167,7 @@ function ProductDetailModal({
            : await addProductToCart({
              product_id: product?.id,
              quantity,
+             installation_requested: installationRequested,
            })
 
         wasAdded = Boolean(response.data?.added)
@@ -177,7 +181,7 @@ function ProductDetailModal({
          const result = addProductToLocalCart({
            ...(product || {}),
            stock: normalizedAvailableStock,
-        }, quantity, isPack ? "pack" : "product")
+        }, quantity, isPack ? "pack" : "product", installationRequested)
         wasAdded = result.added
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
@@ -435,6 +439,18 @@ function ProductDetailModal({
 
             {!showSkeleton && !isAdmin && (
               <div className="product-pack-show__purchase">
+                {canRequestInstallation && (
+                  <label className="product-pack-show__installation">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-primary"
+                      checked={installationRequested}
+                      onChange={(event) => setInstallationRequested(event.target.checked)}
+                    />
+                    <span>Afegir instal·lació</span>
+                  </label>
+                )}
+
                 <input
                   id={quantityInputId}
                   type="number"

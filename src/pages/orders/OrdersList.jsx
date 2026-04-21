@@ -1,8 +1,9 @@
 import { useState, useEffect, useContext, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
+import { getCommerceSettings, updateCommerceSettings } from '../../api/commerce_settings_api'
 import { getOrders, getOrdersWithTrashed, updateOrder, deleteOrder, restoreOrder, forceDeleteOrder } from '../../api/orders_api'
-import { HiDocumentDownload, HiTrash, HiEye } from 'react-icons/hi'
+import { HiDocumentDownload, HiTrash, HiEye, HiCog, HiPlus, HiX } from 'react-icons/hi'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
@@ -41,6 +42,9 @@ function OrdersList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [notification, setNotification] = useState(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [settingsForm, setSettingsForm] = useState({ shipping_price: 0, installation_rules: [] })
+  const [isSavingSettings, setIsSavingSettings] = useState(false)
 
   const isAdmin = user?.role === 'admin'
 
@@ -60,6 +64,24 @@ function OrdersList() {
   useEffect(() => {
     fetchOrders()
   }, [fetchOrders])
+
+  const fetchCommerceSettings = useCallback(async () => {
+    try {
+      const response = await getCommerceSettings()
+      setSettingsForm({
+        shipping_price: response.data?.shipping_price || 0,
+        installation_rules: response.data?.installation_rules || [],
+      })
+    } catch (err) {
+      console.error('Error fetching commerce settings:', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchCommerceSettings()
+    }
+  }, [fetchCommerceSettings, isAdmin])
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -97,6 +119,69 @@ function OrdersList() {
     } catch (error) {
       console.error('Error force deleting order:', error)
       setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut eliminar permanentment la comanda" })
+    }
+  }
+
+  const handleSettingsFieldChange = (event) => {
+    setSettingsForm((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }))
+  }
+
+  const handleRuleChange = (index, field, value) => {
+    setSettingsForm((current) => ({
+      ...current,
+      installation_rules: current.installation_rules.map((rule, ruleIndex) => (
+        ruleIndex === index ? { ...rule, [field]: value } : rule
+      )),
+    }))
+  }
+
+  const handleAddRule = () => {
+    setSettingsForm((current) => ({
+      ...current,
+      installation_rules: [
+        ...current.installation_rules,
+        { min_subtotal: '', max_subtotal: '', price: '' },
+      ],
+    }))
+  }
+
+  const handleRemoveRule = (index) => {
+    setSettingsForm((current) => ({
+      ...current,
+      installation_rules: current.installation_rules.filter((_, ruleIndex) => ruleIndex !== index),
+    }))
+  }
+
+  const handleSaveSettings = async (event) => {
+    event.preventDefault()
+    setIsSavingSettings(true)
+
+    try {
+      const response = await updateCommerceSettings({
+        shipping_price: Number(settingsForm.shipping_price || 0),
+        installation_rules: settingsForm.installation_rules
+          .filter((rule) => rule.min_subtotal !== '' && rule.price !== '')
+          .map((rule) => ({
+            min_subtotal: Number(rule.min_subtotal || 0),
+            max_subtotal: rule.max_subtotal === '' ? null : Number(rule.max_subtotal),
+            price: Number(rule.price || 0),
+          })),
+      })
+
+      setSettingsForm({
+        shipping_price: response.data?.shipping_price || 0,
+        installation_rules: response.data?.installation_rules || [],
+      })
+      setIsSettingsOpen(false)
+      setNotification({ id: Date.now(), type: "success", message: "Configuració de preus actualitzada correctament" })
+    } catch (err) {
+      console.error('Error saving commerce settings:', err)
+      setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut guardar la configuració de preus" })
+    } finally {
+      setIsSavingSettings(false)
     }
   }
 
@@ -188,10 +273,94 @@ function OrdersList() {
       {notification && (
         <Notifications key={notification.id} type={notification.type} message={notification.message} onClose={() => setNotification(null)}/>
       )}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-base-content mb-2">{pageTitle}</h1>
-        <p className="text-base-400">{pageDescription}</p>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-base-content mb-2">{pageTitle}</h1>
+          <p className="text-base-400">{pageDescription}</p>
+        </div>
+
+        {isAdmin && (
+          <button type="button" className="btn btn-primary" onClick={() => setIsSettingsOpen(true)}>
+            <HiCog className="size-5" />
+            Preus
+          </button>
+        )}
       </div>
+
+      {isAdmin && isSettingsOpen && (
+        <div className="modal modal-open" role="dialog" aria-modal="true">
+          <div className="modal-box max-w-3xl">
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h2 className="text-2xl font-bold">Configuració de preus</h2>
+                <p className="text-base-400">Defineix l'enviament global i les regles d'instal·lació.</p>
+              </div>
+              <button type="button" className="btn btn-circle btn-ghost" onClick={() => setIsSettingsOpen(false)} aria-label="Tancar configuració">
+                <HiX className="size-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="space-y-5">
+              <label className="form-control w-full">
+                <span className="label-text mb-2">Preu d'enviament global (€)</span>
+                <input
+                  type="number"
+                  name="shipping_price"
+                  min="0"
+                  step="0.01"
+                  className="input input-bordered w-full"
+                  value={settingsForm.shipping_price}
+                  onChange={handleSettingsFieldChange}
+                />
+              </label>
+
+              <section className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-semibold">Regles d'instal·lació</h3>
+                  <button type="button" className="btn btn-sm btn-outline" onClick={handleAddRule}>
+                    <HiPlus className="size-4" />
+                    Afegir regla
+                  </button>
+                </div>
+
+                {settingsForm.installation_rules.length === 0 ? (
+                  <p className="text-base-400 border border-base-300 rounded-lg p-4">No hi ha regles configurades.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {settingsForm.installation_rules.map((rule, index) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end border border-base-300 rounded-lg p-3">
+                        <label className="form-control">
+                          <span className="label-text mb-1">Des de (€)</span>
+                          <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.min_subtotal ?? ''} onChange={(event) => handleRuleChange(index, 'min_subtotal', event.target.value)} required />
+                        </label>
+                        <label className="form-control">
+                          <span className="label-text mb-1">Fins (€)</span>
+                          <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.max_subtotal ?? ''} onChange={(event) => handleRuleChange(index, 'max_subtotal', event.target.value)} placeholder="Sense límit" />
+                        </label>
+                        <label className="form-control">
+                          <span className="label-text mb-1">Preu instal·lació (€)</span>
+                          <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.price ?? ''} onChange={(event) => handleRuleChange(index, 'price', event.target.value)} required />
+                        </label>
+                        <button type="button" className="btn btn-ghost text-error" onClick={() => handleRemoveRule(index)} aria-label="Eliminar regla">
+                          <HiTrash className="size-5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              <div className="modal-action">
+                <button type="button" className="btn btn-ghost" onClick={() => setIsSettingsOpen(false)}>Cancel·lar</button>
+                <button type="submit" className="btn btn-primary" disabled={isSavingSettings}>
+                  {isSavingSettings ? 'Guardant...' : 'Guardar'}
+                </button>
+              </div>
+            </form>
+          </div>
+          <div className="modal-backdrop" onClick={() => setIsSettingsOpen(false)}></div>
+        </div>
+      )}
 
       <SearchBarTableSimple
         data={ordersWithAlbaran}
@@ -273,6 +442,8 @@ function OrdersList() {
                        return (
                          <div className="text-left text-sm">
                            <div>Subtotal: {formatPrice(subtotal)}</div>
+                           <div>Enviament: {formatPrice(order.shipping_price || 0)}</div>
+                           <div>Instal·lació: {formatPrice(order.installation_price || 0)}</div>
                            <div>IVA: {formatPrice(iva)}</div>
                          </div>
                        )
@@ -282,7 +453,7 @@ function OrdersList() {
                      {(() => {
                        const { subtotal } = getCartTotals(getOrderItems(order))
                        const iva = subtotal * 0.21
-                       const total = subtotal + iva
+                       const total = subtotal + iva + Number(order.shipping_price || 0) + Number(order.installation_price || 0)
                        return formatPrice(total)
                      })()}
                    </td>

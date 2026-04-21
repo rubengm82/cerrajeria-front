@@ -266,6 +266,13 @@
     padding-top: clamp(0.75rem, 2vw, 1rem);
   }
 
+  &__controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
   &__quantity {
     display: flex;
     flex-direction: column;
@@ -273,6 +280,16 @@
     color: var(--color-base-400);
     font-size: 0.75rem;
     font-weight: 500;
+  }
+
+  &__installation {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    color: var(--color-base-400);
+    font-size: 0.8rem;
+    font-weight: 600;
   }
 
   &__quantity input {

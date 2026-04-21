@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { HiOutlineCheckCircle, HiOutlineEye, HiOutlineEyeSlash } from 'react-icons/hi2'
 import { register } from '../../api/auth_api'
 import { mergeGuestCart } from '../../api/orders_api'
 import { clearLocalCart, getLocalCartMergeItems } from '../../utils/localCart'
+import './SignIn.scss'
 
 function Register() {
   const navigate = useNavigate()
@@ -19,6 +21,8 @@ function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false)
 
   const handleChange = (e) => {
     setFormData({
@@ -66,165 +70,176 @@ function Register() {
 
   if (success) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="card w-96 bg-base-100 shadow-xl p-6">
-          <div className="text-center">
-            <div className="text-success text-5xl mb-4" aria-hidden="true">✓</div>
-            <h2 className="text-xl font-bold text-success mb-2">Compte creat!</h2>
-            <p className="text-sm text-gray-600 mb-4">{success}</p>
-            <p className="text-sm text-gray-500 mb-4">
+      <main className="auth-page" aria-labelledby="register-success-title">
+        <section className="auth-card auth-card--success" aria-describedby="register-success-description">
+          <HiOutlineCheckCircle className="auth-card__success-icon" aria-hidden="true" />
+          <h1 id="register-success-title" className="auth-card__title">Compte creat!</h1>
+          <p id="register-success-description" className="auth-card__subtitle">{success}</p>
+          <p className="auth-card__hint">
               Si no reps el correu, revisa la carpeta de correu no desitjat o 
-              <Link to="/resend-verification" className="text-primary ml-1">
+              <Link to="/resend-verification" className="auth-link">
                 reenvia el correu de verificació
               </Link>
-            </p>
-            <button 
-              className="btn btn-primary" 
-              onClick={() => navigate('/login')}
-            >
-              Anar a iniciar sessió
-            </button>
-          </div>
-        </div>
-      </div>
+          </p>
+          <button className="auth-button" onClick={() => navigate('/login')}>
+            Anar a iniciar sessió
+          </button>
+        </section>
+      </main>
     )
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen py-8">
-      <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari de registre" aria-describedby={error ? "register-error" : undefined}>
-        <h2 className="text-2xl font-bold text-center mb-4">Crear compte</h2>
+    <main className="auth-page auth-page--register" aria-labelledby="register-title">
+      <form onSubmit={handleSubmit} className="auth-card auth-card--register" aria-label="Formulari de registre" aria-describedby={error ? "register-error" : "register-description"}>
+        <header className="auth-card__header">
+          <h1 id="register-title" className="auth-card__title">Crea el teu compte</h1>
+          <p id="register-description" className="auth-card__subtitle">Omple les dades per començar a comprar i gestionar les teves comandes</p>
+        </header>
         
-        {error && <p id="register-error" className="text-red-500 mb-4 text-center">{error}</p>}
+        {error && (
+          <div className="auth-alert" role="alert">
+            <p id="register-error">{error}</p>
+          </div>
+        )}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Nom */}
-          <div className="md:col-span-2">
-            <label className="label" htmlFor="register-name">
-              <span className="label-text">Nom *</span>
-            </label>
-            <input
-              id="register-name"
-              type="text"
-              name="name"
-              placeholder="Nom"
-              className="input input-bordered w-full"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+        <div className="auth-grid">
+          <div className="auth-field auth-grid__full">
+            <label className="auth-field__label" htmlFor="register-name">Nom</label>
+            <div className="auth-field__control auth-field__control--plain">
+              <input
+                id="register-name"
+                type="text"
+                name="name"
+                placeholder="El teu nom"
+                value={formData.name}
+                onChange={handleChange}
+                autoComplete="given-name"
+                aria-label="Nom"
+                required
+              />
+            </div>
           </div>
 
-          {/* Primer cognom y Segon cognom en la misma línea */}
-          <div className="grid grid-cols-2 gap-4 md:col-span-2">
-            <div>
-              <label className="label" htmlFor="register-last-name-one">
-                <span className="label-text">Primer Cognom *</span>
-              </label>
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="register-last-name-one">Primer cognom</label>
+            <div className="auth-field__control auth-field__control--plain">
               <input
                 id="register-last-name-one"
                 type="text"
                 name="last_name_one"
-                placeholder="Primer Cognom"
-                className="input input-bordered w-full"
+                placeholder="Primer cognom"
                 value={formData.last_name_one}
                 onChange={handleChange}
+                autoComplete="family-name"
+                aria-label="Primer cognom"
                 required
               />
             </div>
+          </div>
 
-            <div>
-              <label className="label" htmlFor="register-last-name-second">
-                <span className="label-text">Segon Cognom</span>
-              </label>
+          <div className="auth-field">
+            <label className="auth-field__label" htmlFor="register-last-name-second">Segon cognom</label>
+            <div className="auth-field__control auth-field__control--plain">
               <input
                 id="register-last-name-second"
                 type="text"
                 name="last_name_second"
-                placeholder="Segon Cognom"
-                className="input input-bordered w-full"
+                placeholder="Segon cognom"
                 value={formData.last_name_second}
                 onChange={handleChange}
+                autoComplete="additional-name"
+                aria-label="Segon cognom"
               />
             </div>
           </div>
 
-          {/* Email */}
-          <div className="md:col-span-2">
-            <label className="label" htmlFor="register-email">
-              <span className="label-text">Email *</span>
-            </label>
-            <input
-              id="register-email"
-              type="email"
-              name="email"
-              placeholder="Email"
-              className="input input-bordered w-full"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
+          <div className="auth-field auth-grid__full">
+            <label className="auth-field__label" htmlFor="register-email">Correu electrònic</label>
+            <div className="auth-field__control auth-field__control--plain">
+              <input
+                id="register-email"
+                type="email"
+                name="email"
+                placeholder="tu@email.com"
+                value={formData.email}
+                onChange={handleChange}
+                autoComplete="email"
+                aria-label="Correu electrònic"
+                required
+              />
+            </div>
           </div>
 
-          {/* Contrasenya */}
-          <div className="md:col-span-2 mt-4">
-            <div className="divider">Contrasenya</div>
+          <div className="auth-field auth-grid__full">
+            <label className="auth-field__label" htmlFor="register-password">Contrasenya</label>
+            <div className="auth-field__control auth-field__control--plain">
+              <input
+                id="register-password"
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="Mínim 8 caràcters"
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+                aria-label="Contrasenya"
+                required
+                minLength={8}
+              />
+              <button
+                type="button"
+                className="auth-field__toggle"
+                onClick={() => setShowPassword(current => !current)}
+                aria-label={showPassword ? 'Amagar la contrasenya' : 'Mostrar la contrasenya'}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <HiOutlineEyeSlash aria-hidden="true" /> : <HiOutlineEye aria-hidden="true" />}
+              </button>
+            </div>
           </div>
 
-          <div className="md:col-span-2">
-            <label className="label" htmlFor="register-password">
-              <span className="label-text">Contrasenya *</span>
-            </label>
-            <input
-              id="register-password"
-              type="password"
-              name="password"
-              placeholder="Contrasenya (mín. 8 caràcters)"
-              className="input input-bordered w-full"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength={8}
-            />
-          </div>
-
-          {/* Confirmar Contrasenya */}
-          <div className="md:col-span-2">
-            <label className="label" htmlFor="register-password-confirmation">
-              <span className="label-text">Confirmar Contrasenya *</span>
-            </label>
-            <input
-              id="register-password-confirmation"
-              type="password"
-              name="password_confirmation"
-              placeholder="Confirmar Contrasenya"
-              className="input input-bordered w-full"
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              required
-              minLength={8}
-            />
+          <div className="auth-field auth-grid__full">
+            <label className="auth-field__label" htmlFor="register-password-confirmation">Confirma la contrasenya</label>
+            <div className="auth-field__control auth-field__control--plain">
+              <input
+                id="register-password-confirmation"
+                type={showPasswordConfirmation ? 'text' : 'password'}
+                name="password_confirmation"
+                placeholder="Repeteix la contrasenya"
+                value={formData.password_confirmation}
+                onChange={handleChange}
+                autoComplete="new-password"
+                aria-label="Confirmar contrasenya"
+                required
+                minLength={8}
+              />
+              <button
+                type="button"
+                className="auth-field__toggle"
+                onClick={() => setShowPasswordConfirmation(current => !current)}
+                aria-label={showPasswordConfirmation ? 'Amagar la confirmació de contrasenya' : 'Mostrar la confirmació de contrasenya'}
+                aria-pressed={showPasswordConfirmation}
+              >
+                {showPasswordConfirmation ? <HiOutlineEyeSlash aria-hidden="true" /> : <HiOutlineEye aria-hidden="true" />}
+              </button>
+            </div>
           </div>
         </div>
         
-        <button 
-          type="submit" 
-          className="btn btn-primary w-full mt-6"
-          disabled={loading}
-        >
+        <button type="submit" className="auth-button" disabled={loading}>
           {loading ? 'Creant compte...' : 'Crear compte'}
         </button>
         
-        <div className="mt-4 text-center">
-          <p className="text-sm">
+        <div className="auth-card__footer">
+          <p>
             Ja tens compte?{' '}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/login" className="auth-link auth-link--strong">
               Inicia sessió
             </Link>
           </p>
         </div>
       </form>
-    </div>
+    </main>
   )
 }
 

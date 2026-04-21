@@ -153,6 +153,12 @@ function OrdersList() {
     ? 'Gestiona totes les comandes i descarrega les factures'
     : 'Gestiona i descarrega les teves factures'
 
+  // Add invoice_number field for searching with formatted ID (INV-000123)
+  const ordersWithInvoice = orders.map(order => ({
+    ...order,
+    invoice_number: `ALB-${order.id.toString().padStart(6, '0')}`
+  }))
+
   if (loading) {
     return (
       <div className="p-4 md:p-0">
@@ -186,8 +192,8 @@ function OrdersList() {
       </div>
 
       <SearchBarTableSimple
-        data={orders}
-        searchFields={isAdmin ? ['id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['id', 'created_at', 'shipped_at', 'payment_method', 'status']}
+        data={ordersWithInvoice}
+        searchFields={isAdmin ? ['invoice_number', 'id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['invoice_number', 'id', 'created_at', 'shipped_at', 'payment_method', 'status']}
         placeholder='Buscar comanda...'
         inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
       >

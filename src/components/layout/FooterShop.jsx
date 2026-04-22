@@ -31,12 +31,15 @@ export default function FooterShop() {
               <li>
                 <Link to="/categories">Categories</Link>
               </li>
-              <li>
-                <a href="https://serralleriasolidaria.cat/nosaltres.php" target="_blank" rel="noopener noreferrer">Qui som</a>
-              </li>
-              <li>
-                <a href="https://serralleriasolidaria.cat/serveis.php" target="_blank" rel="noopener noreferrer">Serveis</a>
-              </li>
+               <li>
+                 <a href="https://serralleriasolidaria.cat/nosaltres.php" target="_blank" rel="noopener noreferrer">Qui som</a>
+               </li>
+               <li>
+                 <Link to="/faqs">Preguntes Freqüents (FAQs)</Link>
+               </li>
+               <li>
+                 <a href="https://serralleriasolidaria.cat/serveis.php" target="_blank" rel="noopener noreferrer">Serveis</a>
+               </li>
               <li>
                 <Link to="/custom-solutions">Solucions Personalitzades</Link>
               </li>

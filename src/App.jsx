@@ -24,6 +24,7 @@ import Checkout from './pages/cart/Checkout'
 import CheckoutPayment from './pages/cart/CheckoutPayment'
 import CheckoutReview from './pages/cart/CheckoutReview'
 import SearchResults from './pages/search/SearchResults'
+import FAQs from './pages/shop/FAQs'
 
 // Pages - Auth
 import Login from './pages/auth/SignIn'
@@ -54,6 +55,9 @@ import AdminReports from './pages/admin/AdminReports'
 import CustomSolutions from './pages/customSolutions/CustomSolutions'
 import AdminCustomSolutionsList from './pages/customSolutions/AdminCustomSolutionsList'
 import AdminCustomSolutionsShow from './pages/customSolutions/AdminCustomSolutionsShow'
+import AdminFAQsList from './pages/admin/AdminFAQsList'
+import CreateFaq from './pages/admin/CreateFaq'
+import EditFaq from './pages/admin/EditFaq'
 import OrdersList from './pages/orders/OrdersList'
 import OrderShow from './pages/orders/OrderShow'
 
@@ -111,6 +115,7 @@ function App() {
         <Route path="/checkout/review" element={<CheckoutReview />} />
         <Route path="/custom-solutions" element={<CustomSolutions />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/faqs" element={<FAQs />} />
       </Route>
 
         <Route path="/login" element={<Login />} />
@@ -219,18 +224,34 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='/admin/custom-solutions' element={
-          <ProtectedRoute requiredRole='admin'>
-            <AdminCustomSolutionsList />
-          </ProtectedRoute>
-        } />
-        <Route path='/admin/custom-solutions/:id/show' element={
-          <ProtectedRoute requiredRole='admin'>
-            <AdminCustomSolutionsShow />
-          </ProtectedRoute>
-        } />
+         <Route path='/admin/custom-solutions' element={
+           <ProtectedRoute requiredRole='admin'>
+             <AdminCustomSolutionsList />
+           </ProtectedRoute>
+         } />
+         <Route path='/admin/custom-solutions/:id/show' element={
+           <ProtectedRoute requiredRole='admin'>
+             <AdminCustomSolutionsShow />
+           </ProtectedRoute>
+         } />
 
-        <Route path='/admin/dashboard' element={
+         <Route path='/admin/faqs' element={
+           <ProtectedRoute requiredRole='admin'>
+             <AdminFAQsList />
+           </ProtectedRoute>
+         } />
+         <Route path='/admin/faqs/new' element={
+           <ProtectedRoute requiredRole='admin'>
+             <CreateFaq />
+           </ProtectedRoute>
+         } />
+         <Route path='/admin/faqs/:id/edit' element={
+           <ProtectedRoute requiredRole='admin'>
+             <EditFaq />
+           </ProtectedRoute>
+         } />
+
+         <Route path='/admin/dashboard' element={
           <ProtectedRoute requiredRole='admin'>
             <AdminDashboard />
           </ProtectedRoute>

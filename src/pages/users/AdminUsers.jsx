@@ -102,8 +102,8 @@ function AdminUsers() {
                       <td className='border-base-300'>{user.dni || ''}</td>
                       <td className='border-base-300'>{user.phone || ''}</td>
                       <td className='border-base-300'>{user.email}</td>
-                      <td className='border-base-300'>{user.address || ''}</td>
-                      <td className='border-base-300'>{user.zip_code || ''}</td>
+                       <td className='border-base-300'>{user.shipping_address || ''}</td>
+                       <td className='border-base-300'>{user.shipping_zip_code || ''}</td>
                       <td className='border-base-300'>
                         <ConfirmableModal
                           title="Canviar rol de l'usuari"

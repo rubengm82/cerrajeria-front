@@ -7,6 +7,11 @@ import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 
+// Lista de provincias de España
+const provinciasEspana = [
+  "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", "A Coruña", "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca", "Jaén", "León", "Lleida", "La Rioja", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
+];
+
 function EditMyProfile() {
 
   const { user: authUser, loading: authLoading } = useAuth()
@@ -20,10 +25,20 @@ function EditMyProfile() {
     dni: "",
     phone:  "",
     email:  "",
-    address_street: "",
-    address_floor: "",
-    address_staircase: "",
-    zip_code: "",
+    // Dirección de envío
+    shipping_street: "",
+    shipping_floor: "",
+    shipping_staircase: "",
+    shipping_zip_code: "",
+    shipping_province: "",
+    shipping_country: "España",
+    // Dirección de facturación
+    billing_street: "",
+    billing_floor: "",
+    billing_staircase: "",
+    billing_zip_code: "",
+    billing_province: "",
+    billing_country: "España",
     password: "",
     password_confirmation: "",
   })
@@ -31,10 +46,9 @@ function EditMyProfile() {
   // Función para parsear la dirección guardada en la base de datos
   const parseAddress = (address) => {
     if (!address) return { street: '', floor: '', staircase: '' }
-    
-    // Formato esperado: "Calle, Piso, Escalera" o cualquier combinación
+
     const parts = address.split(',').map(part => part.trim())
-    
+
     return {
       street: parts[0] || '',
       floor: parts[1] || '',
@@ -47,9 +61,9 @@ function EditMyProfile() {
       setLoading(true)
       try {
         const response = await getUser(authUser.id)
-        // Parsear la dirección guardada
-        const parsedAddress = parseAddress(response.data.address)
-        
+        const parsedShipping = parseAddress(response.data.shipping_address)
+        const parsedBilling = parseAddress(response.data.billing_address)
+
         setFormData({
           name: response.data.name || "",
           last_name_one: response.data.last_name_one || "",
@@ -57,15 +71,26 @@ function EditMyProfile() {
           dni: response.data.dni || "",
           phone: response.data.phone || "",
           email: response.data.email || "",
-          address_street: parsedAddress.street || "",
-          address_floor: parsedAddress.floor || "",
-          address_staircase: parsedAddress.staircase || "",
-          zip_code: response.data.zip_code || ""
+          shipping_street: parsedShipping.street || "",
+          shipping_floor: parsedShipping.floor || "",
+          shipping_staircase: parsedShipping.staircase || "",
+          shipping_zip_code: response.data.shipping_zip_code || "",
+          shipping_province: response.data.shipping_province || "",
+          shipping_country: response.data.shipping_country || "España",
+          billing_street: parsedBilling.street || "",
+          billing_floor: parsedBilling.floor || "",
+          billing_staircase: parsedBilling.staircase || "",
+          billing_zip_code: response.data.billing_zip_code || "",
+          billing_province: response.data.billing_province || "",
+          billing_country: response.data.billing_country || "España",
+          password: "",
+          password_confirmation: "",
         })
       } catch (err) {
         console.error('Error fetching user:', err)
         if (authUser) {
-          const parsedAddress = parseAddress(authUser.address)
+          const parsedShipping = parseAddress(authUser.shipping_address || authUser.address)
+          const parsedBilling = parseAddress(authUser.billing_address || '')
           setFormData({
             name: authUser.name || "",
             last_name_one: authUser.last_name_one || "",
@@ -73,10 +98,20 @@ function EditMyProfile() {
             dni: authUser.dni || "",
             phone: authUser.phone || "",
             email: authUser.email || "",
-            address_street: parsedAddress.street || "",
-            address_floor: parsedAddress.floor || "",
-            address_staircase: parsedAddress.staircase || "",
-            zip_code: authUser.zip_code || ""
+            shipping_street: parsedShipping.street || "",
+            shipping_floor: parsedShipping.floor || "",
+            shipping_staircase: parsedShipping.staircase || "",
+            shipping_zip_code: authUser.shipping_zip_code || authUser.zip_code || "",
+            shipping_province: authUser.shipping_province || authUser.province || "",
+            shipping_country: authUser.shipping_country || authUser.country || "España",
+            billing_street: parsedBilling.street || "",
+            billing_floor: parsedBilling.floor || "",
+            billing_staircase: parsedBilling.staircase || "",
+            billing_zip_code: authUser.billing_zip_code || "",
+            billing_province: authUser.billing_province || "",
+            billing_country: authUser.billing_country || "España",
+            password: "",
+            password_confirmation: "",
           })
         }
       } finally {
@@ -89,30 +124,28 @@ function EditMyProfile() {
     }
   }, [authUser, authLoading])
 
-
   const handleSubmit = async (event) => {
     event.preventDefault()
     setLoading(true)
-    
+
     try {
       const userId = authUser.id
 
-      // Validar contraseñas si se proporcionan
       if (formData.password || formData.password_confirmation) {
         if (formData.password !== formData.password_confirmation) {
-          setNotification({ 
-            id: Date.now(), 
-            type: 'error', 
-            message: 'Les contrasenyes no coincideixen' 
+          setNotification({
+            id: Date.now(),
+            type: 'error',
+            message: 'Les contrasenyes no coincideixen'
           })
           setLoading(false)
           return
         }
         if (formData.password.length < 8) {
-          setNotification({ 
-            id: Date.now(), 
-            type: 'error', 
-            message: 'La contrasenya ha de tenir almenys 8 caràcters' 
+          setNotification({
+            id: Date.now(),
+            type: 'error',
+            message: 'La contrasenya ha de tenir almenys 8 caràcters'
           })
           setLoading(false)
           return
@@ -124,7 +157,6 @@ function EditMyProfile() {
         last_name_one: formData.last_name_one,
       }
 
-      // Solo añadir campos opcionales si tienen valor
       if (formData.last_name_second) {
         dataToUpdate.last_name_second = formData.last_name_second
       }
@@ -134,80 +166,82 @@ function EditMyProfile() {
       if (formData.phone) {
         dataToUpdate.phone = formData.phone
       }
-      
-      // Concatenar dirección: calle, piso, escalera
-      if (formData.address_street || formData.address_floor || formData.address_staircase) {
+
+      // Dirección de envío
+      if (formData.shipping_street || formData.shipping_floor || formData.shipping_staircase) {
         const addressParts = [
-          formData.address_street,
-          formData.address_floor,
-          formData.address_staircase
+          formData.shipping_street,
+          formData.shipping_floor,
+          formData.shipping_staircase
         ].filter(part => part)
-        dataToUpdate.address = addressParts.join(', ')
+        dataToUpdate.shipping_address = addressParts.join(', ')
       }
-      
-      if (formData.zip_code) {
-        dataToUpdate.zip_code = formData.zip_code
+      dataToUpdate.shipping_zip_code = formData.shipping_zip_code
+      dataToUpdate.shipping_province = formData.shipping_province
+      dataToUpdate.shipping_country = formData.shipping_country
+
+      // Dirección de facturación
+      if (formData.billing_street || formData.billing_floor || formData.billing_staircase) {
+        const addressParts = [
+          formData.billing_street,
+          formData.billing_floor,
+          formData.billing_staircase
+        ].filter(part => part)
+        dataToUpdate.billing_address = addressParts.join(', ')
       }
-      
-      // Solo añadir contraseña si se proporciona
+      dataToUpdate.billing_zip_code = formData.billing_zip_code
+      dataToUpdate.billing_province = formData.billing_province
+      dataToUpdate.billing_country = formData.billing_country
+
       if (formData.password) {
         dataToUpdate.password = formData.password
         dataToUpdate.password_confirmation = formData.password_confirmation
       }
-        
+
       await updateUser(userId, dataToUpdate)
-      
-      // Éxito
-      setNotification({ 
-        id: Date.now(), 
-        type: 'success', 
-        message: 'Perfil actualitzat correctament!' 
+
+      setNotification({
+        id: Date.now(),
+        type: 'success',
+        message: 'Perfil actualitzat correctament!'
       })
-      
-      // Limpiar campos de contraseña
+
       setFormData(prev => ({
         ...prev,
         password: '',
         password_confirmation: ''
       }))
-      
+
     } catch (err) {
       console.error('Error actualitzant perfil:', err)
-      
-      // Error
-      setNotification({ 
-        id: Date.now(), 
-        type: 'error', 
-        message: 'Error en actualitzar el perfil' 
+      setNotification({
+        id: Date.now(),
+        type: 'error',
+        message: 'Error en actualitzar el perfil'
       })
-      
     } finally {
       setLoading(false)
     }
   }
-
 
   const handleDelete = async () => {
     setLoading(true)
     try {
       await deleteUser(authUser.id)
-      // Eliminar localStorage
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      // Redirigir al usuario a la página de inicio
       window.location.href = '/'
     } catch (err) {
       console.error('Error eliminant compte:', err)
-      setNotification({ 
-        id: Date.now(), 
-        type: 'error', 
-        message: 'Error en eliminar el compte' 
+      setNotification({
+        id: Date.now(),
+        type: 'error',
+        message: 'Error en eliminar el compte'
       })
     } finally {
       setLoading(false)
     }
   }
-
 
   const handleChange = (e) => {
     setFormData({
@@ -216,37 +250,33 @@ function EditMyProfile() {
     })
   }
 
-  // Se obtiene la notificacion del historial si es que hay
   const location = useLocation()
   const locationState = location.state
 
-  // Se limpia el historial despues de mostrar una notificacion
   useEffect(() => {
     if (locationState) {
       window.history.replaceState({}, document.title)
     }
   }, [locationState])
 
-// 'name', 'last_name_one', 'last_name_second', 'dni', 'phone', 'email', 'address', 'zip_code', 'password'
-
   return loading ? <LoadingAnimation/> : (
     <div className='flex flex-col items-center px-4 py-8'>
       <div className="w-full max-w-2xl">
-        
+
         <div className="mb-5">
           <h1 className="text-2xl font-bold">Edita el teu perfil</h1>
         </div>
 
         {/* Aviso para completar datos */}
-        {(!formData.dni || !formData.phone || !formData.address_street || !formData.zip_code) && (
+        {(!formData.dni || !formData.phone || !formData.shipping_street || !formData.billing_street || !formData.shipping_zip_code || !formData.billing_zip_code || !formData.shipping_province || !formData.billing_province) && (
           <div className="alert alert-warning mb-4">
             <HiOutlineExclamationTriangle className='stroke-current shrink-0 h-6 w-6' aria-hidden="true" />
-            <span id="profile-missing-data-warning">Si us plau, completa les teves dades personals (DNI, telèfon, adreça, codi postal) al teu perfil.</span>
+            <span id="profile-missing-data-warning">Si us plau, completa les teves dades personals (DNI, telèfon, adreça d'enviament, adreça de facturació, codis postals, províncies) al teu perfil.</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari d'edició del perfil" aria-describedby={(!formData.dni || !formData.phone || !formData.address_street || !formData.zip_code) ? "profile-missing-data-warning" : undefined}>
-          
+        <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari d'edició del perfil" aria-describedby={(!formData.dni || !formData.phone || !formData.shipping_street || !formData.billing_street || !formData.shipping_zip_code || !formData.billing_zip_code || !formData.shipping_province || !formData.billing_province) ? "profile-missing-data-warning" : undefined}>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Nombre */}
             <div>
@@ -350,75 +380,225 @@ function EditMyProfile() {
               />
             </div>
 
-            {/* Separador - Dirección */}
+            {/* Separador - Dirección de Envío */}
             <div className="md:col-span-2 mt-2">
-              <div className="divider">Direcció</div>
+              <div className="divider">Adreça d'Enviament</div>
             </div>
 
-            {/* Dirección - Calle/Puerta */}
+            {/* Dirección de Envío - Calle/Puerta */}
             <div className="md:col-span-2">
-              <label className="label" htmlFor="address_street">
+              <label className="label" htmlFor="shipping_street">
                 <span className="label-text">Carrer / Porta</span>
               </label>
               <input
                 type="text"
-                id="address_street"
-                name="address_street"
+                id="shipping_street"
+                name="shipping_street"
                 placeholder="Carrer, número de porta..."
                 autoComplete="street-address"
                 className="input input-bordered w-full"
-                value={formData.address_street}
+                value={formData.shipping_street}
                 onChange={handleChange}
               />
             </div>
 
-            {/* Piso, Escalera y Código Postal */}
+            {/* Piso, Escalera y Código Postal para Envío */}
             <div className="md:col-span-2 grid grid-cols-3 gap-4">
               <div>
-                <label className="label" htmlFor="address_floor">
+                <label className="label" htmlFor="shipping_floor">
                   <span className="label-text">Pis</span>
                 </label>
                 <input
                   type="text"
-                  id="address_floor"
-                  name="address_floor"
+                  id="shipping_floor"
+                  name="shipping_floor"
                   placeholder="Pis (ex: 1r, 2n)"
                   className="input input-bordered w-full"
-                  value={formData.address_floor}
+                  value={formData.shipping_floor}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label className="label" htmlFor="address_staircase">
+                <label className="label" htmlFor="shipping_staircase">
                   <span className="label-text">Escala</span>
                 </label>
                 <input
                   type="text"
-                  id="address_staircase"
-                  name="address_staircase"
+                  id="shipping_staircase"
+                  name="shipping_staircase"
                   placeholder="Escala (ex.: A, B)"
                   className="input input-bordered w-full"
-                  value={formData.address_staircase}
+                  value={formData.shipping_staircase}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label className="label" htmlFor="zip_code">
+                <label className="label" htmlFor="shipping_zip_code">
                   <span className="label-text">Codi Postal</span>
                 </label>
                 <input
                   type="text"
-                  id="zip_code"
-                  name="zip_code"
+                  id="shipping_zip_code"
+                  name="shipping_zip_code"
                   placeholder="Codi Postal"
                   maxLength={8}
                   autoComplete="postal-code"
                   className="input input-bordered w-full"
-                  value={formData.zip_code}
+                  value={formData.shipping_zip_code}
                   onChange={handleChange}
                 />
+              </div>
+            </div>
+
+            {/* Provincia y País para Envío */}
+            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+              <div>
+                <label className="label" htmlFor="shipping_province">
+                  <span className="label-text">Província</span>
+                </label>
+                <select
+                  id="shipping_province"
+                  name="shipping_province"
+                  className="select select-bordered w-full"
+                  value={formData.shipping_province}
+                  onChange={handleChange}
+                >
+                  <option value="">Selecciona una província</option>
+                  {provinciasEspana.map((provincia, index) => (
+                    <option key={index} value={provincia}>
+                      {provincia}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="shipping_country">
+                  <span className="label-text">País</span>
+                </label>
+                <select
+                  id="shipping_country"
+                  name="shipping_country"
+                  className="select select-bordered w-full"
+                  value={formData.shipping_country}
+                  onChange={handleChange}
+                  disabled
+                >
+                  <option value="España">España</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Separador - Dirección de Facturación */}
+            <div className="md:col-span-2 mt-4">
+              <div className="divider">Adreça de Facturació</div>
+            </div>
+
+            {/* Dirección de Facturación - Calle/Puerta */}
+            <div className="md:col-span-2">
+              <label className="label" htmlFor="billing_street">
+                <span className="label-text">Carrer / Porta</span>
+              </label>
+              <input
+                type="text"
+                id="billing_street"
+                name="billing_street"
+                placeholder="Carrer, número de porta..."
+                autoComplete="street-address"
+                className="input input-bordered w-full"
+                value={formData.billing_street}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Piso, Escalera y Código Postal para Facturación */}
+            <div className="md:col-span-2 grid grid-cols-3 gap-4">
+              <div>
+                <label className="label" htmlFor="billing_floor">
+                  <span className="label-text">Pis</span>
+                </label>
+                <input
+                  type="text"
+                  id="billing_floor"
+                  name="billing_floor"
+                  placeholder="Pis (ex: 1r, 2n)"
+                  className="input input-bordered w-full"
+                  value={formData.billing_floor}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label className="label" htmlFor="billing_staircase">
+                  <span className="label-text">Escala</span>
+                </label>
+                <input
+                  type="text"
+                  id="billing_staircase"
+                  name="billing_staircase"
+                  placeholder="Escala (ex.: A, B)"
+                  className="input input-bordered w-full"
+                  value={formData.billing_staircase}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label className="label" htmlFor="billing_zip_code">
+                  <span className="label-text">Codi Postal</span>
+                </label>
+                <input
+                  type="text"
+                  id="billing_zip_code"
+                  name="billing_zip_code"
+                  placeholder="Codi Postal"
+                  maxLength={8}
+                  autoComplete="postal-code"
+                  className="input input-bordered w-full"
+                  value={formData.billing_zip_code}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            {/* Provincia y País para Facturación */}
+            <div className="md:col-span-2 grid grid-cols-2 gap-4">
+              <div>
+                <label className="label" htmlFor="billing_province">
+                  <span className="label-text">Província</span>
+                </label>
+                <select
+                  id="billing_province"
+                  name="billing_province"
+                  className="select select-bordered w-full"
+                  value={formData.billing_province}
+                  onChange={handleChange}
+                >
+                  <option value="">Selecciona una província</option>
+                  {provinciasEspana.map((provincia, index) => (
+                    <option key={index} value={provincia}>
+                      {provincia}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="billing_country">
+                  <span className="label-text">País</span>
+                </label>
+                <select
+                  id="billing_country"
+                  name="billing_country"
+                  className="select select-bordered w-full"
+                  value={formData.billing_country}
+                  onChange={handleChange}
+                  disabled
+                >
+                  <option value="España">España</option>
+                </select>
               </div>
             </div>
 
@@ -458,9 +638,9 @@ function EditMyProfile() {
             </div>
 
           </div>
-          
-          <button 
-            type="submit" 
+
+          <button
+            type="submit"
             className="btn btn-primary w-full mt-6"
             disabled={loading}
           >
@@ -475,8 +655,8 @@ function EditMyProfile() {
             message="Estàs segur que vols eliminar el teu compte? Aquesta acció és irreversible."
             onConfirm={handleDelete}
           >
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="btn btn-error w-full mt-3"
               disabled={loading}
             >
@@ -488,10 +668,10 @@ function EditMyProfile() {
 
         {/* Notificaciones */}
         {notification && (
-          <Notifications 
-            key={notification.id} 
-            type={notification.type} 
-            message={notification.message} 
+          <Notifications
+            key={notification.id}
+            type={notification.type}
+            message={notification.message}
             onClose={() => setNotification(null)}
           />
         )}

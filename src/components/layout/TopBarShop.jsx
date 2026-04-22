@@ -72,9 +72,11 @@ export default function TopBarShop() {
           </nav>
 
           <div className="navbar-end flex items-center gap-2">
-            <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
-              <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
-            </Link>
+            {(user?.role !== 'admin' && user?.role !== 1) && (
+              <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
+                <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
+              </Link>
+            )}
 
             {!user ? (
               <Link to="/login" className="btn btn-primary btn-sm">

@@ -64,7 +64,7 @@ function ProductCard({ product, onView }) {
           </div>
         )}
 
-        <div className='product-card__image-box'>
+        <div className={`product-card__image-box ${imagePath ? "product-card__image-box--has-image" : ""}`}>
           {imagePath ? (
             <img src={`/storage/${imagePath}`} alt={product.name} className="product-card__image"/>
           ) : (

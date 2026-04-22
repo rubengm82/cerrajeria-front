@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
+import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import LoadingAnimation from "../../components/LoadingAnimation"
@@ -48,6 +49,14 @@ function Checkout() {
       return response.data
     },
     enabled: Boolean(user),
+    retry: 1,
+  })
+  const { data: commerceSettings } = useQuery({
+    queryKey: ["commerce-settings"],
+    queryFn: async () => {
+      const response = await getCommerceSettings()
+      return response.data
+    },
     retry: 1,
   })
 
@@ -128,7 +137,7 @@ function Checkout() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotal, shipping, total } = getCartTotals(products)
+  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const userDataDescriptionId = "checkout-user-data-description"
   const checkoutFormId = "checkout-user-data-form"
 
@@ -226,6 +235,7 @@ function Checkout() {
         <OrderSummary
           subtotal={subtotal}
           shipping={shipping}
+          installation={installation}
           total={total}
           itemCount={itemCount}
           buttonLabel="Continuar amb el pagament"

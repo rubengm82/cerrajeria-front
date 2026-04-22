@@ -96,7 +96,9 @@ function OrderShow() {
   const albaranNumber = formatAlbaranNumber(order.id)
   const { subtotal } = getCartTotals(orderItems)
   const iva = subtotal * 0.21
-  const total = subtotal + iva
+  const shipping = Number(order.shipping_price || 0)
+  const installation = Number(order.installation_price || 0)
+  const total = subtotal + iva + shipping + installation
 
   return (
     <div className="p-4 md:p-0">
@@ -163,6 +165,7 @@ function OrderShow() {
                   <th>Producte</th>
                   <th>Codi</th>
                   <th className="text-center">Quantitat</th>
+                  <th className="text-center">Instal·lació</th>
                   <th className="text-right">Preu Unitari</th>
                   <th className="text-right">Total</th>
                 </tr>
@@ -173,6 +176,7 @@ function OrderShow() {
                     <td className="font-medium">{product.cartItemType === 'pack' ? 'Pack: ' : ''}{product.name}</td>
                     <td className="text-base-400">{product.code || '-'}</td>
                     <td className="text-center">{product.pivot.quantity}</td>
+                    <td className="text-center">{product.pivot.installation_requested ? 'Sí' : '-'}</td>
                     <td className="text-right">{formatPrice(getProductPrice(product))}</td>
                     <td className="text-right font-medium">{formatPrice(getProductPrice(product) * product.pivot.quantity)}</td>
                   </tr>
@@ -193,6 +197,14 @@ function OrderShow() {
               <div className="flex justify-between">
                 <span>IVA (21%):</span>
                 <span>{formatPrice(iva)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Enviament:</span>
+                <span>{formatPrice(shipping)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Instal·lació:</span>
+                <span>{formatPrice(installation)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total:</span>

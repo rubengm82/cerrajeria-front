@@ -164,6 +164,7 @@ function ProductDetailModal({
            : await addProductToCart({
              product_id: product?.id,
              quantity,
+             installation_requested: false,
            })
 
         wasAdded = Boolean(response.data?.added)
@@ -177,7 +178,7 @@ function ProductDetailModal({
          const result = addProductToLocalCart({
            ...(product || {}),
            stock: normalizedAvailableStock,
-        }, quantity, isPack ? "pack" : "product")
+        }, quantity, isPack ? "pack" : "product", false)
         wasAdded = result.added
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }

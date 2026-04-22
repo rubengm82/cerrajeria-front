@@ -53,12 +53,7 @@ function OrderShow() {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-0">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-base-content mb-2">Resum de la Comanda</h1>
-          <LoadingAnimation heightClass="h-32" />
-        </div>
-      </div>
+      <LoadingAnimation heightClass="h-[calc(100vh-260px)]" />
     )
   }
 

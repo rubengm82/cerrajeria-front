@@ -42,12 +42,13 @@ export const addProductToLocalCart = (product, quantity = 1, cartItemType = "pro
 
   const nextCartItems = [...cartItems, getProductSnapshot(product, Math.min(quantity, availableStock), cartItemType, installationRequested)]
 
-  localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+   window.dispatchEvent(new Event('guestCartChanged'))
 
-  return {
-    added: true,
-    items: nextCartItems,
-  }
+   return {
+     added: true,
+     items: nextCartItems,
+   }
 }
 
 export const updateLocalCartProduct = (productId, quantity, cartItemType = "product") => {
@@ -58,6 +59,7 @@ export const updateLocalCartProduct = (productId, quantity, cartItemType = "prod
   ))
 
   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+  window.dispatchEvent(new Event('guestCartChanged'))
 
   return nextCartItems
 }
@@ -70,6 +72,7 @@ export const updateLocalCartProductInstallation = (productId, installationReques
   ))
 
   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+  window.dispatchEvent(new Event('guestCartChanged'))
 
   return nextCartItems
 }
@@ -82,6 +85,7 @@ export const updateLocalCartInstallation = (installationRequested) => {
   ))
 
   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+  window.dispatchEvent(new Event('guestCartChanged'))
 
   return nextCartItems
 }
@@ -107,6 +111,7 @@ export const syncLocalCartProducts = (products = []) => {
 
   if (JSON.stringify(nextCartItems) !== JSON.stringify(currentCartItems)) {
     localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+    window.dispatchEvent(new Event('guestCartChanged'))
   }
 
   return nextCartItems
@@ -116,6 +121,7 @@ export const removeLocalCartProduct = (productId, cartItemType = "product") => {
   const nextCartItems = getStoredCart().filter((item) => item.id !== productId || (item.cartItemType || "product") !== cartItemType)
 
   localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+  window.dispatchEvent(new Event('guestCartChanged'))
 
   return nextCartItems
 }
@@ -124,6 +130,7 @@ export const getLocalCartItems = () => getStoredCart()
 
 export const clearLocalCart = () => {
   localStorage.removeItem(localCartKey)
+  window.dispatchEvent(new Event('guestCartChanged'))
 }
 
 export const getLocalCartMergeItems = () => getStoredCart()

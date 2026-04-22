@@ -5,7 +5,10 @@ import SearchBar from '../SearchBar'
 import ProductDetailModal from '../ProductDetailModal'
 import { getProduct } from '../../api/products_api'
 import { getPack } from '../../api/packs_api'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { getCartOrder } from '../../api/orders_api'
+import { getLocalCartItems } from '../../utils/localCart'
 
 
 export default function TopBarShop() {
@@ -17,6 +20,47 @@ export default function TopBarShop() {
   const [isGlobalModalOpen, setIsGlobalModalOpen] = useState(false)
   const [isLoadingGlobal, setIsLoadingGlobal] = useState(false)
   const [globalProductType, setGlobalProductType] = useState(null)
+  const [localCartVersion, setLocalCartVersion] = useState(0)
+
+  // Query para obtener el carrito del usuario autenticado
+  const { data: cartOrder } = useQuery({
+    queryKey: ['cart-order'],
+    queryFn: async () => {
+      const response = await getCartOrder()
+      return response.data
+    },
+    enabled: Boolean(user),
+    retry: 1,
+  })
+
+  // Escuchar cambios en localStorage para actualizar el carrito invitado
+  useEffect(() => {
+    const handleCartChange = (e) => {
+      if (e.type === 'guestCartChanged' || e.key === 'guestCart') {
+        setLocalCartVersion(v => v + 1)
+      }
+    }
+    window.addEventListener('storage', handleCartChange)
+    window.addEventListener('guestCartChanged', handleCartChange)
+    return () => {
+      window.removeEventListener('storage', handleCartChange)
+      window.removeEventListener('guestCartChanged', handleCartChange)
+    }
+  }, [])
+
+  // Calcular el total de items en el carrito
+  const getCartItems = () => {
+    if (user) {
+      return [
+        ...(cartOrder?.products || []).map(p => ({ ...p, cartItemType: 'product' })),
+        ...(cartOrder?.packs || []).map(p => ({ ...p, cartItemType: 'pack' })),
+      ]
+    }
+    return getLocalCartItems(localCartVersion)
+  }
+
+  const cartItems = getCartItems()
+  const cartItemCount = cartItems.reduce((total, item) => total + Number(item?.pivot?.quantity || 0), 0)
 
   const handleProductSelect = async (id, type, previewItem = null) => {
     setGlobalProduct(previewItem)
@@ -73,9 +117,17 @@ export default function TopBarShop() {
 
           <div className="navbar-end flex items-center gap-2">
             {(user?.role !== 'admin' && user?.role !== 1) && (
-              <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
-                <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
-              </Link>
+              <div className="relative group">
+                {cartItemCount > 0 && (
+                  <span
+                    className="absolute top-1 right-0 badge badge-primary w-3 h-3 min-w-0 p-0 z-10 transition-transform duration-150 ease-in-out group-hover:-translate-y-0.5"
+                    aria-label={`${cartItemCount} productes al carret`}
+                  ></span>
+                )}
+                <Link to="/cart" className="btn btn-ghost btn-circle" aria-label="Veure el carret de la compra">
+                  <HiOutlineShoppingCart className="shop-tobar-end__icon" aria-hidden="true" />
+                </Link>
+              </div>
             )}
 
             {!user ? (

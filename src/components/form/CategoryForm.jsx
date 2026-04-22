@@ -54,6 +54,9 @@ function CategoryForm({ initialData, submitText, title, subtitle, backLink }) {
       formData.append("name", form.name)
       formData.append("is_important_to_show", form.is_important_to_show ? 1 : 0)
 
+      if (existingImageRemoved && !form.image) {
+        formData.append("remove_image", "1")
+      }
       if (form.image) {
         formData.append("image", form.image)
       }

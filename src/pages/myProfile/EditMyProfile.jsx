@@ -605,6 +605,10 @@ function EditMyProfile() {
             {/* Separador - Contraseña */}
             <div className="md:col-span-2 mt-4">
               <div className="divider">Canvi de Contrasenya</div>
+              <div className="alert alert-info bg-info/10 border-info/20 text-info-content text-sm mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Si deixes aquests camps buits, la contrasenya no es canviarà. Per canviar-la, has d'omplir ambdós camps (mínim 8 caràcters).</span>
+              </div>
             </div>
 
             {/* Nueva contraseña */}

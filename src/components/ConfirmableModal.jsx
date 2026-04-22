@@ -3,11 +3,23 @@ import { useRef } from "react"
 function ConfirmableModal({ title, message, onConfirm, children }) {
 
   const dialogRef = useRef()
-  const openModal = () => { dialogRef.current.showModal()}
+  const openModal = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    dialogRef.current.showModal()
+  }
 
-  const handleConfirm = () => {
+  const handleConfirm = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
     dialogRef.current.close()
     onConfirm()
+  }
+
+  const closeModal = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    dialogRef.current.close()
   }
 
   return (
@@ -21,9 +33,9 @@ function ConfirmableModal({ title, message, onConfirm, children }) {
           <p className="py-4">{message}</p>
           <div className="modal-action">
             <div>
-              <button className="btn" onClick={() => dialogRef.current.close()}>Cancel·lar</button>
+              <button type="button" className="btn" onClick={closeModal}>Cancel·lar</button>
             </div>
-            <button className="btn btn-error" onClick={handleConfirm}>Confirmar</button>
+            <button type="button" className="btn btn-error" onClick={handleConfirm}>Confirmar</button>
           </div>
         </div>
       </dialog>

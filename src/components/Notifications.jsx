@@ -3,12 +3,17 @@ import { HiCheckCircle, HiXCircle, HiExclamationTriangle, HiInformationCircle, H
 
 function Notifications({ type, title, message, errors, autoClose = true, onClose }) {
   const [isClosing, setIsClosing] = useState(false)
+  const [isClosed, setIsClosed] = useState(false)
 
   const handleClose = useCallback(() => {
     setIsClosing(true)
     // Llamar a onClose después de la transición
     setTimeout(() => {
-      if (onClose) onClose()
+      if (onClose) {
+        onClose()
+      } else {
+        setIsClosed(true)
+      }
     }, 500)
   }, [onClose])
 
@@ -53,6 +58,10 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
   }
 
   const currentNotification = config[type] || config.info
+
+  if (isClosed) {
+    return null
+  }
   
   return (
     <div 
@@ -60,6 +69,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
       className={`fixed bottom-12 right-2 w-102 shadow-lg z-50 animate-slide-in ${currentNotification.className}`}
       style={{
         opacity: isClosing ? 0 : 1,
+        pointerEvents: isClosing ? 'none' : 'auto',
         transition: 'opacity 0.5s ease'
       }}
     >
@@ -80,6 +90,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
         )}
       </div>
       <button 
+        type="button"
         onClick={handleClose}
         className="btn btn-sm btn-ghost"
       >

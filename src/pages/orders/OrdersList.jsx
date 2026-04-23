@@ -42,6 +42,17 @@ const ORDER_STATUS_OPTIONS = [
   { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-warning border-warning-content text-warning-content' },
 ]
 
+  const getFilteredStatusOptions = (currentStatus) => {
+    const installationStatuses = ['installation_pending', 'installation_confirmed']
+    const isInstallationOrder = installationStatuses.includes(currentStatus)
+    
+    return ORDER_STATUS_OPTIONS.filter(option => 
+      isInstallationOrder 
+        ? installationStatuses.includes(option.value)
+        : !installationStatuses.includes(option.value)
+    )
+  }
+
 function getOrderStatusOption(status) {
   return ORDER_STATUS_OPTIONS.find((option) => option.value === status) || ORDER_STATUS_OPTIONS[0]
 }
@@ -102,6 +113,11 @@ function OrdersList() {
         updateData.shipped_at = null
       }
 
+      // Clear installation date when setting status to installation_pending
+      if (newStatus === 'installation_pending') {
+        updateData.installation_scheduled_at = null
+      }
+
       const response = await updateOrder(orderId, updateData)
       // Replace order with server response to ensure UI reflects actual DB state
       setOrders(prevOrders => prevOrders.map(order =>
@@ -115,10 +131,22 @@ function OrdersList() {
   }
 
   const handleInstallationDateChange = async (orderId, dateValue) => {
-    if (!dateValue) return
     try {
-      const response = await updateOrder(orderId, { installation_scheduled_at: dateValue })
-      // Server auto-updates status to installation_confirmed, use response data
+      // If date is empty, clear the installation date (keep status as installation_pending)
+      if (!dateValue) {
+        const response = await updateOrder(orderId, { installation_scheduled_at: null })
+        setOrders(prevOrders => prevOrders.map(order =>
+          order.id === orderId ? response.data : order
+        ))
+        setNotification({ id: Date.now(), type: "success", message: "Data d'instal·lació eliminada" })
+        return
+      }
+
+      // Set installation date and automatically confirm (status = installation_confirmed)
+      const response = await updateOrder(orderId, { 
+        installation_scheduled_at: dateValue,
+        status: 'installation_confirmed'
+      })
       setOrders(prevOrders => prevOrders.map(order =>
         order.id === orderId ? response.data : order
       ))
@@ -494,17 +522,17 @@ function OrdersList() {
                   <td>{formatPaymentMethod(order.payment_method)}</td>
                   <td>
                     {isAdmin ? (
-                      <select
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                        className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
-                      >
-                        {ORDER_STATUS_OPTIONS.map((option) => (
-                          <option key={option.value} value={option.value} className={option.className}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
+                       <select
+                         value={order.status}
+                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                         className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
+                       >
+                         {getFilteredStatusOptions(order.status).map((option) => (
+                           <option key={option.value} value={option.value} className={option.className}>
+                             {option.label}
+                           </option>
+                         ))}
+                       </select>
                     ) : (
                       <span className={`badge ${
                         order.status === 'completed' ? 'badge-success' :

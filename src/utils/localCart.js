@@ -77,19 +77,6 @@ export const updateLocalCartProductInstallation = (productId, installationReques
   return nextCartItems
 }
 
-export const updateLocalCartInstallation = (installationRequested) => {
-  const nextCartItems = getStoredCart().map((item) => (
-    (item.cartItemType || "product") === "product"
-      ? getProductSnapshot(item, Number(item.pivot?.quantity || 1), "product", installationRequested)
-      : item
-  ))
-
-  localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
-  window.dispatchEvent(new Event('guestCartChanged'))
-
-  return nextCartItems
-}
-
 export const syncLocalCartProducts = (products = []) => {
   const productsById = new Map(products.map((product) => [product.id, product]))
   const currentCartItems = getStoredCart()

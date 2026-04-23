@@ -8,12 +8,11 @@ import { getProducts } from "../../api/products_api"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder, removeCartPack, removeCartProduct, updateCartPack, updateCartProduct } from "../../api/orders_api"
 import ConfirmableModal from "../../components/ConfirmableModal"
-import LoadingAnimation from "../../components/LoadingAnimation"
 import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
-import { formatPrice, getCartTotals, getProductPrice, hasInstallationSelected, isProductInstallable } from "../../utils/cartTotals"
-import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartInstallation, updateLocalCartProduct } from "../../utils/localCart"
+import { formatPrice, getCartTotals, getProductPrice, isProductInstallable } from "../../utils/cartTotals"
+import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct, updateLocalCartProductInstallation } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
@@ -66,12 +65,15 @@ const getApiErrorMessage = (error, fallbackMessage) => {
   return validationMessage || error.response?.data?.message || fallbackMessage
 }
 
-function CartItem({ product, onQuantityChange, onRemove, onView }) {
+function CartItem({ product, onQuantityChange, onInstallationChange, onRemove, onView }) {
   const quantity = Number(product?.pivot?.quantity || 1)
   const availableStock = Number(product?.stock || 0)
   const isPack = product.cartItemType === "pack"
+  const isInstallable = isProductInstallable(product)
+  const installationChecked = Boolean(product?.pivot?.installation_requested)
   const quantityId = `cart-quantity-${product.id}`
   const descriptionId = `cart-item-description-${product.id}`
+  const installationId = `cart-installation-${product.id}`
   const currentPrice = getProductPrice(product)
   const lineTotal = currentPrice * quantity
   const oldLineTotal = Number(product.price || 0) * quantity
@@ -137,6 +139,19 @@ function CartItem({ product, onQuantityChange, onRemove, onView }) {
               />
             </label>
 
+            {isInstallable && (
+              <label className="cart-item__installation" htmlFor={installationId}>
+                <input
+                  id={installationId}
+                  type="checkbox"
+                  className="checkbox checkbox-primary"
+                  checked={installationChecked}
+                  onChange={(event) => onInstallationChange(product, event.target.checked)}
+                />
+                <span>Afegir instal·lacio</span>
+              </label>
+            )}
+
           </div>
 
           <div className="cart-item__prices">
@@ -146,6 +161,85 @@ function CartItem({ product, onQuantityChange, onRemove, onView }) {
         </div>
       </div>
     </article>
+  )
+}
+
+function CartItemSkeleton({ hasInstallation = false }) {
+  return (
+    <article className="cart-item cart-item--skeleton border-base-300" aria-hidden="true">
+      <div className="cart-item__media">
+        <div className="skeleton cart-item__image"></div>
+      </div>
+
+      <div className="cart-item__body">
+        <div className="cart-item__heading">
+          <div className="cart-item__copy">
+            <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--category"></div>
+            <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--title"></div>
+          </div>
+          <div className="skeleton cart-item__skeleton-remove"></div>
+        </div>
+
+        <div className="skeleton cart-item__skeleton-line"></div>
+        <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--short"></div>
+
+        <div className="cart-item__footer">
+          <div className="cart-item__controls">
+            <div className="cart-item__quantity">
+              <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--label"></div>
+              <div className="skeleton cart-item__skeleton-input"></div>
+            </div>
+
+            {hasInstallation && (
+              <div className="cart-item__installation">
+                <div className="skeleton cart-item__skeleton-checkbox"></div>
+                <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--installation"></div>
+              </div>
+            )}
+          </div>
+
+          <div className="cart-item__prices">
+            <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--price-old"></div>
+            <div className="skeleton cart-item__skeleton-line cart-item__skeleton-line--price"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function OrderSummarySkeleton() {
+  return (
+    <aside className="order-summary order-summary--skeleton border-base-300 bg-base-100" aria-hidden="true">
+      <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--title"></div>
+
+      <div className="order-summary__lines">
+        <div className="order-summary__line">
+          <div className="skeleton order-summary__skeleton-line"></div>
+          <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--value"></div>
+        </div>
+        <div className="order-summary__line">
+          <div className="skeleton order-summary__skeleton-line"></div>
+          <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--value"></div>
+        </div>
+        <div className="order-summary__line">
+          <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--short"></div>
+          <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--value"></div>
+        </div>
+      </div>
+
+      <div className="order-summary__total">
+        <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--total-label"></div>
+        <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--total-value"></div>
+      </div>
+
+      <div className="skeleton order-summary__skeleton-button"></div>
+
+      <div className="order-summary__benefits">
+        <div className="skeleton order-summary__skeleton-line"></div>
+        <div className="skeleton order-summary__skeleton-line order-summary__skeleton-line--short"></div>
+      </div>
+    </aside>
   )
 }
 
@@ -229,9 +323,6 @@ function Cart() {
     stock: getAvailableStockForCartItem(item, rawCartItems),
   }))
   const { itemCount, subtotal, shipping, installation, total } = getCartTotals(cartItems, commerceSettings)
-  const installableProducts = cartItems.filter(isProductInstallable)
-  const installationSelected = hasInstallationSelected(cartItems)
-  const hasInstallableProducts = installableProducts.length > 0
   const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
   const handleQuantityChange = async (product, nextQuantity) => {
@@ -275,20 +366,20 @@ function Cart() {
     navigate("/checkout")
   }
 
-  const handleInstallationChange = async (installationRequested) => {
-    if (installableProducts.length === 0) {
+  const handleInstallationChange = async (product, installationRequested) => {
+    if (!isProductInstallable(product) || product.cartItemType === "pack") {
       return
     }
 
     try {
       if (user) {
-        await Promise.all(installableProducts.map((product) => updateCartProduct(product.id, {
+        await updateCartProduct(product.id, {
           quantity: getItemQuantity(product),
           installation_requested: installationRequested,
-        })))
+        })
         await refetch()
       } else {
-        updateLocalCartInstallation(installationRequested)
+        updateLocalCartProductInstallation(product.id, installationRequested)
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
     } catch (error) {
@@ -345,7 +436,14 @@ function Cart() {
   }
 
   const content = authLoading || (user && isLoading) || (!user && isCurrentProductsLoading) ? (
-    <LoadingAnimation heightClass="h-32" />
+    <div className="cart-page__layout" aria-hidden="true">
+      <div className="cart-page__items">
+        <CartItemSkeleton hasInstallation />
+        <CartItemSkeleton hasInstallation />
+        <CartItemSkeleton />
+      </div>
+      <OrderSummarySkeleton />
+    </div>
   ) : user && isError ? (
     <div className="cart-page__empty border-base-300 bg-base-100">
       <h2>No hem pogut carregar el carret</h2>
@@ -360,23 +458,15 @@ function Cart() {
   ) : (
     <div className="cart-page__layout">
       <div className="cart-page__items" aria-label="Productes del carret">
-        {hasInstallableProducts && (
-          <label className="cart-page__installation border-base-300 bg-base-100">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-primary"
-              checked={installationSelected}
-              onChange={(event) => handleInstallationChange(event.target.checked)}
-            />
-            <span>
-              <strong>Afegir instal·lació</strong>
-              <small className="text-base-400">Aplicar la instal·lació a tota la comanda.</small>
-            </span>
-          </label>
-        )}
-
         {cartItems.map((product) => (
-          <CartItem key={`${product.cartItemType}-${product.id}`} product={product} onQuantityChange={handleQuantityChange} onRemove={handleRemove} onView={handleViewItem} />
+          <CartItem
+            key={`${product.cartItemType}-${product.id}`}
+            product={product}
+            onQuantityChange={handleQuantityChange}
+            onInstallationChange={handleInstallationChange}
+            onRemove={handleRemove}
+            onView={handleViewItem}
+          />
         ))}
       </div>
 

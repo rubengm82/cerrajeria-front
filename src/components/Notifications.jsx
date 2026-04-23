@@ -66,7 +66,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
   return (
     <div 
       role="alert" 
-      className={`fixed bottom-12 right-2 w-102 shadow-lg z-50 animate-slide-in ${currentNotification.className}`}
+      className={`fixed bottom-4 left-3 right-3 w-auto max-h-[calc(100dvh-2rem)] overflow-y-auto shadow-lg z-50 animate-slide-in sm:bottom-12 sm:left-auto sm:right-2 sm:w-102 sm:max-w-[calc(100vw-1rem)] ${currentNotification.className}`}
       style={{
         opacity: isClosing ? 0 : 1,
         pointerEvents: isClosing ? 'none' : 'auto',
@@ -74,7 +74,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
       }}
     >
       {currentNotification.icon}
-      <div className="flex-1">
+      <div className="min-w-0 flex-1 break-words">
         <h3 className="font-bold mb-1">{title || currentNotification.title}</h3>
         {message && <p>{message}</p>}
         
@@ -92,7 +92,7 @@ function Notifications({ type, title, message, errors, autoClose = true, onClose
       <button 
         type="button"
         onClick={handleClose}
-        className="btn btn-sm btn-ghost"
+        className="btn btn-sm btn-ghost shrink-0"
       >
         <HiXMark className="h-5 w-5" />
       </button>

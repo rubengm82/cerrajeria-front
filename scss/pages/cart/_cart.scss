@@ -75,39 +75,6 @@
     gap: clamp(0.75rem, 2vw, 1rem);
   }
 
-  &__installation {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: clamp(0.85rem, 2vw, 1rem);
-    border-width: 1px;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
-    cursor: pointer;
-
-    span {
-      display: grid;
-      gap: 0.15rem;
-      min-width: 0;
-    }
-
-    strong {
-      color: var(--color-base-content);
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    small {
-      font-size: 0.8rem;
-      line-height: 1.35;
-    }
-
-    &:has(input:disabled) {
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-  }
-
   &__empty {
     display: grid;
     justify-items: center;
@@ -323,6 +290,10 @@
     color: var(--color-base-400);
     font-size: 0.8rem;
     font-weight: 600;
+
+    input {
+      flex: 0 0 auto;
+    }
   }
 
   &__quantity input {
@@ -358,6 +329,74 @@
     font-size: clamp(1rem, 3vw, 1.25rem);
     font-weight: 700;
     white-space: nowrap;
+  }
+
+  &--skeleton {
+    .cart-item__copy,
+    .cart-item__prices,
+    .cart-item__quantity {
+      width: 100%;
+    }
+  }
+
+  &__skeleton-line {
+    height: 0.85rem;
+    border-radius: 999px;
+
+    &--category {
+      width: 34%;
+      height: 0.7rem;
+      margin-bottom: 0.45rem;
+    }
+
+    &--title {
+      width: 72%;
+      height: 1.35rem;
+    }
+
+    &--short {
+      width: 58%;
+    }
+
+    &--label {
+      width: 3.25rem;
+      height: 0.7rem;
+    }
+
+    &--installation {
+      width: 8.5rem;
+    }
+
+    &--price-old {
+      width: 4.5rem;
+      justify-self: end;
+      height: 0.7rem;
+    }
+
+    &--price {
+      width: 5.75rem;
+      justify-self: end;
+      height: 1.15rem;
+    }
+  }
+
+  &__skeleton-input {
+    width: 5.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+  }
+
+  &__skeleton-checkbox {
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 0.35rem;
+  }
+
+  &__skeleton-remove {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    flex: 0 0 auto;
   }
 }
 
@@ -439,6 +478,51 @@
     flex: 0 0 auto;
     width: 1.1rem;
     height: 1.1rem;
+  }
+
+  &--skeleton {
+    .order-summary__line,
+    .order-summary__total {
+      align-items: center;
+    }
+  }
+
+  &__skeleton-line {
+    height: 0.85rem;
+    border-radius: 999px;
+
+    &--title {
+      width: 10rem;
+      height: 1.35rem;
+      margin-bottom: 1rem;
+    }
+
+    &--short {
+      width: 6.5rem;
+    }
+
+    &--value {
+      width: 4.5rem;
+      flex: 0 0 auto;
+    }
+
+    &--total-label {
+      width: 3.5rem;
+      height: 1rem;
+    }
+
+    &--total-value {
+      width: 6rem;
+      height: 1.35rem;
+      flex: 0 0 auto;
+    }
+  }
+
+  &__skeleton-button {
+    width: 100%;
+    min-height: 2.75rem;
+    margin-top: 1.25rem;
+    border-radius: 0.5rem;
   }
 }
 

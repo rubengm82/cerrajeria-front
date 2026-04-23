@@ -26,11 +26,20 @@ export const hasInstallationSelected = (products = []) => products.some((product
   isProductInstallable(product) && Boolean(product?.pivot?.installation_requested)
 ))
 
-export const getInstallationPrice = (subtotal = 0, products = [], settings = {}) => {
+export const getInstallationBaseSubtotal = (products = []) => products.reduce((total, product) => {
+  if (!isProductInstallable(product) || !Boolean(product?.pivot?.installation_requested)) {
+    return total
+  }
+
+  return total + getProductPrice(product) * Number(product?.pivot?.quantity || 0)
+}, 0)
+
+export const getInstallationPrice = (products = [], settings = {}) => {
   if (!hasInstallationSelected(products)) {
     return 0
   }
 
+  const installationBaseSubtotal = getInstallationBaseSubtotal(products)
   const rules = Array.isArray(settings?.installation_rules) ? settings.installation_rules : []
   const matchingRule = rules.find((rule) => {
     const minSubtotal = Number(rule?.min_subtotal || 0)
@@ -38,7 +47,7 @@ export const getInstallationPrice = (subtotal = 0, products = [], settings = {})
       ? null
       : Number(rule.max_subtotal)
 
-    return subtotal >= minSubtotal && (maxSubtotal === null || subtotal <= maxSubtotal)
+    return installationBaseSubtotal >= minSubtotal && (maxSubtotal === null || installationBaseSubtotal <= maxSubtotal)
   })
 
   return Number(matchingRule?.price || 0)
@@ -51,7 +60,7 @@ export const getCartTotals = (products = [], settings = {}) => {
     return total + getProductPrice(product) * quantity
   }, 0)
   const shipping = Number(settings?.shipping_price || 0)
-  const installation = getInstallationPrice(subtotal, products, settings)
+  const installation = getInstallationPrice(products, settings)
 
   return {
     itemCount,

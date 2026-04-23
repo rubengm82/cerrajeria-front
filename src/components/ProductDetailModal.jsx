@@ -110,6 +110,10 @@ function ProductDetailModal({
     return () => window.clearTimeout(timeoutId)
   }, [isOpen, isLoading, hasProduct, productId, entityType])
 
+  useEffect(() => {
+    setActiveImageIndex(0)
+  }, [productId, entityType, isOpen])
+
   const currentPrice = isPack
     ? (product?.total_price ? parseFloat(product.total_price).toFixed(2) : '0.00')
     : product?.discount > 0
@@ -298,16 +302,32 @@ function ProductDetailModal({
           >
           {/* Gallery */}
           <div className="product-pack-show__gallery">
-            <div className="product-pack-show__main-image bg-base-500">
-              {activeImage ? (
-                 <img
-                   src={`/storage/${activeImage.path}`}
-                   alt={product?.name || ''}
-                 />
-              ) : (
+            {activeImage ? (
+              <div className="carousel product-pack-show__carousel w-full rounded-box bg-base-500">
+                {productImages.map((image, index) => {
+                  const slideId = `product-detail-slide-${productId || "null"}-${entityType}-${index}`
+
+                  return (
+                    <div
+                      key={image.id || index}
+                      id={slideId}
+                      className="carousel-item product-pack-show__carousel-item w-full"
+                    >
+                      <div className="product-pack-show__main-image bg-base-500">
+                        <img
+                          src={`/storage/${image.path}`}
+                          alt={`${product?.name || "Producte"} - imatge ${index + 1}`}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="product-pack-show__main-image bg-base-500">
                 <HiOutlinePhoto className="product-pack-show__placeholder text-base-300" />
-              )}
-            </div>
+              </div>
+            )}
 
             {productImages.length > 1 && (
               <div
@@ -315,9 +335,9 @@ function ProductDetailModal({
                 aria-label="Miniatures de les imatges"
               >
                 {productImages.map((image, index) => (
-                  <button
+                  <a
                     key={image.id || index}
-                    type="button"
+                    href={`#product-detail-slide-${productId || "null"}-${entityType}-${index}`}
                     className={`product-pack-show__thumb bg-base-500 ${
                       index === activeImageIndex
                         ? "product-pack-show__thumb--active"
@@ -327,8 +347,8 @@ function ProductDetailModal({
                     aria-label={`Veure imatge ${index + 1}`}
                     aria-current={index === activeImageIndex}
                   >
-                     <img src={`/storage/${image.path}`} alt="" className="w-full h-full object-cover" />
-                  </button>
+                    <img src={`/storage/${image.path}`} alt="" className="w-full h-full object-cover" />
+                  </a>
                 ))}
               </div>
             )}

@@ -16,6 +16,8 @@ const checkoutDataKey = "checkoutCustomerData"
 
 const getInitialFormData = (user) => {
   const savedData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
+  const defaultAddress = savedData.address || savedData.shipping_address || savedData.installation_address || user?.shipping_address || user?.address || ""
+  const defaultZipCode = savedData.zip_code || savedData.shipping_zip_code || user?.shipping_zip_code || user?.zip_code || ""
 
   return {
     name: savedData.name || user?.name || "",
@@ -24,8 +26,12 @@ const getInitialFormData = (user) => {
     dni: savedData.dni || user?.dni || "",
     phone: savedData.phone || user?.phone || "",
     email: savedData.email || user?.email || "",
-    address: savedData.address || user?.shipping_address || user?.address || "",
-    zip_code: savedData.zip_code || user?.shipping_zip_code || user?.zip_code || "",
+    address: defaultAddress,
+    zip_code: defaultZipCode,
+    shipping_address: savedData.shipping_address || defaultAddress,
+    installation_address: savedData.installation_address || defaultAddress,
+    shipping_zip_code: savedData.shipping_zip_code || defaultZipCode,
+    installation_zip_code: savedData.installation_zip_code || defaultZipCode,
     // Guardamos también la dirección de facturación del usuario para referencia
     billing_address: savedData.billing_address || user?.billing_address || "",
     billing_zip_code: savedData.billing_zip_code || user?.billing_zip_code || "",
@@ -69,9 +75,19 @@ function Checkout() {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    sessionStorage.setItem(checkoutDataKey, JSON.stringify({
+    const mergedFormData = {
       ...getInitialFormData(user),
       ...formData,
+    }
+
+    sessionStorage.setItem(checkoutDataKey, JSON.stringify({
+      ...mergedFormData,
+      address: mergedFormData.address,
+      zip_code: mergedFormData.zip_code,
+      shipping_address: mergedFormData.address,
+      installation_address: mergedFormData.address,
+      shipping_zip_code: mergedFormData.zip_code,
+      installation_zip_code: mergedFormData.zip_code,
     }))
     // Guardar también la fuente de dirección seleccionada
     if (selectedAddressSource) {

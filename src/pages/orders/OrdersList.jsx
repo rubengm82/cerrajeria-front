@@ -25,11 +25,21 @@ const getOrderItems = (order) => [
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
 
+const formatPaymentMethod = (method) => {
+  const translations = {
+    'bizum': 'Bizum',
+    'card': 'Targeta',
+    'bank_transfer': 'Transferència',
+    'paypal': 'PayPal'
+  }
+  return translations[method] || method.charAt(0).toUpperCase() + method.slice(1)
+}
+
 const ORDER_STATUS_OPTIONS = [
-  { value: 'in_cart', label: 'En cistella', className: 'bg-base-200 border-base-300 text-base-content' },
-  { value: 'pending', label: 'Pendent', className: 'bg-warning border-warning-content text-warning-content' },
-  { value: 'shipped', label: 'Enviat', className: 'bg-info border-info-content text-info-content' },
+  { value: 'pending', label: 'Comanda pendent', className: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'shipped', label: 'Comanda enviada', className: 'bg-success border-success-content text-success-content' },
   { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-success border-success-content text-success-content' },
+  { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-warning border-warning-content text-warning-content' },
 ]
 
 function getOrderStatusOption(status) {
@@ -85,12 +95,37 @@ function OrdersList() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await updateOrder(orderId, { status: newStatus })
-      setOrders(orders.map(order => order.id === orderId ? { ...order, status: newStatus } : order))
+      const updateData = { status: newStatus }
+
+      // Clear shipped_at when going back to pending
+      if (newStatus === 'pending') {
+        updateData.shipped_at = null
+      }
+
+      const response = await updateOrder(orderId, updateData)
+      // Replace order with server response to ensure UI reflects actual DB state
+      setOrders(prevOrders => prevOrders.map(order =>
+        order.id === orderId ? response.data : order
+      ))
       setNotification({ id: Date.now(), type: "success", message: "Estat de la comanda actualitzat correctament" })
     } catch (error) {
       console.error('Error updating status:', error)
       setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut actualitzar l'estat de la comanda" })
+    }
+  }
+
+  const handleInstallationDateChange = async (orderId, dateValue) => {
+    if (!dateValue) return
+    try {
+      const response = await updateOrder(orderId, { installation_scheduled_at: dateValue })
+      // Server auto-updates status to installation_confirmed, use response data
+      setOrders(prevOrders => prevOrders.map(order =>
+        order.id === orderId ? response.data : order
+      ))
+      setNotification({ id: Date.now(), type: "success", message: "Data d'instal·lació assignada correctament" })
+    } catch (error) {
+      console.error('Error updating installation date:', error)
+      setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut guardar la data d'instal·lació" })
     }
   }
 
@@ -276,6 +311,16 @@ function OrdersList() {
     })
   }
 
+  const formatDateTime = (dateString) => {
+    return new Date(dateString).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
   const pageTitle = isAdmin ? 'Gestió de Comandes' : 'Les Meves Comandes'
   const pageDescription = isAdmin
     ? 'Gestiona totes les comandes i descarrega els albarans'
@@ -424,122 +469,145 @@ function OrdersList() {
       ) : (
         <div className="overflow-x-auto border border-base-300 bg-base-100 rounded-lg shadow-md">
           <table className="table table-zebra w-full">
-            <thead>
-              <tr>
-                <th className="bg-base-200">ID Comanda</th>
-                {isAdmin && <th className="bg-base-200">Client</th>}
-                <th className="bg-base-200">Data Albarà</th>
-                <th className="bg-base-200">Enviament</th>
+             <thead>
+               <tr>
+                 <th className="bg-base-200">ID Comanda</th>
+                 {isAdmin && <th className="bg-base-200">Client</th>}
+                 <th className="bg-base-200">Data Albarà</th>
                  <th className="bg-base-200">Mètode Pagament</th>
-                  <th className="bg-base-200">Estat Comanda</th>
-                  <th className="bg-base-200">Subtotal i IVA</th>
-                  <th className="bg-base-200">Total</th>
-                  <th className="bg-base-200">Descàrrega</th>
-                  {isAdmin && <th className="bg-base-200">Estat</th>}
-                  {isAdmin && <th className="bg-base-200">Accions</th>}
-              </tr>
-            </thead>
+                 <th className="bg-base-200">Estat Comanda</th>
+                 <th className="bg-base-200">Instal·lació</th>
+                 <th className="bg-base-200">Enviament</th>
+                 <th className="bg-base-200">Subtotal i IVA</th>
+                 <th className="bg-base-200">Total</th>
+                 <th className="bg-base-200">Descàrrega</th>
+                 {isAdmin && <th className="bg-base-200">Estat</th>}
+                 {isAdmin && <th className="bg-base-200">Accions</th>}
+               </tr>
+             </thead>
             <tbody>
               {filteredOrders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">{formatAlbaranNumber(order.id)}</td>
                   {isAdmin && <td>{getOrderCustomerName(order) || 'Client sense usuari'}</td>}
                   <td>{formatDate(order.created_at)}</td>
+                  <td>{formatPaymentMethod(order.payment_method)}</td>
                   <td>
-                    {order.shipped_at ? formatDate(order.shipped_at) : ''}
+                    {isAdmin ? (
+                      <select
+                        value={order.status}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
+                      >
+                        {ORDER_STATUS_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value} className={option.className}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className={`badge ${
+                        order.status === 'completed' ? 'badge-success' :
+                        order.status === 'pending' ? 'badge-warning' :
+                        order.status === 'shipped' ? 'badge-success' :
+                        order.status === 'installation_confirmed' ? 'badge-success' :
+                        order.status === 'installation_pending' ? 'badge-warning' :
+                        order.status === 'cancelled' ? 'badge-error' : 'badge-info'
+                      }`}>
+                        {order.status === 'completed' ? 'Completada' :
+                         order.status === 'pending' ? 'Comanda pendent' :
+                         order.status === 'shipped' ? 'Comanda enviada' :
+                         order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                         order.status === 'installation_pending' ? 'Instal·lació pendent' :
+                         order.status === 'cancelled' ? 'Cancel·lada' : order.status}
+                      </span>
+                    )}
                   </td>
-                   <td>
-                     {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}
-                   </td>
-                   <td>
-                     {isAdmin ? (
-                       <select
-                         value={order.status}
-                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                         className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
-                       >
-                         {ORDER_STATUS_OPTIONS.map((option) => (
-                           <option key={option.value} value={option.value} className={option.className}>
-                             {option.label}
-                           </option>
-                         ))}
-                       </select>
-                     ) : (
-                       <span className={`badge ${
-                         order.status === 'completed' ? 'badge-success' :
-                         order.status === 'pending' ? 'badge-warning' :
-                         order.status === 'shipped' ? 'badge-info' :
-                         order.status === 'installation_confirmed' ? 'badge-success' :
-                         order.status === 'cancelled' ? 'badge-error' : 'badge-info'
-                       }`}>
-                         {order.status === 'completed' ? 'Completada' :
-                          order.status === 'pending' ? 'Pendent' :
-                          order.status === 'shipped' ? 'Enviat' :
-                          order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
-                          order.status === 'cancelled' ? 'Cancel·lada' : order.status}
-                       </span>
-                     )}
-                   </td>
-                   <td>
-                     {(() => {
-                       const { subtotal } = getCartTotals(getOrderItems(order))
-                       const iva = subtotal * 0.21
-                       return (
-                         <div className="text-left text-sm">
-                           <div>Subtotal: {formatPrice(subtotal)}</div>
-                           <div>Enviament: {formatPrice(order.shipping_price || 0)}</div>
-                           <div>Instal·lació: {formatPrice(order.installation_price || 0)}</div>
-                           <div>IVA: {formatPrice(iva)}</div>
-                         </div>
-                       )
-                     })()}
-                   </td>
-                   <td className="font-bold text-primary">
-                     {(() => {
-                       const { subtotal } = getCartTotals(getOrderItems(order))
-                       const iva = subtotal * 0.21
-                       const total = subtotal + iva + Number(order.shipping_price || 0) + Number(order.installation_price || 0)
-                       return formatPrice(total)
-                     })()}
-                   </td>
-                   <td>
-                     <button
-                       onClick={() => downloadAlbaran(order.id)}
-                       className="btn btn-sm btn-primary"
-                       title="Descarregar Albarà"
-                     >
-                       <HiDocumentDownload className="w-4 h-4" />
-                       Albarà
-                     </button>
-                   </td>
-                   {isAdmin && (
-                     <td>
-                       <input
-                         type="checkbox"
-                         className="toggle toggle-primary"
-                         checked={!order.deleted_at}
-                         onChange={(e) => handleToggle(order.id, e.target.checked)}
-                       />
-                     </td>
-                   )}
-                   {isAdmin && (
-                     <td className="h-12">
-                       <div className='flex items-center justify-center gap-3'>
-                       <Link to={`/orders/${order.id}`} className="text-base-400 hover:text-primary transition-colors">
-                         <HiEye className="size-6" />
-                       </Link>
-                         <ConfirmableModal
-                           title="Eliminar comanda permanentment"
-                           message={`Segur que vols eliminar permanentment la comanda ${formatAlbaranNumber(order.id)}? Aquesta acció no es pot desfer.`}
-                           onConfirm={() => handleForceDelete(order.id)}
-                         >
-                           <button className={`text-base-400 hover:text-error-content transition-colors cursor-pointer ${!order.deleted_at ? 'invisible' : ''}`}>
-                             <HiTrash className="size-6" />
-                           </button>
-                         </ConfirmableModal>
-                       </div>
-                     </td>
-                   )}
+                  <td>
+                    {isAdmin && order.status === 'installation_pending' ? (
+                      <div>
+                        <div className="text-error-content text-sm mb-1">Manca posar data</div>
+                        <input
+                          type="datetime-local"
+                          className="input input-bordered input-sm"
+                          onBlur={(e) => {
+                            const value = e.target.value
+                            if (value) {
+                              handleInstallationDateChange(order.id, value)
+                            }
+                          }}
+                          key={`inst-${order.id}`}
+                        />
+                      </div>
+                    ) : order.installation_scheduled_at ? (
+                      <span>{formatDateTime(order.installation_scheduled_at)}</span>
+                    ) : (
+                      <span className="text-base-400"></span>
+                    )}
+                  </td>
+                  <td className={`text-sm mb-1 ${order.shipped_at ? '' : 'text-error-content'}`}>
+                    {order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'}
+                  </td>
+                  <td>
+                    {(() => {
+                      const { subtotal } = getCartTotals(getOrderItems(order))
+                      const iva = subtotal * 0.21
+                      return (
+                        <div className="text-left text-sm">
+                          <div>Subtotal: {formatPrice(subtotal)}</div>
+                          <div>Enviament: {formatPrice(order.shipping_price || 0)}</div>
+                          <div>Instal·lació: {formatPrice(order.installation_price || 0)}</div>
+                          <div>IVA: {formatPrice(iva)}</div>
+                        </div>
+                      )
+                    })()}
+                  </td>
+                  <td className="font-bold text-primary">
+                    {(() => {
+                      const { subtotal } = getCartTotals(getOrderItems(order))
+                      const iva = subtotal * 0.21
+                      const total = subtotal + iva + Number(order.shipping_price || 0) + Number(order.installation_price || 0)
+                      return formatPrice(total)
+                    })()}
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => downloadAlbaran(order.id)}
+                      className="btn btn-sm btn-primary"
+                      title="Descarregar Albarà"
+                    >
+                      <HiDocumentDownload className="w-4 h-4" />
+                      Albarà
+                    </button>
+                  </td>
+                  {isAdmin && (
+                    <td>
+                      <input
+                        type="checkbox"
+                        className="toggle toggle-primary"
+                        checked={!order.deleted_at}
+                        onChange={(e) => handleToggle(order.id, e.target.checked)}
+                      />
+                    </td>
+                  )}
+                  {isAdmin && (
+                    <td className="h-12">
+                      <div className='flex items-center justify-center gap-3'>
+                        <Link to={`/orders/${order.id}`} className="text-base-400 hover:text-primary transition-colors">
+                          <HiEye className="size-6" />
+                        </Link>
+                        <ConfirmableModal
+                          title="Eliminar comanda permanentment"
+                          message={`Segur que vols eliminar permanentment la comanda ${formatAlbaranNumber(order.id)}? Aquesta acció no es pot desfer.`}
+                          onConfirm={() => handleForceDelete(order.id)}
+                        >
+                          <button className={`text-base-400 hover:text-error-content transition-colors cursor-pointer ${!order.deleted_at ? 'invisible' : ''}`}>
+                            <HiTrash className="size-6" />
+                          </button>
+                        </ConfirmableModal>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

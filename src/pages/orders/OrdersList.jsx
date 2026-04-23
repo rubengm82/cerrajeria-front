@@ -159,6 +159,47 @@ function OrdersList() {
     event.preventDefault()
     setIsSavingSettings(true)
 
+    // Validació de regles d'instal·lació
+    const rules = settingsForm.installation_rules
+    for (let i = 0; i < rules.length; i++) {
+      const min = Number(rules[i].min_subtotal || 0)
+      const maxVal = rules[i].max_subtotal
+      const max = (maxVal === '' || maxVal === null || maxVal === undefined) ? null : Number(maxVal)
+
+      if (max !== null && max <= min) {
+        setNotification({ 
+          id: Date.now(), 
+          type: "error", 
+          message: `A la regla ${i + 1}, el valor 'Fins' (${max}) ha de ser major que 'Des de' (${min}).` 
+        })
+        setIsSavingSettings(false)
+        return
+      }
+
+      if (i < rules.length - 1) {
+        if (max === null) {
+          setNotification({ 
+            id: Date.now(), 
+            type: "error", 
+            message: "Només l'última regla pot quedar sense límit." 
+          })
+          setIsSavingSettings(false)
+          return
+        }
+        
+        const nextMin = Number(rules[i + 1].min_subtotal)
+        if (nextMin <= max) {
+          setNotification({ 
+            id: Date.now(), 
+            type: "error", 
+            message: `Conflict de rangs: La regla ${i + 2} ha de començar (${nextMin}) per sobre del límit de la regla ${i + 1} (${max}).` 
+          })
+          setIsSavingSettings(false)
+          return
+        }
+      }
+    }
+
     try {
       const response = await updateCommerceSettings({
         shipping_price: Number(settingsForm.shipping_price || 0),
@@ -166,7 +207,7 @@ function OrdersList() {
           .filter((rule) => rule.min_subtotal !== '' && rule.price !== '')
           .map((rule) => ({
             min_subtotal: Number(rule.min_subtotal || 0),
-            max_subtotal: rule.max_subtotal === '' ? null : Number(rule.max_subtotal),
+            max_subtotal: (rule.max_subtotal === '' || rule.max_subtotal === null) ? null : Number(rule.max_subtotal),
             price: Number(rule.price || 0),
           })),
       })
@@ -275,9 +316,9 @@ function OrdersList() {
         </div>
 
         {isAdmin && (
-          <button type="button" className="btn btn-primary" onClick={() => setIsSettingsOpen(true)}>
+          <button type="button" className="btn btn-accent" onClick={() => setIsSettingsOpen(true)}>
             <HiCog className="size-5" />
-            Preus
+            Configuració de preus (enviaments i instal·lacions)
           </button>
         )}
       </div>
@@ -309,10 +350,10 @@ function OrdersList() {
                 />
               </label>
 
-              <section className="space-y-3">
+              <section className="space-y-3 mt-10">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-lg font-semibold">Regles d'instal·lació</h3>
-                  <button type="button" className="btn btn-sm btn-outline" onClick={handleAddRule}>
+                  <button type="button" className="btn btn-sm btn-outline text-accent" onClick={handleAddRule}>
                     <HiPlus className="size-4" />
                     Afegir regla
                   </button>
@@ -330,13 +371,22 @@ function OrdersList() {
                         </label>
                         <label className="form-control">
                           <span className="label-text mb-1">Fins (€)</span>
-                          <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.max_subtotal ?? ''} onChange={(event) => handleRuleChange(index, 'max_subtotal', event.target.value)} placeholder="Sense límit" />
+                          <input 
+                            type="number" 
+                            min="0" 
+                            step="0.01" 
+                            className="input input-bordered" 
+                            value={rule.max_subtotal ?? ''} 
+                            onChange={(event) => handleRuleChange(index, 'max_subtotal', event.target.value)} 
+                            placeholder={index === settingsForm.installation_rules.length - 1 ? "Sense límit" : "Fins (€)"}
+                            required={index !== settingsForm.installation_rules.length - 1}
+                          />
                         </label>
                         <label className="form-control">
                           <span className="label-text mb-1">Preu instal·lació (€)</span>
                           <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.price ?? ''} onChange={(event) => handleRuleChange(index, 'price', event.target.value)} required />
                         </label>
-                        <button type="button" className="btn btn-ghost text-error" onClick={() => handleRemoveRule(index)} aria-label="Eliminar regla">
+                        <button type="button" className="btn btn-ghost text-error-content" onClick={() => handleRemoveRule(index)} aria-label="Eliminar regla">
                           <HiTrash className="size-5" />
                         </button>
                       </div>

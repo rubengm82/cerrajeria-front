@@ -38,8 +38,8 @@ const formatPaymentMethod = (method) => {
 const ORDER_STATUS_OPTIONS = [
   { value: 'pending', label: 'Comanda pendent', className: 'bg-warning border-warning-content text-warning-content' },
   { value: 'shipped', label: 'Comanda enviada', className: 'bg-success border-success-content text-success-content' },
-  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-success border-success-content text-success-content' },
   { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-success border-success-content text-success-content' },
 ]
 
   const getFilteredStatusOptions = (currentStatus) => {
@@ -517,7 +517,15 @@ function OrdersList() {
               {filteredOrders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">{formatAlbaranNumber(order.id)}</td>
-                  {isAdmin && <td>{getOrderCustomerName(order) || 'Client sense usuari'}</td>}
+                  {isAdmin &&                    <td>
+                     <div className="relative group">
+                       <span>{getOrderCustomerName(order) || 'Client sense usuari'}</span>
+                       <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-base-300 text-base-content p-2 rounded shadow-lg text-sm z-10 min-w-max">
+                         <div>Telèfon: {order.user?.phone || 'No disponible'}</div>
+                         <div>Email: {order.user?.email || 'No disponible'}</div>
+                       </div>
+                     </div>
+                   </td>}
                   <td>{formatDate(order.created_at)}</td>
                   <td>{formatPaymentMethod(order.payment_method)}</td>
                   <td>
@@ -553,27 +561,27 @@ function OrdersList() {
                   </td>
                   <td>
                     {isAdmin && order.status === 'installation_pending' ? (
-                      <div>
-                        <div className="text-error-content text-sm mb-1">Manca posar data</div>
-                        <input
-                          type="datetime-local"
-                          className="input input-bordered input-sm"
-                          onBlur={(e) => {
-                            const value = e.target.value
-                            if (value) {
-                              handleInstallationDateChange(order.id, value)
-                            }
-                          }}
-                          key={`inst-${order.id}`}
-                        />
-                      </div>
+                       <div>
+                         <div className="text-error-content text-sm mb-1 text-center">Manca posar data</div>
+                         <input
+                           type="datetime-local"
+                           className="input input-bordered input-sm"
+                           onBlur={(e) => {
+                             const value = e.target.value
+                             if (value) {
+                               handleInstallationDateChange(order.id, value)
+                             }
+                           }}
+                           key={`inst-${order.id}`}
+                         />
+                       </div>
                     ) : order.installation_scheduled_at ? (
                       <span>{formatDateTime(order.installation_scheduled_at)}</span>
                     ) : (
                       <span className="text-base-400"></span>
                     )}
                   </td>
-                  <td className={`text-sm mb-1 ${order.shipped_at ? '' : 'text-error-content'}`}>
+                   <td className={`text-sm mb-1 text-center ${order.shipped_at ? '' : 'text-error-content'}`}>
                     {order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'}
                   </td>
                   <td>

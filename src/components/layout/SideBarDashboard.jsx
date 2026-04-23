@@ -22,41 +22,45 @@ export default function SideBarDashboard({ userRole }) {
        ) },
      ]
 
-  // Links específics per a administradors (ordenats alfabèticament)
-  const adminLinks = [
-    // Productes - Grup principal
-    { to: '/admin/products', label: 'Veure Productes', parent: 'Productes', icon: (
-      <HiOutlineShoppingBag className="size-6" aria-hidden="true" />
-    ) },
-    // Categories - anidat dins Productes
-    { to: '/admin/categories', label: 'Categories', parent: 'Productes', icon: (
-      <HiOutlineTag className="size-6" aria-hidden="true" />
-    ) },
-    // Tipus de Característiques - anidat dins Productes
-    { to: '/admin/features-manager', label: 'Característiques', parent: 'Productes', icon: (
-      <HiOutlineSwatch className="size-6" aria-hidden="true" />
-    ) },
-    // Packs - anidat dins Productes
-    { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
-      <HiOutlineCube className="size-6" aria-hidden="true" />
-    ) },
-    // Solucions personalitzades
-    { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (
-      <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
-    ) },
-    // Comandes
-    { to: '/orders', label: 'Comandes', icon: (
-      <HiOutlineShoppingCart className="size-6" aria-hidden="true" />
-    ) },
-    // Gestió d'Usuaris
-    { to: '/users', label: "Gestió d'Usuaris", icon: (
-      <HiOutlineUserGroup className="size-6" aria-hidden="true" />
-    ) },
-    // Informes
-    { to: '/admin/reports', label: 'Informes', icon: (
-      <HiOutlineChartPie className="size-6" aria-hidden="true" />
-    ) },
-  ]
+   // Links específics per a administradors (ordenats alfabèticament)
+   const adminLinks = [
+     // Productes - Grup principal
+     { to: '/admin/products', label: 'Veure Productes', parent: 'Productes', icon: (
+       <HiOutlineShoppingBag className="size-6" aria-hidden="true" />
+     ) },
+     // Categories - anidat dins Productes
+     { to: '/admin/categories', label: 'Categories', parent: 'Productes', icon: (
+       <HiOutlineTag className="size-6" aria-hidden="true" />
+     ) },
+     // Tipus de Característiques - anidat dins Productes
+     { to: '/admin/features-manager', label: 'Característiques', parent: 'Productes', icon: (
+       <HiOutlineSwatch className="size-6" aria-hidden="true" />
+     ) },
+     // Packs - anidat dins Productes
+     { to: '/admin/packs', label: 'Packs de Productes', parent: 'Productes', icon: (
+       <HiOutlineCube className="size-6" aria-hidden="true" />
+     ) },
+     // Solucions personalitzades
+     { to: '/admin/custom-solutions', label: 'Solucions personalitzades', icon: (
+       <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
+     ) },
+     // Preguntes Freqüents
+     { to: '/admin/faqs', label: 'Preguntes Freqüents (FAQs)', icon: (
+       <HiOutlineClipboardDocumentList className="size-6" aria-hidden="true" />
+     ) },
+     // Comandes
+     { to: '/orders', label: 'Comandes', icon: (
+       <HiOutlineShoppingCart className="size-6" aria-hidden="true" />
+     ) },
+     // Gestió d'Usuaris
+     { to: '/users', label: "Gestió d'Usuaris", icon: (
+       <HiOutlineUserGroup className="size-6" aria-hidden="true" />
+     ) },
+     // Informes
+     { to: '/admin/reports', label: 'Informes', icon: (
+       <HiOutlineChartPie className="size-6" aria-hidden="true" />
+     ) },
+   ]
 
    // Links específics per a usuaris normals
    const userLinks = []

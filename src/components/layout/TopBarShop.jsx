@@ -104,16 +104,17 @@ export default function TopBarShop() {
              </div>
           </div>
 
-          <nav className="navbar-center hidden xl:flex" aria-label="Navegació principal">
+           <nav className="navbar-center hidden xl:flex" aria-label="Navegació principal">
 
-            <ul className="menu menu-horizontal px-1">
-              <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
-              <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
-              <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
-              <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
-              <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
-            </ul>
-          </nav>
+             <ul className="menu menu-horizontal px-1">
+               <li><Link to="/" className="shop-topbar__menu-link">Inici</Link></li>
+               <li><Link to="/products" className="shop-topbar__menu-link">Productes</Link></li>
+               <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
+               <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
+               <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
+               <li><Link to="/faqs" className="shop-topbar__menu-link">FAQs</Link></li>
+             </ul>
+           </nav>
 
           <div className="navbar-end flex items-center gap-2">
             {(user?.role !== 'admin' && user?.role !== 1) && (
@@ -159,7 +160,8 @@ export default function TopBarShop() {
           <li><Link to="/packs" className="shop-topbar__menu-link">Packs</Link></li>
           <li><Link to="/categories" className="shop-topbar__menu-link">Categories</Link></li>
           <li><Link to="/custom-solutions" className="shop-topbar__menu-link">Solucions Personalitzades</Link></li>
-          
+          <li><Link to="/faqs" className="shop-topbar__menu-link">FAQs</Link></li>
+
           {!user ? (
             <li><Link to="/login" className="btn btn-primary mt-4">Inicia sessió</Link></li>
           ) : (

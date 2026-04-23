@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getOrder } from '../../api/orders_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
@@ -26,22 +26,22 @@ function OrderShow() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    fetchOrder()
-  }, [id])
+   const fetchOrder = useCallback(async () => {
+     try {
+       setLoading(true)
+       const response = await getOrder(id)
+       setOrder(response.data)
+     } catch (err) {
+       setError('Error al cargar la comanda')
+       console.error('Error fetching order:', err)
+     } finally {
+       setLoading(false)
+     }
+   }, [id])
 
-  const fetchOrder = async () => {
-    try {
-      setLoading(true)
-      const response = await getOrder(id)
-      setOrder(response.data)
-    } catch (err) {
-      setError('Error al cargar la comanda')
-      console.error('Error fetching order:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
+   useEffect(() => {
+     fetchOrder()
+   }, [fetchOrder])
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -119,13 +119,17 @@ function OrderShow() {
                   order.status === 'completed' ? 'badge-success' :
                   order.status === 'pending' ? 'badge-warning' :
                   order.status === 'shipped' ? 'badge-info' :
-                  order.status === 'installation_confirmed' ? 'badge-success' :
+                  order.status === 'installation_confirmed' ? 'badge-accent' :
+                  order.status === 'installation_pending' ? 'badge-warning' :
+                  order.status === 'installation_finished' ? 'badge-success' :
                   order.status === 'cancelled' ? 'badge-error' : 'badge-info'
                 }`}>
                   {order.status === 'completed' ? 'Completada' :
                    order.status === 'pending' ? 'Pendent' :
                    order.status === 'shipped' ? 'Enviat' :
                    order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                   order.status === 'installation_pending' ? 'Instal·lació pendent' :
+                   order.status === 'installation_finished' ? 'Instal·lació finalitzada' :
                    order.status === 'cancelled' ? 'Cancel·lada' : order.status}
                 </span>
               </p>

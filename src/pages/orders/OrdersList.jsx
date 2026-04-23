@@ -39,18 +39,28 @@ const ORDER_STATUS_OPTIONS = [
   { value: 'pending', label: 'Comanda pendent', className: 'bg-warning border-warning-content text-warning-content' },
   { value: 'shipped', label: 'Comanda enviada', className: 'bg-success border-success-content text-success-content' },
   { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-warning border-warning-content text-warning-content' },
-  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-success border-success-content text-success-content' },
+  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-accent border-accent-content text-accent-content' },
+  { value: 'installation_finished', label: 'Instal·lació finalitzada', className: 'bg-success border-success-content text-success-content' },
 ]
 
-  const getFilteredStatusOptions = (currentStatus) => {
-    const installationStatuses = ['installation_pending', 'installation_confirmed']
+  const getFilteredStatusOptions = (currentStatus, installationScheduledAt) => {
+    const installationStatuses = ['installation_pending', 'installation_confirmed', 'installation_finished']
     const isInstallationOrder = installationStatuses.includes(currentStatus)
     
-    return ORDER_STATUS_OPTIONS.filter(option => 
-      isInstallationOrder 
-        ? installationStatuses.includes(option.value)
-        : !installationStatuses.includes(option.value)
-    )
+    return ORDER_STATUS_OPTIONS.filter(option => {
+      // For installation orders
+      if (isInstallationOrder) {
+        // If no installation date is set, only show 'installation_pending'
+        if (!installationScheduledAt) {
+          return option.value === 'installation_pending'
+        }
+        // If installation date exists, show all installation options
+        return installationStatuses.includes(option.value)
+      }
+      
+      // For regular orders, exclude installation statuses
+      return !installationStatuses.includes(option.value)
+    })
   }
 
 function getOrderStatusOption(status) {
@@ -104,31 +114,36 @@ function OrdersList() {
     }
   }, [fetchCommerceSettings, isAdmin])
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      const updateData = { status: newStatus }
+   const handleStatusChange = async (orderId, newStatus, order) => {
+     try {
+       const updateData = { status: newStatus }
 
-      // Clear shipped_at when going back to pending
-      if (newStatus === 'pending') {
-        updateData.shipped_at = null
-      }
+       // Clear shipped_at when going back to pending
+       if (newStatus === 'pending') {
+         updateData.shipped_at = null
+       }
 
-      // Clear installation date when setting status to installation_pending
-      if (newStatus === 'installation_pending') {
-        updateData.installation_scheduled_at = null
-      }
+       // Clear installation date when setting status to installation_pending
+       if (newStatus === 'installation_pending') {
+         updateData.installation_scheduled_at = null
+       }
 
-      const response = await updateOrder(orderId, updateData)
-      // Replace order with server response to ensure UI reflects actual DB state
-      setOrders(prevOrders => prevOrders.map(order =>
-        order.id === orderId ? response.data : order
-      ))
-      setNotification({ id: Date.now(), type: "success", message: "Estat de la comanda actualitzat correctament" })
-    } catch (error) {
-      console.error('Error updating status:', error)
-      setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut actualitzar l'estat de la comanda" })
-    }
-  }
+       // For installation_confirmed or installation_finished, ensure installation_scheduled_at is sent
+       if ((newStatus === 'installation_confirmed' || newStatus === 'installation_finished') && order.installation_scheduled_at) {
+         updateData.installation_scheduled_at = order.installation_scheduled_at
+       }
+
+       const response = await updateOrder(orderId, updateData)
+       // Replace order with server response to ensure UI reflects actual DB state
+       setOrders(prevOrders => prevOrders.map(order =>
+         order.id === orderId ? response.data : order
+       ))
+       setNotification({ id: Date.now(), type: "success", message: "Estat de la comanda actualitzat correctament" })
+     } catch (error) {
+       console.error('Error updating status:', error)
+       setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut actualitzar l'estat de la comanda" })
+     }
+   }
 
   const handleInstallationDateChange = async (orderId, dateValue) => {
     try {
@@ -530,32 +545,34 @@ function OrdersList() {
                   <td>{formatPaymentMethod(order.payment_method)}</td>
                   <td>
                     {isAdmin ? (
-                       <select
-                         value={order.status}
-                         onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                         className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
-                       >
-                         {getFilteredStatusOptions(order.status).map((option) => (
+                        <select
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value, order)}
+                          className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
+                        >
+                         {getFilteredStatusOptions(order.status, order.installation_scheduled_at).map((option) => (
                            <option key={option.value} value={option.value} className={option.className}>
                              {option.label}
                            </option>
                          ))}
                        </select>
                     ) : (
-                      <span className={`badge ${
-                        order.status === 'completed' ? 'badge-success' :
-                        order.status === 'pending' ? 'badge-warning' :
-                        order.status === 'shipped' ? 'badge-success' :
-                        order.status === 'installation_confirmed' ? 'badge-success' :
-                        order.status === 'installation_pending' ? 'badge-warning' :
-                        order.status === 'cancelled' ? 'badge-error' : 'badge-info'
-                      }`}>
-                        {order.status === 'completed' ? 'Completada' :
-                         order.status === 'pending' ? 'Comanda pendent' :
-                         order.status === 'shipped' ? 'Comanda enviada' :
-                         order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
-                         order.status === 'installation_pending' ? 'Instal·lació pendent' :
-                         order.status === 'cancelled' ? 'Cancel·lada' : order.status}
+                       <span className={`badge ${
+                         order.status === 'completed' ? 'badge-success' :
+                         order.status === 'pending' ? 'badge-warning' :
+                         order.status === 'shipped' ? 'badge-success' :
+                         order.status === 'installation_confirmed' ? 'badge-accent' :
+                         order.status === 'installation_pending' ? 'badge-warning' :
+                         order.status === 'installation_finished' ? 'badge-success' :
+                         order.status === 'cancelled' ? 'badge-error' : 'badge-info'
+                       }`}>
+                         {order.status === 'completed' ? 'Completada' :
+                          order.status === 'pending' ? 'Comanda pendent' :
+                          order.status === 'shipped' ? 'Comanda enviada' :
+                          order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                          order.status === 'installation_pending' ? 'Instal·lació pendent' :
+                          order.status === 'installation_finished' ? 'Instal·lació finalitzada' :
+                          order.status === 'cancelled' ? 'Cancel·lada' : order.status}
                       </span>
                     )}
                   </td>

@@ -543,7 +543,7 @@ function OrdersList() {
 
       <SearchBarTableSimple
         data={filteredByStatus}
-        searchFields={isAdmin ? ['albaran_number', 'id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['albaran_number', 'id', 'created_at', 'shipped_at', 'payment_method', 'status']}
+        searchFields={isAdmin ? ['albaran_number', 'id', 'customer_name', 'customer_last_name_one', 'customer_last_name_second', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['albaran_number', 'id', 'customer_name', 'customer_last_name_one', 'customer_last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status']}
         placeholder='Buscar comanda...'
         inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
         extraFilters={isAdmin ? (

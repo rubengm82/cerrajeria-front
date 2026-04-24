@@ -83,7 +83,10 @@ function OrdersList() {
     try {
       setLoading(true)
       const response = isAdmin ? await getOrdersWithTrashed() : await getOrders()
-      setOrders(response.data)
+      const fetchedOrders = response.data
+      // Filter out orders with status 'in_cart' for non-admin users
+      const filteredOrders = isAdmin ? fetchedOrders : fetchedOrders.filter(order => order.status !== 'in_cart')
+      setOrders(filteredOrders)
     } catch (err) {
       setError('Error al cargar las órdenes')
       console.error('Error fetching orders:', err)
@@ -520,7 +523,7 @@ function OrdersList() {
                  <th className="bg-base-200">Mètode Pagament</th>
                  <th className="bg-base-200">Estat Comanda</th>
                  <th className="bg-base-200">Instal·lació</th>
-                 <th className="bg-base-200">Enviament</th>
+                  {isAdmin && <th className="bg-base-200">Enviament</th>}
                  <th className="bg-base-200">Subtotal i IVA</th>
                  <th className="bg-base-200">Total</th>
                  <th className="bg-base-200">Descàrrega</th>
@@ -561,8 +564,8 @@ function OrdersList() {
                          order.status === 'completed' ? 'badge-success' :
                          order.status === 'pending' ? 'badge-warning' :
                          order.status === 'shipped' ? 'badge-success' :
-                         order.status === 'installation_confirmed' ? 'badge-accent' :
-                         order.status === 'installation_pending' ? 'badge-warning' :
+                         order.status === 'installation_confirmed' ? 'badge-warning' :
+                         order.status === 'installation_pending' ? 'badge-error' :
                          order.status === 'installation_finished' ? 'badge-success' :
                          order.status === 'cancelled' ? 'badge-error' : 'badge-info'
                        }`}>
@@ -598,9 +601,9 @@ function OrdersList() {
                       <span className="text-base-400"></span>
                     )}
                   </td>
-                   <td className={`text-sm mb-1 text-center ${order.shipped_at ? '' : 'text-error-content'}`}>
-                    {order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'}
-                  </td>
+                    {isAdmin && <td className={`text-sm mb-1 text-center ${order.shipped_at ? '' : 'text-error-content'}`}>
+                     {order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'}
+                   </td>}
                   <td>
                     {(() => {
                       const { subtotal } = getCartTotals(getOrderItems(order))

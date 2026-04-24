@@ -88,16 +88,6 @@ function OrdersList() {
 
   const isAdmin = user?.role === 'admin'
 
-  // DEBUG: mostrar en consola
-  console.log('OrdersList DEBUG:', { 
-    userId: user?.id, 
-    userName: user?.name, 
-    userRole: user?.role, 
-    isAdmin, 
-    ordersCount: orders.length,
-    filtersState: filters
-  })
-
   const handleFilterChange = (newFilters) => {
     console.log('Filter change:', newFilters)
     setFilters(prev => ({ ...prev, ...newFilters }))
@@ -108,7 +98,6 @@ function OrdersList() {
       setLoading(true)
       const response = isAdmin ? await getOrdersWithTrashed() : await getOrders()
       const fetchedOrders = response.data
-      // Filter out orders with status 'in_cart' for non-admin users
       const filteredOrders = isAdmin ? fetchedOrders : fetchedOrders.filter(order => order.status !== 'in_cart')
       setOrders(filteredOrders)
     } catch (err) {
@@ -136,10 +125,10 @@ function OrdersList() {
   }, [])
 
   useEffect(() => {
-    if (isAdmin) {
-      fetchCommerceSettings()
-    }
-  }, [fetchCommerceSettings, isAdmin])
+    fetchCommerceSettings()
+  }, [fetchCommerceSettings])
+
+  // DEBUG: mostrar en consola
 
    const handleStatusChange = async (orderId, newStatus, order) => {
      try {
@@ -708,12 +697,30 @@ function OrdersList() {
                   <td>
                     {(() => {
                       const { subtotal } = getCartTotals(getOrderItems(order))
-                      const iva = subtotal * 0.21
+                      let shipping = Number(order.shipping_price || 0)
+                      let installation = Number(order.installation_price || 0)
+                      const isInstallation = INSTALLATION_STATUSES.includes(order.status)
+                      const isOnline = ['pending', 'shipped'].includes(order.status)
+                      
+                      if (settingsForm) {
+                        if (isOnline && shipping === 0) {
+                          shipping = Number(settingsForm.shipping_price || 0)
+                        } else if (isInstallation && installation === 0) {
+                          const rules = [...(settingsForm.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
+                          const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+                          if (rule) {
+                            installation = Number(rule.price)
+                          }
+                        }
+                      }
+
+                      const iva = (subtotal + shipping + installation) * 0.21
+                      
                       return (
                         <div className="text-left text-xs">
                           <div>Subtotal: {formatPrice(subtotal)}</div>
-                          <div>Enviament: {formatPrice(order.shipping_price || 0)}</div>
-                          <div>Instal·lació: {formatPrice(order.installation_price || 0)}</div>
+                          {shipping > 0 && !isInstallation && <div>Enviament: {formatPrice(shipping)}</div>}
+                          {installation > 0 && isInstallation && <div>Instal·lació: {formatPrice(installation)}</div>}
                           <div>IVA: {formatPrice(iva)}</div>
                         </div>
                       )
@@ -722,9 +729,25 @@ function OrdersList() {
                    <td className="font-bold text-primary">
                      {(() => {
                        const { subtotal } = getCartTotals(getOrderItems(order))
-                       const iva = subtotal * 0.21
-                       // Total según albarán (productos + IVA). Envío e instalación se incluyen en el albarán como conceptos aparte.
-                       const total = subtotal + iva
+                       let shipping = Number(order.shipping_price || 0)
+                       let installation = Number(order.installation_price || 0)
+                       const isInstallation = INSTALLATION_STATUSES.includes(order.status)
+                       const isOnline = ['pending', 'shipped'].includes(order.status)
+
+                      if (settingsForm) {
+                        if (isOnline && shipping === 0) {
+                          shipping = Number(settingsForm.shipping_price || 0)
+                        } else if (isInstallation && installation === 0) {
+                          const rules = [...(settingsForm.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
+                          const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+                          if (rule) {
+                            installation = Number(rule.price)
+                          }
+                        }
+                      }
+
+                       const iva = (subtotal + shipping + installation) * 0.21
+                       const total = subtotal + shipping + installation + iva
                        return formatPrice(total)
                      })()}
                   </td>

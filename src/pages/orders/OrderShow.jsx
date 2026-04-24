@@ -1,9 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getOrder } from '../../api/orders_api'
+import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
 import { formatPrice, getCartTotals, getProductPrice } from '../../utils/cartTotals'
+
+const INSTALLATION_STATUSES = ['installation_confirmed', 'installation_pending', 'installation_finished']
+const ONLINE_STATUSES = ['pending', 'shipped']
 
 const getOrderCustomerName = (order) => (
   [
@@ -23,25 +27,30 @@ const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '
 function OrderShow() {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
+  const [settings, setSettings] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-   const fetchOrder = useCallback(async () => {
+   const fetchOrderAndSettings = useCallback(async () => {
      try {
        setLoading(true)
-       const response = await getOrder(id)
-       setOrder(response.data)
+       const [orderRes, settingsRes] = await Promise.all([
+         getOrder(id),
+         getCommerceSettings()
+       ])
+       setOrder(orderRes.data)
+       setSettings(settingsRes.data)
      } catch (err) {
        setError('Error al cargar la comanda')
-       console.error('Error fetching order:', err)
+       console.error('Error fetching order/settings:', err)
      } finally {
        setLoading(false)
      }
    }, [id])
 
    useEffect(() => {
-     fetchOrder()
-   }, [fetchOrder])
+     fetchOrderAndSettings()
+   }, [fetchOrderAndSettings])
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -90,10 +99,29 @@ function OrderShow() {
    const orderItems = getOrderItems(order)
    const albaranNumber = formatAlbaranNumber(order.id)
    const { subtotal } = getCartTotals(orderItems)
-   const iva = subtotal * 0.21
-   const shipping = Number(order.shipping_price || 0)
-   const installation = Number(order.installation_price || 0)
-   const total = subtotal + iva
+   
+   let shipping = Number(order.shipping_price || 0)
+   let installation = Number(order.installation_price || 0)
+
+   const isInstallation = INSTALLATION_STATUSES.includes(order.status)
+   const isOnline = ONLINE_STATUSES.includes(order.status)
+
+   // Si en la DB son 0, aplicamos los baremos de los settings
+   if (settings) {
+     if (isOnline && shipping === 0) {
+       shipping = Number(settings.shipping_price || 0)
+     } else if (isInstallation && installation === 0) {
+       const rules = [...(settings.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
+       const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+       if (rule) {
+         installation = Number(rule.price)
+       }
+     }
+   }
+   
+   // El IVA se calcula sobre el subtotal + envío/instalación
+   const iva = (subtotal + shipping + installation) * 0.21
+   const total = subtotal + shipping + installation + iva
 
   return (
     <div className="p-4 md:p-0">
@@ -196,17 +224,21 @@ function OrderShow() {
                 <span>Subtotal:</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {shipping > 0 && !isInstallation && (
+                <div className="flex justify-between">
+                  <span>Enviament:</span>
+                  <span>{formatPrice(shipping)}</span>
+                </div>
+              )}
+              {installation > 0 && isInstallation && (
+                <div className="flex justify-between">
+                  <span>Instal·lació:</span>
+                  <span>{formatPrice(installation)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>IVA (21%):</span>
                 <span>{formatPrice(iva)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Enviament:</span>
-                <span>{formatPrice(shipping)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Instal·lació:</span>
-                <span>{formatPrice(installation)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total:</span>

@@ -87,13 +87,13 @@ function OrderShow() {
     )
   }
 
-  const orderItems = getOrderItems(order)
-  const albaranNumber = formatAlbaranNumber(order.id)
-  const { subtotal } = getCartTotals(orderItems)
-  const iva = subtotal * 0.21
-  const shipping = Number(order.shipping_price || 0)
-  const installation = Number(order.installation_price || 0)
-  const total = subtotal + iva + shipping + installation
+   const orderItems = getOrderItems(order)
+   const albaranNumber = formatAlbaranNumber(order.id)
+   const { subtotal } = getCartTotals(orderItems)
+   const iva = subtotal * 0.21
+   const shipping = Number(order.shipping_price || 0)
+   const installation = Number(order.installation_price || 0)
+   const total = subtotal + iva
 
   return (
     <div className="p-4 md:p-0">
@@ -113,7 +113,13 @@ function OrderShow() {
             <h2 className="text-xl font-semibold mb-2">Informació de la Comanda</h2>
             <div className="space-y-1 text-sm">
               <p><span className="font-medium">ID:</span> {albaranNumber}</p>
-              <p><span className="font-medium">Data:</span> {formatDate(order.created_at)}</p>
+              <p><span className="font-medium">Data Albarà:</span> {formatDate(order.created_at)}</p>
+              {order.installation_scheduled_at && (
+                 <p><span className="font-medium">Data d'Instal·lació:</span> {formatDate(order.installation_scheduled_at)}</p>
+               )}
+               {order.shipped_at && (
+                 <p><span className="font-medium">Data d'Enviament:</span> {formatDate(order.shipped_at)}</p>
+               )}
               <p><span className="font-medium">Estat:</span> 
                 <span className={`badge ml-2 ${
                   order.status === 'completed' ? 'badge-success' :
@@ -144,12 +150,9 @@ function OrderShow() {
               <p><span className="font-medium">Telèfon:</span> {order.customer_phone || order.user?.phone || ''}</p>
               <p><span className="font-medium">DNI:</span> {order.customer_dni || order.user?.dni || ''}</p>
                <p><span className="font-medium">Adreça:</span> {order.customer_address || order.user?.shipping_address || ''}</p>
-              <p><span className="font-medium">Codi postal:</span> {order.customer_zip_code || order.user?.zip_code || ''}</p>
-              <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address}</p>
-              <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>
-              {order.shipped_at && (
-                <p><span className="font-medium">Data d'Enviament:</span> {formatDate(order.shipped_at)}</p>
-              )}
+               <p><span className="font-medium">Codi postal:</span> {order.customer_zip_code || order.user?.zip_code || ''}</p>
+               <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address}</p>
+               <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>
             </div>
           </div>
         </div>

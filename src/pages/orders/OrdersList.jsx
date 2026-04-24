@@ -719,13 +719,14 @@ function OrdersList() {
                       )
                     })()}
                   </td>
-                  <td className="font-bold text-primary">
-                    {(() => {
-                      const { subtotal } = getCartTotals(getOrderItems(order))
-                      const iva = subtotal * 0.21
-                      const total = subtotal + iva + Number(order.shipping_price || 0) + Number(order.installation_price || 0)
-                      return formatPrice(total)
-                    })()}
+                   <td className="font-bold text-primary">
+                     {(() => {
+                       const { subtotal } = getCartTotals(getOrderItems(order))
+                       const iva = subtotal * 0.21
+                       // Total según albarán (productos + IVA). Envío e instalación se incluyen en el albarán como conceptos aparte.
+                       const total = subtotal + iva
+                       return formatPrice(total)
+                     })()}
                   </td>
                   <td>
                     <button

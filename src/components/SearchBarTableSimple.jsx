@@ -9,15 +9,20 @@ import React, { useState } from 'react'
  * @param {string} props.placeholder - Placeholder del input
  * @param {string} props.inputClassName - Clases CSS personalizadas para el input
  * @param {React.ReactNode} props.children - La tabla a renderizar
+ * @param {React.ReactNode} props.extraFilters - Controles extra de filtro a mostrar
  */
 function SearchBarTableSimple({ 
   data = [], 
   searchFields = [], 
   placeholder = "Buscar...",
   inputClassName = "",
-  children 
+  children,
+  extraFilters
 }) {
   const [query, setQuery] = useState("")
+
+  // DEBUG
+  console.log('SearchBarTableSimple render - extraFilters:', extraFilters ? 'PRESENT' : 'null')
 
   // Función auxiliar para obtener valores de objetos anidados
   const getNestedValue = (obj, path) => {
@@ -39,26 +44,8 @@ function SearchBarTableSimple({
   })
 
   // Clases por defecto + clases personalizadas
-  const defaultInputClass = ""
-  const inputClassNameFinal = inputClassName ? `${defaultInputClass} ${inputClassName}` : defaultInputClass
+  const inputClassNameFinal = inputClassName || ""
 
-  // Renderizar children (función o componente)
-  if (typeof children === 'function') {
-    return (
-      <>
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
-          className={inputClassNameFinal}
-        />
-        {children(filteredData)}
-      </>
-    )
-  }
-
-  // Si es componente, clonar con prop data
   return (
     <>
       <input
@@ -68,7 +55,10 @@ function SearchBarTableSimple({
         placeholder={placeholder}
         className={inputClassNameFinal}
       />
-      {React.cloneElement(children, { data: filteredData })}
+      {extraFilters}
+      {typeof children === 'function' 
+        ? children(filteredData)
+        : React.cloneElement(children, { data: filteredData })}
     </>
   )
 }

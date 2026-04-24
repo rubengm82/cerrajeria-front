@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from 'react'
+import { useState, useEffect, useContext, useCallback, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
 import { getCommerceSettings, updateCommerceSettings } from '../../api/commerce_settings_api'
@@ -9,6 +9,8 @@ import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
 import { formatPrice, getCartTotals } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
+
+const INSTALLATION_STATUSES = ['installation_pending', 'installation_confirmed', 'installation_finished']
 
 const getOrderCustomerName = (order) => (
   [
@@ -77,7 +79,29 @@ function OrdersList() {
   const [settingsForm, setSettingsForm] = useState({ shipping_price: 0, installation_rules: [] })
   const [isSavingSettings, setIsSavingSettings] = useState(false)
 
+  // Filtros para admin
+  const [filters, setFilters] = useState({
+    type: 'all',
+    missingSend: false,
+    missingDate: false
+  })
+
   const isAdmin = user?.role === 'admin'
+
+  // DEBUG: mostrar en consola
+  console.log('OrdersList DEBUG:', { 
+    userId: user?.id, 
+    userName: user?.name, 
+    userRole: user?.role, 
+    isAdmin, 
+    ordersCount: orders.length,
+    filtersState: filters
+  })
+
+  const handleFilterChange = (newFilters) => {
+    console.log('Filter change:', newFilters)
+    setFilters(prev => ({ ...prev, ...newFilters }))
+  }
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -372,11 +396,39 @@ function OrdersList() {
     ? 'Gestiona totes les comandes i descarrega els albarans'
     : 'Gestiona i descarrega els teus albarans'
 
-  // Add albaran_number field for searching with formatted ID (ALB-000123)
-  const ordersWithAlbaran = orders.map(order => ({
-    ...order,
-    albaran_number: formatAlbaranNumber(order.id)
-  }))
+  const ordersWithAlbaran = useMemo(() => {
+    return orders.map(order => ({
+      ...order,
+      albaran_number: formatAlbaranNumber(order.id)
+    }))
+  }, [orders])
+
+  const filteredByStatus = useMemo(() => {
+    if (!isAdmin) return ordersWithAlbaran
+
+    return ordersWithAlbaran.filter(order => {
+      // Filtro por tipo
+      if (filters.type === 'orders') {
+        if (INSTALLATION_STATUSES.includes(order.status)) return false
+      } else if (filters.type === 'installations') {
+        if (!INSTALLATION_STATUSES.includes(order.status)) return false
+      }
+
+      // Filtro Manca Enviar: solo comandas regulares sin shipped_at
+      if (filters.missingSend) {
+        if (INSTALLATION_STATUSES.includes(order.status)) return false
+        if (order.shipped_at) return false
+      }
+
+      // Filtro Manca posar data: solo instal·lacions sin installation_scheduled_at
+      if (filters.missingDate) {
+        if (!INSTALLATION_STATUSES.includes(order.status)) return false
+        if (order.installation_scheduled_at) return false
+      }
+
+      return true
+    })
+  }, [ordersWithAlbaran, filters, isAdmin])
 
   if (loading) {
     return (
@@ -394,6 +446,8 @@ function OrdersList() {
       </div>
     )
   }
+
+  console.log('Render OrdersList - isAdmin:', isAdmin, 'filters:', filters, 'orders count:', orders.length)
 
   return (
     <div className="p-4 md:p-0">
@@ -499,10 +553,41 @@ function OrdersList() {
       )}
 
       <SearchBarTableSimple
-        data={ordersWithAlbaran}
+        data={filteredByStatus}
         searchFields={isAdmin ? ['albaran_number', 'id', 'user.name', 'user.last_name_one', 'user.last_name_second', 'created_at', 'shipped_at', 'payment_method', 'status'] : ['albaran_number', 'id', 'created_at', 'shipped_at', 'payment_method', 'status']}
         placeholder='Buscar comanda...'
         inputClassName='flex flex-col md:flex-row gap-4 w-full mb-5 input'
+        extraFilters={isAdmin ? (
+          <div className="flex flex-wrap gap-4 mt-2 mb-4">
+            <select
+              className="select select-bordered select-sm"
+              value={filters.type}
+              onChange={(e) => handleFilterChange({ type: e.target.value })}
+            >
+              <option value="all">Totes les comandes</option>
+              <option value="orders">Comandes Online</option>
+              <option value="installations">Instal·lacions</option>
+            </select>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={filters.missingSend}
+                onChange={(e) => handleFilterChange({ missingSend: e.target.checked })}
+              />
+              <span className="text-sm">Manca enviar la comanda online</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={filters.missingDate}
+                onChange={(e) => handleFilterChange({ missingDate: e.target.checked })}
+              />
+              <span className="text-sm">Manca posar data a la instal·lació</span>
+            </label>
+          </div>
+        ) : null}
       >
         {(filteredOrders) => (
           <>
@@ -522,8 +607,8 @@ function OrdersList() {
                  <th className="bg-base-200">Data Albarà</th>
                  <th className="bg-base-200">Mètode Pagament</th>
                  <th className="bg-base-200">Estat Comanda</th>
-                 <th className="bg-base-200">Instal·lació</th>
-                  {isAdmin && <th className="bg-base-200">Enviament</th>}
+                 <th className="bg-base-200">Instal·lació Data</th>
+                  {isAdmin && <th className="bg-base-200">Enviament Data</th>}
                  <th className="bg-base-200">Subtotal i IVA</th>
                  <th className="bg-base-200">Total</th>
                  <th className="bg-base-200">Descàrrega</th>
@@ -601,15 +686,31 @@ function OrdersList() {
                       <span className="text-base-400"></span>
                     )}
                   </td>
-                    {isAdmin && <td className={`text-sm mb-1 text-center ${order.shipped_at ? '' : 'text-error-content'}`}>
-                     {order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'}
-                   </td>}
+                    {isAdmin && (
+                      <td className={`text-sm mb-1 text-center ${
+                        order.shipped_at ? '' : 
+                        (order.status.startsWith('installation_') ? '' : 'text-error-content')
+                      }`}>
+                        {(() => {
+                          const installationStatuses = ['installation_pending', 'installation_confirmed', 'installation_finished']
+                          const isInstallationOrder = installationStatuses.includes(order.status)
+                          
+                          // Para órdenes de instalación, mostrar vacío si no hay shipped_at
+                          if (isInstallationOrder) {
+                            return order.shipped_at ? formatDate(order.shipped_at) : ''
+                          }
+                          
+                          // Para comandas regulares
+                          return order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'
+                        })()}
+                      </td>
+                    )}
                   <td>
                     {(() => {
                       const { subtotal } = getCartTotals(getOrderItems(order))
                       const iva = subtotal * 0.21
                       return (
-                        <div className="text-left text-sm">
+                        <div className="text-left text-xs">
                           <div>Subtotal: {formatPrice(subtotal)}</div>
                           <div>Enviament: {formatPrice(order.shipping_price || 0)}</div>
                           <div>Instal·lació: {formatPrice(order.installation_price || 0)}</div>

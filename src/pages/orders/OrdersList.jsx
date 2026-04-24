@@ -612,10 +612,10 @@ function OrdersList() {
                   {isAdmin &&                    <td>
                      <div className="relative group">
                        <span>{getOrderCustomerName(order) || 'Client sense usuari'}</span>
-                       <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-base-300 text-base-content p-2 rounded shadow-lg text-sm z-10 min-w-max">
-                         <div>Telèfon: {order.user?.phone || 'No disponible'}</div>
-                         <div>Email: {order.user?.email || 'No disponible'}</div>
-                       </div>
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-base-300 text-base-content p-2 rounded shadow-lg text-sm z-10 min-w-max">
+                          <div>Telèfon: {order.customer_phone || order.user?.phone || 'No disponible'}</div>
+                          <div>Email: {order.customer_email || order.user?.email || 'No disponible'}</div>
+                        </div>
                      </div>
                    </td>}
                   <td>{formatDate(order.created_at)}</td>

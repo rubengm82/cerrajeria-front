@@ -117,10 +117,10 @@ function OrderShow() {
               <p><span className="font-medium">Estat:</span> 
                 <span className={`badge ml-2 ${
                   order.status === 'completed' ? 'badge-success' :
-                  order.status === 'pending' ? 'badge-warning' :
-                  order.status === 'shipped' ? 'badge-info' :
-                  order.status === 'installation_confirmed' ? 'badge-accent' :
-                  order.status === 'installation_pending' ? 'badge-warning' :
+                  order.status === 'pending' ? 'badge-error' :
+                  order.status === 'shipped' ? 'badge-success' :
+                  order.status === 'installation_confirmed' ? 'badge-warning' :
+                  order.status === 'installation_pending' ? 'badge-error' :
                   order.status === 'installation_finished' ? 'badge-success' :
                   order.status === 'cancelled' ? 'badge-error' : 'badge-info'
                 }`}>

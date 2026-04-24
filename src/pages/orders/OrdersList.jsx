@@ -36,10 +36,10 @@ const formatPaymentMethod = (method) => {
 }
 
 const ORDER_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Comanda pendent', className: 'bg-warning border-warning-content text-warning-content' },
+  { value: 'pending', label: 'Comanda pendent', className: 'bg-error border-error-content text-error-content' },
   { value: 'shipped', label: 'Comanda enviada', className: 'bg-success border-success-content text-success-content' },
-  { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-warning border-warning-content text-warning-content' },
-  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-accent border-accent-content text-accent-content' },
+  { value: 'installation_pending', label: 'Instal·lació pendent', className: 'bg-error border-error-content text-error-content' },
+  { value: 'installation_confirmed', label: 'Instal·lació confirmada', className: 'bg-warning border-warning-content text-warning-content' },
   { value: 'installation_finished', label: 'Instal·lació finalitzada', className: 'bg-success border-success-content text-success-content' },
 ]
 

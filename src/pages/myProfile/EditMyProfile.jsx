@@ -17,6 +17,7 @@ function EditMyProfile() {
   const { user: authUser, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(true)
   const [notification, setNotification] = useState(null)
+  const isAdmin = authUser?.role === 'admin' || authUser?.role === 1
 
   const [formData, setFormData] = useState({
     name: "",
@@ -268,7 +269,7 @@ function EditMyProfile() {
         </div>
 
         {/* Aviso para completar datos */}
-        {(!formData.dni || !formData.phone || !formData.shipping_street || !formData.billing_street || !formData.shipping_zip_code || !formData.billing_zip_code || !formData.shipping_province || !formData.billing_province) && (
+        {!isAdmin && (!formData.dni || !formData.phone || !formData.shipping_street || !formData.billing_street || !formData.shipping_zip_code || !formData.billing_zip_code || !formData.shipping_province || !formData.billing_province) && (
           <div className="alert alert-warning mb-4">
             <HiOutlineExclamationTriangle className='stroke-current shrink-0 h-6 w-6' aria-hidden="true" />
             <span id="profile-missing-data-warning">Si us plau, completa les teves dades personals (DNI, telèfon, adreça d'enviament, adreça de facturació, codis postals, províncies) al teu perfil.</span>
@@ -278,329 +279,333 @@ function EditMyProfile() {
         <form onSubmit={handleSubmit} className="card w-full max-w-2xl bg-base-100 shadow-xl p-6" aria-label="Formulari d'edició del perfil" aria-describedby={(!formData.dni || !formData.phone || !formData.shipping_street || !formData.billing_street || !formData.shipping_zip_code || !formData.billing_zip_code || !formData.shipping_province || !formData.billing_province) ? "profile-missing-data-warning" : undefined}>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Nombre */}
-            <div>
-              <label className="label" htmlFor="name">
-                <span className="label-text">Nom *</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Nom"
-                autoComplete="name"
-                className="input input-bordered w-full"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            {!isAdmin && (
+              <>
+                {/* Nombre */}
+                <div>
+                  <label className="label" htmlFor="name">
+                    <span className="label-text">Nom *</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Nom"
+                    autoComplete="name"
+                    className="input input-bordered w-full"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-            {/* Primer apellido */}
-            <div>
-              <label className="label" htmlFor="last_name_one">
-                <span className="label-text">Primer Cognom *</span>
-              </label>
-              <input
-                type="text"
-                id="last_name_one"
-                autoComplete="additional-name"
-                className="input input-bordered w-full"
-                value={formData.last_name_one}
-                onChange={handleChange}
-                required
-              />
-            </div>
+                {/* Primer apellido */}
+                <div>
+                  <label className="label" htmlFor="last_name_one">
+                    <span className="label-text">Primer Cognom *</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="last_name_one"
+                    autoComplete="additional-name"
+                    className="input input-bordered w-full"
+                    value={formData.last_name_one}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
 
-            {/* Segundo apellido */}
-            <div>
-              <label className="label" htmlFor="last_name_second">
-                <span className="label-text">Segon Cognom</span>
-              </label>
-              <input
-                type="text"
-                id="last_name_second"
-                autoComplete="additional-name"
-                className="input input-bordered w-full"
-                value={formData.last_name_second}
-                onChange={handleChange}
-              />
-            </div>
+                {/* Segundo apellido */}
+                <div>
+                  <label className="label" htmlFor="last_name_second">
+                    <span className="label-text">Segon Cognom</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="last_name_second"
+                    autoComplete="additional-name"
+                    className="input input-bordered w-full"
+                    value={formData.last_name_second}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            {/* DNI */}
-            <div>
-              <label className="label" htmlFor="dni">
-                <span className="label-text">DNI</span>
-              </label>
-              <input
-                type="text"
-                id="dni"
-                name="dni"
-                placeholder="DNI"
-                autoComplete="off"
-                className="input input-bordered w-full"
-                value={formData.dni}
-                onChange={handleChange}
-              />
-            </div>
+                {/* DNI */}
+                <div>
+                  <label className="label" htmlFor="dni">
+                    <span className="label-text">DNI</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="dni"
+                    name="dni"
+                    placeholder="DNI"
+                    autoComplete="off"
+                    className="input input-bordered w-full"
+                    value={formData.dni}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            {/* Teléfono */}
-            <div>
-              <label className="label" htmlFor="phone">
-                <span className="label-text">Telèfon</span>
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder="Telèfon"
-                autoComplete="tel"
-                className="input input-bordered w-full"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
+                {/* Teléfono */}
+                <div>
+                  <label className="label" htmlFor="phone">
+                    <span className="label-text">Telèfon</span>
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder="Telèfon"
+                    autoComplete="tel"
+                    className="input input-bordered w-full"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            {/* Email */}
-            <div>
-              <label className="label" htmlFor="email">
-                <span className="label-text">Email</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Email"
-                autoComplete="email"
-                className="input input-bordered w-full"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                disabled
-              />
-            </div>
+                {/* Email */}
+                <div>
+                  <label className="label" htmlFor="email">
+                    <span className="label-text">Email</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Email"
+                    autoComplete="email"
+                    className="input input-bordered w-full"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled
+                  />
+                </div>
 
-            {/* Separador - Dirección de Envío */}
-            <div className="md:col-span-2 mt-2">
-              <div className="divider">Adreça d'Enviament</div>
-            </div>
+                {/* Separador - Dirección de Envío */}
+                <div className="md:col-span-2 mt-2">
+                  <div className="divider">Adreça d'Enviament</div>
+                </div>
 
-            {/* Dirección de Envío - Calle/Puerta */}
-            <div className="md:col-span-2">
-              <label className="label" htmlFor="shipping_street">
-                <span className="label-text">Carrer / Porta</span>
-              </label>
-              <input
-                type="text"
-                id="shipping_street"
-                name="shipping_street"
-                placeholder="Carrer, número de porta..."
-                autoComplete="street-address"
-                className="input input-bordered w-full"
-                value={formData.shipping_street}
-                onChange={handleChange}
-              />
-            </div>
+                {/* Dirección de Envío - Calle/Puerta */}
+                <div className="md:col-span-2">
+                  <label className="label" htmlFor="shipping_street">
+                    <span className="label-text">Carrer / Porta</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="shipping_street"
+                    name="shipping_street"
+                    placeholder="Carrer, número de porta..."
+                    autoComplete="street-address"
+                    className="input input-bordered w-full"
+                    value={formData.shipping_street}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            {/* Piso, Escalera y Código Postal para Envío */}
-            <div className="md:col-span-2 grid grid-cols-3 gap-4">
-              <div>
-                <label className="label" htmlFor="shipping_floor">
-                  <span className="label-text">Pis</span>
-                </label>
-                <input
-                  type="text"
-                  id="shipping_floor"
-                  name="shipping_floor"
-                  placeholder="Pis (ex: 1r, 2n)"
-                  className="input input-bordered w-full"
-                  value={formData.shipping_floor}
-                  onChange={handleChange}
-                />
-              </div>
+                {/* Piso, Escalera y Código Postal para Envío */}
+                <div className="md:col-span-2 grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="label" htmlFor="shipping_floor">
+                      <span className="label-text">Pis</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="shipping_floor"
+                      name="shipping_floor"
+                      placeholder="Pis (ex: 1r, 2n)"
+                      className="input input-bordered w-full"
+                      value={formData.shipping_floor}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="shipping_staircase">
-                  <span className="label-text">Escala</span>
-                </label>
-                <input
-                  type="text"
-                  id="shipping_staircase"
-                  name="shipping_staircase"
-                  placeholder="Escala (ex.: A, B)"
-                  className="input input-bordered w-full"
-                  value={formData.shipping_staircase}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div>
+                    <label className="label" htmlFor="shipping_staircase">
+                      <span className="label-text">Escala</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="shipping_staircase"
+                      name="shipping_staircase"
+                      placeholder="Escala (ex.: A, B)"
+                      className="input input-bordered w-full"
+                      value={formData.shipping_staircase}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="shipping_zip_code">
-                  <span className="label-text">Codi Postal</span>
-                </label>
-                <input
-                  type="text"
-                  id="shipping_zip_code"
-                  name="shipping_zip_code"
-                  placeholder="Codi Postal"
-                  maxLength={8}
-                  autoComplete="postal-code"
-                  className="input input-bordered w-full"
-                  value={formData.shipping_zip_code}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+                  <div>
+                    <label className="label" htmlFor="shipping_zip_code">
+                      <span className="label-text">Codi Postal</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="shipping_zip_code"
+                      name="shipping_zip_code"
+                      placeholder="Codi Postal"
+                      maxLength={8}
+                      autoComplete="postal-code"
+                      className="input input-bordered w-full"
+                      value={formData.shipping_zip_code}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
 
-            {/* Provincia y País para Envío */}
-            <div className="md:col-span-2 grid grid-cols-2 gap-4">
-              <div>
-                <label className="label" htmlFor="shipping_province">
-                  <span className="label-text">Província</span>
-                </label>
-                <select
-                  id="shipping_province"
-                  name="shipping_province"
-                  className="select select-bordered w-full"
-                  value={formData.shipping_province}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecciona una província</option>
-                  {provinciasEspana.map((provincia, index) => (
-                    <option key={index} value={provincia}>
-                      {provincia}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* Provincia y País para Envío */}
+                <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label" htmlFor="shipping_province">
+                      <span className="label-text">Província</span>
+                    </label>
+                    <select
+                      id="shipping_province"
+                      name="shipping_province"
+                      className="select select-bordered w-full"
+                      value={formData.shipping_province}
+                      onChange={handleChange}
+                    >
+                      <option value="">Selecciona una província</option>
+                      {provinciasEspana.map((provincia, index) => (
+                        <option key={index} value={provincia}>
+                          {provincia}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="shipping_country">
-                  <span className="label-text">País</span>
-                </label>
-                <select
-                  id="shipping_country"
-                  name="shipping_country"
-                  className="select select-bordered w-full"
-                  value={formData.shipping_country}
-                  onChange={handleChange}
-                  disabled
-                >
-                  <option value="España">España</option>
-                </select>
-              </div>
-            </div>
+                  <div>
+                    <label className="label" htmlFor="shipping_country">
+                      <span className="label-text">País</span>
+                    </label>
+                    <select
+                      id="shipping_country"
+                      name="shipping_country"
+                      className="select select-bordered w-full"
+                      value={formData.shipping_country}
+                      onChange={handleChange}
+                      disabled
+                    >
+                      <option value="España">España</option>
+                    </select>
+                  </div>
+                </div>
 
-            {/* Separador - Dirección de Facturación */}
-            <div className="md:col-span-2 mt-4">
-              <div className="divider">Adreça de Facturació</div>
-            </div>
+                {/* Separador - Dirección de Facturación */}
+                <div className="md:col-span-2 mt-4">
+                  <div className="divider">Adreça de Facturació</div>
+                </div>
 
-            {/* Dirección de Facturación - Calle/Puerta */}
-            <div className="md:col-span-2">
-              <label className="label" htmlFor="billing_street">
-                <span className="label-text">Carrer / Porta</span>
-              </label>
-              <input
-                type="text"
-                id="billing_street"
-                name="billing_street"
-                placeholder="Carrer, número de porta..."
-                autoComplete="street-address"
-                className="input input-bordered w-full"
-                value={formData.billing_street}
-                onChange={handleChange}
-              />
-            </div>
+                {/* Dirección de Facturación - Calle/Puerta */}
+                <div className="md:col-span-2">
+                  <label className="label" htmlFor="billing_street">
+                    <span className="label-text">Carrer / Porta</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="billing_street"
+                    name="billing_street"
+                    placeholder="Carrer, número de porta..."
+                    autoComplete="street-address"
+                    className="input input-bordered w-full"
+                    value={formData.billing_street}
+                    onChange={handleChange}
+                  />
+                </div>
 
-            {/* Piso, Escalera y Código Postal para Facturación */}
-            <div className="md:col-span-2 grid grid-cols-3 gap-4">
-              <div>
-                <label className="label" htmlFor="billing_floor">
-                  <span className="label-text">Pis</span>
-                </label>
-                <input
-                  type="text"
-                  id="billing_floor"
-                  name="billing_floor"
-                  placeholder="Pis (ex: 1r, 2n)"
-                  className="input input-bordered w-full"
-                  value={formData.billing_floor}
-                  onChange={handleChange}
-                />
-              </div>
+                {/* Piso, Escalera y Código Postal para Facturación */}
+                <div className="md:col-span-2 grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="label" htmlFor="billing_floor">
+                      <span className="label-text">Pis</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="billing_floor"
+                      name="billing_floor"
+                      placeholder="Pis (ex: 1r, 2n)"
+                      className="input input-bordered w-full"
+                      value={formData.billing_floor}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="billing_staircase">
-                  <span className="label-text">Escala</span>
-                </label>
-                <input
-                  type="text"
-                  id="billing_staircase"
-                  name="billing_staircase"
-                  placeholder="Escala (ex.: A, B)"
-                  className="input input-bordered w-full"
-                  value={formData.billing_staircase}
-                  onChange={handleChange}
-                />
-              </div>
+                  <div>
+                    <label className="label" htmlFor="billing_staircase">
+                      <span className="label-text">Escala</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="billing_staircase"
+                      name="billing_staircase"
+                      placeholder="Escala (ex.: A, B)"
+                      className="input input-bordered w-full"
+                      value={formData.billing_staircase}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="billing_zip_code">
-                  <span className="label-text">Codi Postal</span>
-                </label>
-                <input
-                  type="text"
-                  id="billing_zip_code"
-                  name="billing_zip_code"
-                  placeholder="Codi Postal"
-                  maxLength={8}
-                  autoComplete="postal-code"
-                  className="input input-bordered w-full"
-                  value={formData.billing_zip_code}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+                  <div>
+                    <label className="label" htmlFor="billing_zip_code">
+                      <span className="label-text">Codi Postal</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="billing_zip_code"
+                      name="billing_zip_code"
+                      placeholder="Codi Postal"
+                      maxLength={8}
+                      autoComplete="postal-code"
+                      className="input input-bordered w-full"
+                      value={formData.billing_zip_code}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
 
-            {/* Provincia y País para Facturación */}
-            <div className="md:col-span-2 grid grid-cols-2 gap-4">
-              <div>
-                <label className="label" htmlFor="billing_province">
-                  <span className="label-text">Província</span>
-                </label>
-                <select
-                  id="billing_province"
-                  name="billing_province"
-                  className="select select-bordered w-full"
-                  value={formData.billing_province}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecciona una província</option>
-                  {provinciasEspana.map((provincia, index) => (
-                    <option key={index} value={provincia}>
-                      {provincia}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {/* Provincia y País para Facturación */}
+                <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="label" htmlFor="billing_province">
+                      <span className="label-text">Província</span>
+                    </label>
+                    <select
+                      id="billing_province"
+                      name="billing_province"
+                      className="select select-bordered w-full"
+                      value={formData.billing_province}
+                      onChange={handleChange}
+                    >
+                      <option value="">Selecciona una província</option>
+                      {provinciasEspana.map((provincia, index) => (
+                        <option key={index} value={provincia}>
+                          {provincia}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-              <div>
-                <label className="label" htmlFor="billing_country">
-                  <span className="label-text">País</span>
-                </label>
-                <select
-                  id="billing_country"
-                  name="billing_country"
-                  className="select select-bordered w-full"
-                  value={formData.billing_country}
-                  onChange={handleChange}
-                  disabled
-                >
-                  <option value="España">España</option>
-                </select>
-              </div>
-            </div>
+                  <div>
+                    <label className="label" htmlFor="billing_country">
+                      <span className="label-text">País</span>
+                    </label>
+                    <select
+                      id="billing_country"
+                      name="billing_country"
+                      className="select select-bordered w-full"
+                      value={formData.billing_country}
+                      onChange={handleChange}
+                      disabled
+                    >
+                      <option value="España">España</option>
+                    </select>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Separador - Contraseña */}
             <div className="md:col-span-2 mt-4">
@@ -651,22 +656,26 @@ function EditMyProfile() {
             {loading ? 'Actualitzant compte...' : 'Actualitzar compte'}
           </button>
 
-          <div className="divider"></div>
+          {!isAdmin && (
+            <>
+              <div className="divider"></div>
 
-          {/* Botón para eliminar cuenta */}
-          <ConfirmableModal
-            title="Eliminar compte"
-            message="Estàs segur que vols eliminar el teu compte? Aquesta acció és irreversible."
-            onConfirm={handleDelete}
-          >
-            <button
-              type="button"
-              className="btn btn-error w-full mt-3"
-              disabled={loading}
-            >
-              Eliminar el meu compte
-            </button>
-          </ConfirmableModal>
+              {/* Botón para eliminar cuenta */}
+              <ConfirmableModal
+                title="Eliminar compte"
+                message="Estàs segur que vols eliminar el teu compte? Aquesta acció és irreversible."
+                onConfirm={handleDelete}
+              >
+                <button
+                  type="button"
+                  className="btn btn-error w-full mt-3"
+                  disabled={loading}
+                >
+                  Eliminar el meu compte
+                </button>
+              </ConfirmableModal>
+            </>
+          )}
 
         </form>
 

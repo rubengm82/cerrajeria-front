@@ -54,8 +54,8 @@ function VerifyEmail() {
         <div className="text-center">
           {success ? (
             <>
-              <div className="text-success text-5xl mb-4">✓</div>
-              <h2 className="text-xl font-bold text-success mb-2">Correu verificat!</h2>
+              <div className="text-success-content text-5xl mb-4">✓</div>
+              <h2 className="text-xl font-bold text-success-content mb-2">Correu verificat!</h2>
               <p className="text-sm text-gray-600 mb-4">{message}</p>
               <button 
                 className="btn btn-primary" 
@@ -66,8 +66,8 @@ function VerifyEmail() {
             </>
           ) : (
             <>
-              <div className="text-error text-5xl mb-4">✗</div>
-              <h2 className="text-xl font-bold text-error mb-2">Error en la verificació</h2>
+              <div className="text-error-content text-5xl mb-4">✗</div>
+              <h2 className="text-xl font-bold text-error-content mb-2">Error en la verificació</h2>
               <p className="text-sm text-gray-600 mb-4">{error}</p>
               <button 
                 className="btn btn-primary" 

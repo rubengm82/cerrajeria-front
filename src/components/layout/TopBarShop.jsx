@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3 } from "react-icons/hi2";
+import { HiOutlineShoppingCart, HiOutlineUserCircle, HiOutlineBars3, HiOutlineMagnifyingGlass, HiXMark } from "react-icons/hi2";
 import SearchBar from '../SearchBar'
 import ProductDetailModal from '../ProductDetailModal'
 import { getProduct } from '../../api/products_api'
@@ -21,6 +21,9 @@ export default function TopBarShop() {
   const [isLoadingGlobal, setIsLoadingGlobal] = useState(false)
   const [globalProductType, setGlobalProductType] = useState(null)
   const [localCartVersion, setLocalCartVersion] = useState(0)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isSearchVisible, setIsSearchVisible] = useState(false)
+  const [isSearchClosing, setIsSearchClosing] = useState(false)
 
   // Query para obtener el carrito del usuario autenticado
   const { data: cartOrder } = useQuery({
@@ -47,6 +50,54 @@ export default function TopBarShop() {
       window.removeEventListener('guestCartChanged', handleCartChange)
     }
   }, [])
+
+  useEffect(() => {
+    if (!isSearchOpen) {
+      return undefined
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsSearchOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isSearchOpen])
+
+  useEffect(() => {
+    if (!isSearchOpen || isSearchClosing) {
+      return undefined
+    }
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      setIsSearchVisible(true)
+    })
+
+    return () => window.cancelAnimationFrame(animationFrame)
+  }, [isSearchOpen, isSearchClosing])
+
+  useEffect(() => {
+    if (!isSearchClosing) {
+      return undefined
+    }
+
+    const closeTimeout = window.setTimeout(() => {
+      setIsSearchClosing(false)
+      setIsSearchVisible(false)
+      setIsSearchOpen(false)
+    }, 260)
+
+    return () => window.clearTimeout(closeTimeout)
+  }, [isSearchClosing])
 
   // Calcular el total de items en el carrito
   const getCartItems = () => {
@@ -87,6 +138,17 @@ export default function TopBarShop() {
     setGlobalProductType(null)
   }
 
+  const openSearch = () => {
+    setIsSearchClosing(false)
+    setIsSearchVisible(false)
+    setIsSearchOpen(true)
+  }
+
+  const closeSearch = () => {
+    setIsSearchVisible(false)
+    setIsSearchClosing(true)
+  }
+
   return (
     <div className="drawer">
       <input id="shop-drawer" type="checkbox" className="drawer-toggle" tabIndex={-1} aria-hidden="true" />
@@ -98,10 +160,6 @@ export default function TopBarShop() {
               <HiOutlineBars3 className="shop-tobar-end__icon" aria-hidden="true" />
             </label>
 
-             {/* Barra de búsqueda - Siempre visible */}
-             <div className="w-55 sm:w-72 md:w-72 lg:w-96">
-               <SearchBar onItemSelect={handleProductSelect} />
-             </div>
           </div>
 
            <nav className="navbar-center hidden xl:flex" aria-label="Navegació principal">
@@ -117,6 +175,15 @@ export default function TopBarShop() {
            </nav>
 
           <div className="navbar-end flex items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-ghost btn-circle"
+              aria-label="Obrir la cerca"
+              onClick={openSearch}
+            >
+              <HiOutlineMagnifyingGlass className="shop-tobar-end__icon" aria-hidden="true" />
+            </button>
+
             {(user?.role !== 'admin' && user?.role !== 1) && (
               <div className="relative group">
                 {cartItemCount > 0 && (
@@ -174,6 +241,42 @@ export default function TopBarShop() {
           )}
         </ul>
       </div>
+
+      {isSearchOpen && (
+        <div
+          className={`shop-search-modal ${
+            isSearchClosing
+              ? 'shop-search-modal--closing'
+              : isSearchVisible
+                ? 'shop-search-modal--open'
+                : ''
+          }`}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Cercador de productes"
+          onClick={closeSearch}
+        >
+          <div className="shop-search-modal__backdrop" aria-hidden="true" />
+          <div className="shop-search-modal__panel" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              className="btn btn-circle btn-ghost shop-search-modal__close"
+              aria-label="Tancar la cerca"
+              onClick={closeSearch}
+            >
+              <HiXMark className="size-6" aria-hidden="true" />
+            </button>
+
+            <div className="shop-search-modal__content">
+              <SearchBar
+                onItemSelect={handleProductSelect}
+                autoFocus
+                onActionComplete={closeSearch}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal global de detalle de producto (desde búsqueda) */}
       <ProductDetailModal

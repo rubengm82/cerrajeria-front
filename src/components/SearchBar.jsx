@@ -7,7 +7,7 @@ import { HiOutlinePhoto } from 'react-icons/hi2'
 import { FiPackage } from 'react-icons/fi'
 import { BiCube } from 'react-icons/bi'
 
-const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onItemSelect }) => {
+const SearchBar = ({ placeholder = "Cercar productes, marques o packs...", onItemSelect, autoFocus = false, onActionComplete }) => {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
@@ -34,12 +34,25 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    if (!autoFocus || !inputRef.current) {
+      return
+    }
+
+    const focusTimeout = window.setTimeout(() => {
+      inputRef.current?.focus()
+    }, 60)
+
+    return () => window.clearTimeout(focusTimeout)
+  }, [autoFocus])
+
   const handleSubmit = (e) => {
     e.preventDefault()
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`)
       setIsOpen(false)
       setQuery('')
+      onActionComplete?.()
     }
   }
 
@@ -52,6 +65,7 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
       onItemSelect(id, type, selectedItem)
       setIsOpen(false)
       setQuery('')
+      onActionComplete?.()
       return
     }
 
@@ -59,6 +73,7 @@ const SearchBar = ({ placeholder = "Cercar productes, marques o paquets...", onI
     navigate(`/search?q=${encodeURIComponent(query)}`)
     setIsOpen(false)
     setQuery('')
+    onActionComplete?.()
   }
 
   const handleKeyDown = (e) => {

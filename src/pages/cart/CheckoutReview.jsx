@@ -143,7 +143,7 @@ function CheckoutReview() {
 
     try {
       if (user) {
-        await updateOrder(cartOrder.id, {
+        const orderData = {
           user_id: user.id,
           customer_name: customerData.name,
           customer_last_name_one: customerData.last_name_one,
@@ -159,19 +159,24 @@ function CheckoutReview() {
           billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
           billing_province: customerData.use_billing_address ? customerData.billing_province : null,
           billing_country: customerData.use_billing_address ? customerData.billing_country : null,
-          installation_address: customerData.installation_address,
-          installation_zip_code: customerData.installation_zip_code || customerData.zip_code,
-          installation_province: customerData.installation_province || customerData.province,
-          installation_country: customerData.installation_country || customerData.country,
           shipping_address: customerData.shipping_address,
           shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
           shipping_province: customerData.shipping_province || customerData.province,
           shipping_country: customerData.shipping_country || customerData.country,
           payment_method: paymentMethod,
           status: "pending",
-        })
+        }
+
+        if (customerData.use_installation_address) {
+          orderData.installation_address = customerData.installation_address
+          orderData.installation_zip_code = customerData.installation_zip_code
+          orderData.installation_province = customerData.installation_province
+          orderData.installation_country = customerData.installation_country
+        }
+
+        await updateOrder(cartOrder.id, orderData)
       } else {
-        await createCheckoutOrder({
+        const checkoutOrderData = {
           customer: {
             name: customerData.name,
             last_name_one: customerData.last_name_one,
@@ -189,10 +194,6 @@ function CheckoutReview() {
             billing_country: customerData.use_billing_address ? customerData.billing_country : null,
           },
           order: {
-            installation_address: customerData.installation_address,
-            installation_zip_code: customerData.installation_zip_code || customerData.zip_code,
-            installation_province: customerData.installation_province || customerData.province,
-            installation_country: customerData.installation_country || customerData.country,
             shipping_address: customerData.shipping_address,
             shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
             shipping_province: customerData.shipping_province || customerData.province,
@@ -209,7 +210,16 @@ function CheckoutReview() {
             quantity: Number(product.pivot?.quantity || 1),
             installation_requested: Boolean(product.pivot?.installation_requested),
           })),
-        })
+        }
+
+        if (customerData.use_installation_address) {
+          checkoutOrderData.order.installation_address = customerData.installation_address
+          checkoutOrderData.order.installation_zip_code = customerData.installation_zip_code
+          checkoutOrderData.order.installation_province = customerData.installation_province
+          checkoutOrderData.order.installation_country = customerData.installation_country
+        }
+
+        await createCheckoutOrder(checkoutOrderData)
 
         clearLocalCart()
       }

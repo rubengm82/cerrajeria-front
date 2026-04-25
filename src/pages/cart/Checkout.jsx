@@ -118,7 +118,7 @@ function Checkout() {
     }
     const address = joinAddress(mergedFormData.street, mergedFormData.floor, mergedFormData.staircase)
     const billingAddress = joinAddress(mergedFormData.billing_street, mergedFormData.billing_floor, mergedFormData.billing_staircase)
-    const installationAddress = mergedFormData.use_installation_address ? joinAddress(mergedFormData.installation_street, mergedFormData.installation_floor, mergedFormData.installation_staircase) : ""
+    const installationAddress = mergedFormData.use_installation_address ? joinAddress(mergedFormData.installation_street, mergedFormData.installation_floor, mergedFormData.installation_staircase) : null
 
     sessionStorage.setItem(checkoutDataKey, JSON.stringify({
       ...mergedFormData,
@@ -132,14 +132,14 @@ function Checkout() {
       shipping_address: address,
       installation_address: installationAddress,
       shipping_zip_code: mergedFormData.zip_code,
-      installation_zip_code: mergedFormData.use_installation_address ? mergedFormData.installation_zip_code : "",
+      installation_zip_code: mergedFormData.use_installation_address ? mergedFormData.installation_zip_code : null,
       shipping_province: mergedFormData.province,
-      installation_province: mergedFormData.use_installation_address ? mergedFormData.installation_province : "",
+      installation_province: mergedFormData.use_installation_address ? mergedFormData.installation_province : null,
       shipping_country: "España",
-      installation_country: mergedFormData.use_installation_address ? "España" : "",
-      installation_street: mergedFormData.use_installation_address ? mergedFormData.installation_street : "",
-      installation_floor: mergedFormData.use_installation_address ? mergedFormData.installation_floor : "",
-      installation_staircase: mergedFormData.use_installation_address ? mergedFormData.installation_staircase : "",
+      installation_country: mergedFormData.use_installation_address ? "España" : null,
+      installation_street: mergedFormData.use_installation_address ? mergedFormData.installation_street : null,
+      installation_floor: mergedFormData.use_installation_address ? mergedFormData.installation_floor : null,
+      installation_staircase: mergedFormData.use_installation_address ? mergedFormData.installation_staircase : null,
       billing_address: mergedFormData.use_billing_address ? billingAddress : "",
       billing_street: mergedFormData.use_billing_address ? mergedFormData.billing_street : "",
       billing_floor: mergedFormData.use_billing_address ? mergedFormData.billing_floor : "",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback, useMemo } from 'react'
+import { useState, useEffect, useContext, useCallback, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { AuthContext } from '../../context/AuthContext'
 import { getCommerceSettings, updateCommerceSettings } from '../../api/commerce_settings_api'
@@ -7,10 +7,11 @@ import { HiDocumentDownload, HiTrash, HiEye, HiCog, HiPlus, HiX } from 'react-ic
 import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
-import { formatPrice, getCartTotals } from '../../utils/cartTotals'
+import { formatPrice, getCartTotals, getMatchingInstallationRule } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 
 const INSTALLATION_STATUSES = ['installation_pending', 'installation_confirmed', 'installation_finished']
+const SETTINGS_SAVE_DEBOUNCE_MS = 500
 
 const getOrderCustomerName = (order) => (
   [
@@ -69,6 +70,66 @@ function getOrderStatusOption(status) {
   return ORDER_STATUS_OPTIONS.find((option) => option.value === status) || ORDER_STATUS_OPTIONS[0]
 }
 
+const normalizeInstallationRules = (rules) => (
+  rules
+    .filter((rule) => rule.min_subtotal !== '' && rule.price !== '')
+    .map((rule) => ({
+      min_subtotal: Number(rule.min_subtotal || 0),
+      max_subtotal: (rule.max_subtotal === '' || rule.max_subtotal === null) ? null : Number(rule.max_subtotal),
+      price: Number(rule.price || 0),
+    }))
+)
+
+const validateSettingsForm = (settingsForm, { allowIncomplete = false } = {}) => {
+  const rules = settingsForm.installation_rules || []
+
+  for (let i = 0; i < rules.length; i++) {
+    const currentRule = rules[i]
+    const hasMin = currentRule.min_subtotal !== '' && currentRule.min_subtotal !== null && currentRule.min_subtotal !== undefined
+    const hasPrice = currentRule.price !== '' && currentRule.price !== null && currentRule.price !== undefined
+    const hasMax = currentRule.max_subtotal !== '' && currentRule.max_subtotal !== null && currentRule.max_subtotal !== undefined
+
+    if ((!hasMin || !hasPrice) && !allowIncomplete) {
+      return `La regla ${i + 1} ha de tindre com a mínim 'Des de' i 'Preu instal·lació'.`
+    }
+
+    if (!hasMin || !hasPrice) {
+      return null
+    }
+
+    const min = Number(currentRule.min_subtotal || 0)
+    const max = hasMax ? Number(currentRule.max_subtotal) : null
+
+    if (max !== null && max <= min) {
+      return `A la regla ${i + 1}, el valor 'Fins' (${max}) ha de ser major que 'Des de' (${min}).`
+    }
+
+    if (i < rules.length - 1) {
+      if (max === null) {
+        return "Només l'última regla pot quedar sense límit."
+      }
+
+      const nextRule = rules[i + 1]
+      const nextHasMin = nextRule.min_subtotal !== '' && nextRule.min_subtotal !== null && nextRule.min_subtotal !== undefined
+
+      if (!nextHasMin && !allowIncomplete) {
+        return `La regla ${i + 2} ha de tindre un valor 'Des de'.`
+      }
+
+      if (!nextHasMin) {
+        return null
+      }
+
+      const nextMin = Number(nextRule.min_subtotal)
+      if (nextMin <= max) {
+        return `Conflict de rangs: La regla ${i + 2} ha de començar (${nextMin}) per sobre del límit de la regla ${i + 1} (${max}).`
+      }
+    }
+  }
+
+  return null
+}
+
 function OrdersList() {
   const { user } = useContext(AuthContext)
   const [orders, setOrders] = useState([])
@@ -78,6 +139,10 @@ function OrdersList() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsForm, setSettingsForm] = useState({ shipping_price: 0, installation_rules: [] })
   const [isSavingSettings, setIsSavingSettings] = useState(false)
+  const [settingsStatus, setSettingsStatus] = useState('idle')
+  const saveTimeoutRef = useRef(null)
+  const hasHydratedSettingsRef = useRef(false)
+  const lastSavedSettingsRef = useRef('')
 
   // Filtros para admin
   const [filters, setFilters] = useState({
@@ -115,10 +180,14 @@ function OrdersList() {
   const fetchCommerceSettings = useCallback(async () => {
     try {
       const response = await getCommerceSettings()
-      setSettingsForm({
+      const nextSettings = {
         shipping_price: response.data?.shipping_price || 0,
         installation_rules: response.data?.installation_rules || [],
-      })
+      }
+      setSettingsForm(nextSettings)
+      lastSavedSettingsRef.current = JSON.stringify(nextSettings)
+      hasHydratedSettingsRef.current = true
+      setSettingsStatus('idle')
     } catch (err) {
       console.error('Error fetching commerce settings:', err)
     }
@@ -249,76 +318,76 @@ function OrdersList() {
     }))
   }
 
-  const handleSaveSettings = async (event) => {
-    event.preventDefault()
-    setIsSavingSettings(true)
-
-    // Validació de regles d'instal·lació
-    const rules = settingsForm.installation_rules
-    for (let i = 0; i < rules.length; i++) {
-      const min = Number(rules[i].min_subtotal || 0)
-      const maxVal = rules[i].max_subtotal
-      const max = (maxVal === '' || maxVal === null || maxVal === undefined) ? null : Number(maxVal)
-
-      if (max !== null && max <= min) {
-        setNotification({ 
-          id: Date.now(), 
-          type: "error", 
-          message: `A la regla ${i + 1}, el valor 'Fins' (${max}) ha de ser major que 'Des de' (${min}).` 
-        })
-        setIsSavingSettings(false)
-        return
-      }
-
-      if (i < rules.length - 1) {
-        if (max === null) {
-          setNotification({ 
-            id: Date.now(), 
-            type: "error", 
-            message: "Només l'última regla pot quedar sense límit." 
-          })
-          setIsSavingSettings(false)
-          return
-        }
-        
-        const nextMin = Number(rules[i + 1].min_subtotal)
-        if (nextMin <= max) {
-          setNotification({ 
-            id: Date.now(), 
-            type: "error", 
-            message: `Conflict de rangs: La regla ${i + 2} ha de començar (${nextMin}) per sobre del límit de la regla ${i + 1} (${max}).` 
-          })
-          setIsSavingSettings(false)
-          return
-        }
-      }
+  const persistSettings = useCallback(async (formState, { showSuccessNotification = false } = {}) => {
+    const validationMessage = validateSettingsForm(formState, { allowIncomplete: true })
+    if (validationMessage) {
+      setSettingsStatus('error')
+      setNotification({ id: Date.now(), type: "error", message: validationMessage })
+      return
     }
+
+    setIsSavingSettings(true)
+    setSettingsStatus('saving')
 
     try {
       const response = await updateCommerceSettings({
-        shipping_price: Number(settingsForm.shipping_price || 0),
-        installation_rules: settingsForm.installation_rules
-          .filter((rule) => rule.min_subtotal !== '' && rule.price !== '')
-          .map((rule) => ({
-            min_subtotal: Number(rule.min_subtotal || 0),
-            max_subtotal: (rule.max_subtotal === '' || rule.max_subtotal === null) ? null : Number(rule.max_subtotal),
-            price: Number(rule.price || 0),
-          })),
+        shipping_price: Number(formState.shipping_price || 0),
+        installation_rules: normalizeInstallationRules(formState.installation_rules),
       })
 
-      setSettingsForm({
+      const nextSettings = {
         shipping_price: response.data?.shipping_price || 0,
         installation_rules: response.data?.installation_rules || [],
-      })
-      setIsSettingsOpen(false)
-      setNotification({ id: Date.now(), type: "success", message: "Configuració de preus actualitzada correctament" })
+      }
+
+      setSettingsForm(nextSettings)
+      lastSavedSettingsRef.current = JSON.stringify(nextSettings)
+      setSettingsStatus('saved')
+
+      if (showSuccessNotification) {
+        setNotification({ id: Date.now(), type: "success", message: "Configuració de preus actualitzada correctament" })
+      }
     } catch (err) {
       console.error('Error saving commerce settings:', err)
+      setSettingsStatus('error')
       setNotification({ id: Date.now(), type: "error", message: "No s'ha pogut guardar la configuració de preus" })
     } finally {
       setIsSavingSettings(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (!isSettingsOpen || !hasHydratedSettingsRef.current) {
+      return undefined
+    }
+
+    const serializedSettings = JSON.stringify(settingsForm)
+    if (serializedSettings === lastSavedSettingsRef.current) {
+      return undefined
+    }
+
+    const validationMessage = validateSettingsForm(settingsForm, { allowIncomplete: true })
+    if (validationMessage) {
+      setSettingsStatus('error')
+      return undefined
+    }
+
+    setSettingsStatus('idle')
+
+    if (saveTimeoutRef.current) {
+      window.clearTimeout(saveTimeoutRef.current)
+    }
+
+    saveTimeoutRef.current = window.setTimeout(() => {
+      persistSettings(settingsForm)
+    }, SETTINGS_SAVE_DEBOUNCE_MS)
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        window.clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [isSettingsOpen, persistSettings, settingsForm])
 
   const downloadAlbaran = async (orderId) => {
     try {
@@ -470,7 +539,7 @@ function OrdersList() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveSettings} className="space-y-5">
+            <div className="space-y-5">
               <label className="form-control w-full">
                 <span className="label-text mb-2">Preu d'enviament global (€)</span>
                 <input
@@ -485,8 +554,17 @@ function OrdersList() {
               </label>
 
               <section className="space-y-3 mt-10">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold">Regles d'instal·lació</h3>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-semibold">Regles d'instal·lació</h3>
+                    <p className="text-sm text-base-400">
+                      {isSavingSettings
+                        ? 'Guardant canvis...'
+                        : settingsStatus === 'saved'
+                          ? 'Canvis guardats automàticament.'
+                          : 'Els canvis es guarden automàticament.'}
+                    </p>
+                  </div>
                   <button type="button" className="btn btn-sm btn-outline text-accent" onClick={handleAddRule}>
                     <HiPlus className="size-4" />
                     Afegir regla
@@ -520,22 +598,21 @@ function OrdersList() {
                           <span className="label-text mb-1">Preu instal·lació (€)</span>
                           <input type="number" min="0" step="0.01" className="input input-bordered" value={rule.price ?? ''} onChange={(event) => handleRuleChange(index, 'price', event.target.value)} required />
                         </label>
-                        <button type="button" className="btn btn-ghost text-error-content" onClick={() => handleRemoveRule(index)} aria-label="Eliminar regla">
-                          <HiTrash className="size-5" />
-                        </button>
+                        <ConfirmableModal
+                          title="Eliminar rang de preus"
+                          message={`Vols eliminar el rang ${rule.min_subtotal || 0}€ - ${rule.max_subtotal || 'sense límit'}€?`}
+                          onConfirm={() => handleRemoveRule(index)}
+                        >
+                          <button type="button" className="btn btn-ghost text-error-content" aria-label="Eliminar regla">
+                            <HiTrash className="size-5" />
+                          </button>
+                        </ConfirmableModal>
                       </div>
                     ))}
                   </div>
                 )}
               </section>
-
-              <div className="modal-action">
-                <button type="button" className="btn btn-ghost" onClick={() => setIsSettingsOpen(false)}>Cancel·lar</button>
-                <button type="submit" className="btn btn-primary" disabled={isSavingSettings}>
-                  {isSavingSettings ? 'Guardant...' : 'Guardar'}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
           <div className="modal-backdrop" onClick={() => setIsSettingsOpen(false)}></div>
         </div>
@@ -702,12 +779,11 @@ function OrdersList() {
                       const isInstallation = INSTALLATION_STATUSES.includes(order.status)
                       const isOnline = ['pending', 'shipped'].includes(order.status)
                       
-                      if (settingsForm) {
+                        if (settingsForm) {
                         if (isOnline && shipping === 0) {
                           shipping = Number(settingsForm.shipping_price || 0)
                         } else if (isInstallation && installation === 0) {
-                          const rules = [...(settingsForm.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
-                          const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+                          const rule = getMatchingInstallationRule(subtotal, settingsForm)
                           if (rule) {
                             installation = Number(rule.price)
                           }
@@ -738,8 +814,7 @@ function OrdersList() {
                         if (isOnline && shipping === 0) {
                           shipping = Number(settingsForm.shipping_price || 0)
                         } else if (isInstallation && installation === 0) {
-                          const rules = [...(settingsForm.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
-                          const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+                          const rule = getMatchingInstallationRule(subtotal, settingsForm)
                           if (rule) {
                             installation = Number(rule.price)
                           }

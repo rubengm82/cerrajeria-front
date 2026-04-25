@@ -4,7 +4,7 @@ import { getOrder } from '../../api/orders_api'
 import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
-import { formatPrice, getCartTotals, getProductPrice } from '../../utils/cartTotals'
+import { formatPrice, getCartTotals, getMatchingInstallationRule, getProductPrice } from '../../utils/cartTotals'
 
 const INSTALLATION_STATUSES = ['installation_confirmed', 'installation_pending', 'installation_finished']
 const ONLINE_STATUSES = ['pending', 'shipped']
@@ -111,8 +111,7 @@ function OrderShow() {
      if (isOnline && shipping === 0) {
        shipping = Number(settings.shipping_price || 0)
      } else if (isInstallation && installation === 0) {
-       const rules = [...(settings.installation_rules || [])].sort((a, b) => a.min_subtotal - b.min_subtotal)
-       const rule = rules.find(r => r.max_subtotal === null || subtotal <= r.max_subtotal)
+       const rule = getMatchingInstallationRule(subtotal, settings)
        if (rule) {
          installation = Number(rule.price)
        }

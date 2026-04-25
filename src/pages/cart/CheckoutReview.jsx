@@ -105,7 +105,15 @@ function CheckoutReview() {
   ]
   const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
-  const hasCustomerData = Boolean(customerData.name && customerData.email && customerData.shipping_address && customerData.installation_address)
+  const hasCustomerData = Boolean(
+    customerData.name &&
+    customerData.email &&
+    customerData.shipping_address &&
+    customerData.installation_address &&
+    customerData.zip_code &&
+    customerData.country &&
+    (!customerData.use_billing_address || (customerData.billing_address && customerData.billing_zip_code && customerData.billing_country))
+  )
   const hasPaymentMethod = Boolean(paymentMethod)
 
   const handleConfirm = () => {
@@ -145,8 +153,20 @@ function CheckoutReview() {
           customer_email: customerData.email,
           customer_address: customerData.address,
           customer_zip_code: customerData.zip_code,
+          customer_province: customerData.province,
+          customer_country: customerData.country,
+          billing_address: customerData.use_billing_address ? customerData.billing_address : null,
+          billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
+          billing_province: customerData.use_billing_address ? customerData.billing_province : null,
+          billing_country: customerData.use_billing_address ? customerData.billing_country : null,
           installation_address: customerData.installation_address,
+          installation_zip_code: customerData.installation_zip_code || customerData.zip_code,
+          installation_province: customerData.installation_province || customerData.province,
+          installation_country: customerData.installation_country || customerData.country,
           shipping_address: customerData.shipping_address,
+          shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
+          shipping_province: customerData.shipping_province || customerData.province,
+          shipping_country: customerData.shipping_country || customerData.country,
           payment_method: paymentMethod,
           status: "pending",
         })
@@ -161,10 +181,26 @@ function CheckoutReview() {
             email: customerData.email,
             address: customerData.address,
             zip_code: customerData.zip_code,
+            province: customerData.province,
+            country: customerData.country,
+            billing_address: customerData.use_billing_address ? customerData.billing_address : null,
+            billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
+            billing_province: customerData.use_billing_address ? customerData.billing_province : null,
+            billing_country: customerData.use_billing_address ? customerData.billing_country : null,
           },
           order: {
             installation_address: customerData.installation_address,
+            installation_zip_code: customerData.installation_zip_code || customerData.zip_code,
+            installation_province: customerData.installation_province || customerData.province,
+            installation_country: customerData.installation_country || customerData.country,
             shipping_address: customerData.shipping_address,
+            shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
+            shipping_province: customerData.shipping_province || customerData.province,
+            shipping_country: customerData.shipping_country || customerData.country,
+            billing_address: customerData.use_billing_address ? customerData.billing_address : null,
+            billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
+            billing_province: customerData.use_billing_address ? customerData.billing_province : null,
+            billing_country: customerData.use_billing_address ? customerData.billing_country : null,
             payment_method: paymentMethod,
           },
           items: products.map((product) => ({
@@ -238,6 +274,11 @@ function CheckoutReview() {
                 <div><dt>Correu</dt><dd>{customerData.email}</dd></div>
                 <div><dt>Adreça</dt><dd>{customerData.address}</dd></div>
                 <div><dt>Codi postal</dt><dd>{customerData.zip_code}</dd></div>
+                <div><dt>Província</dt><dd>{customerData.province || "No indicada"}</dd></div>
+                <div><dt>País</dt><dd>{customerData.country}</dd></div>
+                {customerData.use_billing_address && customerData.billing_address && (
+                  <div><dt>Adreça de facturació</dt><dd>{`${customerData.billing_address}, ${customerData.billing_zip_code || ""} ${customerData.billing_province || ""}, ${customerData.billing_country || ""}`}</dd></div>
+                )}
               </dl>
             </section>
 

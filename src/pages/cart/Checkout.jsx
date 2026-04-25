@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft } from "react-icons/hi2"
@@ -13,11 +13,33 @@ import { getLocalCartItems } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const checkoutDataKey = "checkoutCustomerData"
+const provinciasEspana = [
+  "Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", "A Coruña", "Cuenca", "Girona", "Granada", "Guadalajara", "Guipúzcoa", "Huelva", "Huesca", "Jaén", "León", "Lleida", "La Rioja", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", "Zamora", "Zaragoza"
+]
+
+const parseAddress = (address) => {
+  if (!address) return { street: "", floor: "", staircase: "" }
+
+  const parts = address.split(",").map((part) => part.trim())
+
+  return {
+    street: parts[0] || "",
+    floor: parts[1] || "",
+    staircase: parts[2] || "",
+  }
+}
+
+const joinAddress = (street, floor, staircase) => (
+  [street, floor, staircase].filter(Boolean).join(", ")
+)
 
 const getInitialFormData = (user) => {
   const savedData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
   const defaultAddress = savedData.address || savedData.shipping_address || savedData.installation_address || user?.shipping_address || user?.address || ""
   const defaultZipCode = savedData.zip_code || savedData.shipping_zip_code || user?.shipping_zip_code || user?.zip_code || ""
+  const defaultProvince = savedData.province || savedData.shipping_province || user?.shipping_province || user?.province || ""
+  const parsedDefaultAddress = parseAddress(defaultAddress)
+  const parsedBillingAddress = parseAddress(savedData.billing_address || user?.billing_address || "")
 
   return {
     name: savedData.name || user?.name || "",
@@ -27,14 +49,28 @@ const getInitialFormData = (user) => {
     phone: savedData.phone || user?.phone || "",
     email: savedData.email || user?.email || "",
     address: defaultAddress,
+    street: savedData.street || parsedDefaultAddress.street,
+    floor: savedData.floor || parsedDefaultAddress.floor,
+    staircase: savedData.staircase || parsedDefaultAddress.staircase,
     zip_code: defaultZipCode,
+    province: defaultProvince,
+    country: "España",
     shipping_address: savedData.shipping_address || defaultAddress,
     installation_address: savedData.installation_address || defaultAddress,
     shipping_zip_code: savedData.shipping_zip_code || defaultZipCode,
     installation_zip_code: savedData.installation_zip_code || defaultZipCode,
-    // Guardamos también la dirección de facturación del usuario para referencia
+    shipping_province: savedData.shipping_province || defaultProvince,
+    installation_province: savedData.installation_province || defaultProvince,
+    shipping_country: "España",
+    installation_country: "España",
     billing_address: savedData.billing_address || user?.billing_address || "",
+    billing_street: savedData.billing_street || parsedBillingAddress.street,
+    billing_floor: savedData.billing_floor || parsedBillingAddress.floor,
+    billing_staircase: savedData.billing_staircase || parsedBillingAddress.staircase,
     billing_zip_code: savedData.billing_zip_code || user?.billing_zip_code || "",
+    billing_province: savedData.billing_province || user?.billing_province || "",
+    billing_country: "España",
+    use_billing_address: false,
   }
 }
 
@@ -42,11 +78,6 @@ function Checkout() {
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
   const [formData, setFormData] = useState(() => JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}"))
-  const [selectedAddressSource, setSelectedAddressSource] = useState(() => {
-    // Intentar recuperar selección guardada
-    const saved = sessionStorage.getItem('selectedAddressSource')
-    return saved || ''
-  })
 
   const { data: cartOrder, isLoading, isError } = useQuery({
     queryKey: ["cart-order"],
@@ -67,9 +98,10 @@ function Checkout() {
   })
 
   const handleChange = (event) => {
+    const { name, type, checked, value } = event.target
     setFormData({
       ...formData,
-      [event.target.name]: event.target.value,
+      [name]: type === "checkbox" ? checked : value,
     })
   }
 
@@ -79,75 +111,39 @@ function Checkout() {
       ...getInitialFormData(user),
       ...formData,
     }
+    const address = joinAddress(mergedFormData.street, mergedFormData.floor, mergedFormData.staircase)
+    const billingAddress = joinAddress(mergedFormData.billing_street, mergedFormData.billing_floor, mergedFormData.billing_staircase)
 
     sessionStorage.setItem(checkoutDataKey, JSON.stringify({
       ...mergedFormData,
-      address: mergedFormData.address,
+      address,
+      street: mergedFormData.street,
+      floor: mergedFormData.floor,
+      staircase: mergedFormData.staircase,
       zip_code: mergedFormData.zip_code,
-      shipping_address: mergedFormData.address,
-      installation_address: mergedFormData.address,
+      province: mergedFormData.province,
+      country: "España",
+      shipping_address: address,
+      installation_address: address,
       shipping_zip_code: mergedFormData.zip_code,
       installation_zip_code: mergedFormData.zip_code,
+      shipping_province: mergedFormData.province,
+      installation_province: mergedFormData.province,
+      shipping_country: "España",
+      installation_country: "España",
+      billing_address: mergedFormData.use_billing_address ? billingAddress : "",
+      billing_street: mergedFormData.use_billing_address ? mergedFormData.billing_street : "",
+      billing_floor: mergedFormData.use_billing_address ? mergedFormData.billing_floor : "",
+      billing_staircase: mergedFormData.use_billing_address ? mergedFormData.billing_staircase : "",
+      billing_zip_code: mergedFormData.use_billing_address ? mergedFormData.billing_zip_code : "",
+      billing_province: mergedFormData.use_billing_address ? mergedFormData.billing_province : "",
+      billing_country: "España",
+      use_billing_address: Boolean(mergedFormData.use_billing_address),
     }))
-    // Guardar también la fuente de dirección seleccionada
-    if (selectedAddressSource) {
-      sessionStorage.setItem('selectedAddressSource', selectedAddressSource)
-    }
     navigate("/checkout/payment")
   }
 
   const getFieldValue = (fieldName) => formData[fieldName] ?? getInitialFormData(user)[fieldName]
-
-  // Función para verificar si una dirección está completa (calle + zip)
-  const isAddressComplete = (addr, zip) => addr && addr.trim().length > 0 && zip && zip.trim().length > 0
-
-  // Direcciones disponibles del usuario (solo si están completas)
-  const availableAddresses = []
-  if (user) {
-    if (isAddressComplete(user.shipping_address, user.shipping_zip_code)) {
-      availableAddresses.push({ value: 'shipping', label: 'Dirección de envío' })
-    }
-    if (isAddressComplete(user.billing_address, user.billing_zip_code)) {
-      availableAddresses.push({ value: 'billing', label: 'Dirección de facturación' })
-    }
-  }
-
-  // Manejar selección de dirección del perfil
-  const handleAddressSourceChange = (e) => {
-    const source = e.target.value
-    setSelectedAddressSource(source)
-
-    if (!user) return
-
-    let addrToLoad = null
-    let zipToLoad = null
-    if (source === 'shipping' && user.shipping_address) {
-      addrToLoad = user.shipping_address
-      zipToLoad = user.shipping_zip_code || ""
-    } else if (source === 'billing' && user.billing_address) {
-      addrToLoad = user.billing_address
-      zipToLoad = user.billing_zip_code || ""
-    }
-
-    if (addrToLoad) {
-      setFormData(prev => ({
-        ...prev,
-        address: addrToLoad,
-        installation_address: addrToLoad,
-        shipping_address: addrToLoad,
-        zip_code: zipToLoad,
-      }))
-    }
-   }
-
-   // Persistir selectedAddressSource cuando cambie
-   useEffect(() => {
-     if (selectedAddressSource) {
-       sessionStorage.setItem('selectedAddressSource', selectedAddressSource)
-     } else {
-       sessionStorage.removeItem('selectedAddressSource')
-     }
-   }, [selectedAddressSource])
 
    const products = [
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
@@ -183,66 +179,180 @@ function Checkout() {
 
            <form id={checkoutFormId} className="checkout-form" onSubmit={handleSubmit} aria-label="Dades personals i adreces">
              <div className="checkout-form__grid">
-               {/* Selector de dirección guardada del perfil */}
-               {user && availableAddresses.length > 0 && (
-                 <div className="checkout-form__field checkout-form__field--wide mb-4">
-                   <label className="label" htmlFor="address-source">
-                     <span>Adreça des del perfil</span>
-                   </label>
-                   <select
-                     id="address-source"
-                     className="select select-bordered w-full"
-                     value={selectedAddressSource}
-                     onChange={handleAddressSourceChange}
-                   >
-                     <option value="">Selecciona una adreça...</option>
-                     {availableAddresses.map(opt => (
-                       <option key={opt.value} value={opt.value}>{opt.label}</option>
-                     ))}
-                   </select>
-                 </div>
-               )}
-
                <label className="checkout-form__field" htmlFor="checkout-name">
                 <span>Nom *</span>
-                <input id="checkout-name" className="input input-bordered" type="text" name="name" value={getFieldValue("name")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
+                <input id="checkout-name" className="input input-bordered" type="text" name="name" value={getFieldValue("name")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: Juan" required />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-last-name-one">
                 <span>Primer cognom *</span>
-                <input id="checkout-last-name-one" className="input input-bordered" type="text" name="last_name_one" value={getFieldValue("last_name_one")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
+                <input id="checkout-last-name-one" className="input input-bordered" type="text" name="last_name_one" value={getFieldValue("last_name_one")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: García" required />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-last-name-second">
                 <span>Segon cognom</span>
-                <input id="checkout-last-name-second" className="input input-bordered" type="text" name="last_name_second" value={getFieldValue("last_name_second")} onChange={handleChange} aria-describedby={userDataDescriptionId} />
+                <input id="checkout-last-name-second" className="input input-bordered" type="text" name="last_name_second" value={getFieldValue("last_name_second")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: López" />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-dni">
                 <span>DNI</span>
-                <input id="checkout-dni" className="input input-bordered" type="text" name="dni" value={getFieldValue("dni")} onChange={handleChange} aria-describedby={userDataDescriptionId} />
+                <input id="checkout-dni" className="input input-bordered" type="text" name="dni" value={getFieldValue("dni")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: 12345678A" />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-phone">
                 <span>Telèfon</span>
-                <input id="checkout-phone" className="input input-bordered" type="tel" name="phone" value={getFieldValue("phone")} onChange={handleChange} aria-describedby={userDataDescriptionId} />
+                <input id="checkout-phone" className="input input-bordered" type="tel" name="phone" value={getFieldValue("phone")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: 600123123" />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-email">
                 <span>Correu electrònic *</span>
-                <input id="checkout-email" className="input input-bordered" type="email" name="email" value={getFieldValue("email")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
+                <input id="checkout-email" className="input input-bordered" type="email" name="email" value={getFieldValue("email")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: client@email.com" required />
               </label>
 
               <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-address">
-                <span>Adreça del client *</span>
-                <input id="checkout-address" className="input input-bordered" type="text" name="address" value={getFieldValue("address")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
+                <span>Carrer / Porta *</span>
+                <input id="checkout-address" className="input input-bordered" type="text" name="street" value={getFieldValue("street")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Carrer, número de porta..." required />
               </label>
 
               <label className="checkout-form__field" htmlFor="checkout-zip-code">
                 <span>Codi postal *</span>
-                <input id="checkout-zip-code" className="input input-bordered" type="text" name="zip_code" value={getFieldValue("zip_code")} onChange={handleChange} aria-describedby={userDataDescriptionId} required />
+                <input id="checkout-zip-code" className="input input-bordered" type="text" name="zip_code" value={getFieldValue("zip_code")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: 08001" required />
               </label>
 
+              <label className="checkout-form__field" htmlFor="checkout-floor">
+                <span>Pis</span>
+                <input id="checkout-floor" className="input input-bordered" type="text" name="floor" value={getFieldValue("floor")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Pis (ex: 1r, 2n)" />
+              </label>
+
+              <label className="checkout-form__field" htmlFor="checkout-staircase">
+                <span>Escala</span>
+                <input id="checkout-staircase" className="input input-bordered" type="text" name="staircase" value={getFieldValue("staircase")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Escala (ex.: A, B)" />
+              </label>
+
+              <label className="checkout-form__field" htmlFor="checkout-province">
+                <span>Província *</span>
+                <select id="checkout-province" className="select select-bordered w-full" name="province" value={getFieldValue("province")} onChange={handleChange} aria-describedby={userDataDescriptionId} required>
+                  <option value="">Selecciona una província</option>
+                  {provinciasEspana.map((provincia) => (
+                    <option key={provincia} value={provincia}>{provincia}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="checkout-form__field" htmlFor="checkout-country">
+                <span>País</span>
+                <input id="checkout-country" className="input input-bordered" type="text" name="country" value="España" disabled aria-describedby={userDataDescriptionId} />
+              </label>
+
+              <div className="checkout-form checkout-form__field--wide">
+                <label className="flex items-center justify-between gap-4 rounded-xl border border-base-300 bg-base-200/40 px-4 py-3 cursor-pointer" htmlFor="checkout-use-billing-address">
+                  <div>
+                    <p className="font-medium">Afegir adreça de facturació diferent</p>
+                    <p className="text-sm text-base-400">Si la factura ha d'anar a una altra adreça, activa aquesta opció.</p>
+                  </div>
+                  <input
+                    id="checkout-use-billing-address"
+                    className="toggle toggle-primary"
+                    type="checkbox"
+                    name="use_billing_address"
+                    checked={Boolean(getFieldValue("use_billing_address"))}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+
+              {getFieldValue("use_billing_address") && (
+                <>
+                  <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-billing-address">
+                    <span>Carrer / Porta de facturació *</span>
+                    <input
+                      id="checkout-billing-address"
+                      className="input input-bordered"
+                      type="text"
+                      name="billing_street"
+                      value={getFieldValue("billing_street")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Carrer, número de porta..."
+                      required={Boolean(getFieldValue("use_billing_address"))}
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-billing-floor">
+                    <span>Pis</span>
+                    <input
+                      id="checkout-billing-floor"
+                      className="input input-bordered"
+                      type="text"
+                      name="billing_floor"
+                      value={getFieldValue("billing_floor")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Pis (ex: 1r, 2n)"
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-billing-staircase">
+                    <span>Escala</span>
+                    <input
+                      id="checkout-billing-staircase"
+                      className="input input-bordered"
+                      type="text"
+                      name="billing_staircase"
+                      value={getFieldValue("billing_staircase")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Escala (ex.: A, B)"
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-billing-zip-code">
+                    <span>Codi postal de facturació *</span>
+                    <input
+                      id="checkout-billing-zip-code"
+                      className="input input-bordered"
+                      type="text"
+                      name="billing_zip_code"
+                      value={getFieldValue("billing_zip_code")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Ex: 08021"
+                      required={Boolean(getFieldValue("use_billing_address"))}
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-billing-province">
+                    <span>Província de facturació *</span>
+                    <select
+                      id="checkout-billing-province"
+                      name="billing_province"
+                      value={getFieldValue("billing_province")}
+                      onChange={handleChange}
+                      className="select select-bordered w-full"
+                      aria-describedby={userDataDescriptionId}
+                      required={Boolean(getFieldValue("use_billing_address"))}
+                    >
+                      <option value="">Selecciona una província</option>
+                      {provinciasEspana.map((provincia) => (
+                        <option key={provincia} value={provincia}>{provincia}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-billing-country">
+                    <span>País</span>
+                    <input
+                      id="checkout-billing-country"
+                      className="input input-bordered"
+                      type="text"
+                      name="billing_country"
+                      value="España"
+                      disabled
+                      aria-describedby={userDataDescriptionId}
+                    />
+                  </label>
+                </>
+              )}
 
             </div>
           </form>

@@ -265,7 +265,7 @@ function ProductDetailModal({
   return (
     <div
       id="product-view-modal"
-      className="modal modal-bottom md:modal-middle modal-lg"
+      className="modal modal-bottom items-start overflow-y-auto py-2 md:modal-middle md:items-center modal-lg"
       open={isOpen}
       role="dialog"
       aria-modal="true"
@@ -283,8 +283,8 @@ function ProductDetailModal({
       <div className="modal-backdrop join" onClick={onClose}>
         <button aria-label="Tancar el modal"></button>
       </div>
-      <div className="modal-box product-pack-show__container p-4">
-        <div className="product-pack-show__header">
+      <div className="modal-box product-pack-show__container my-0 flex max-h-[calc(100dvh-1rem)] w-full flex-col overflow-hidden p-4">
+        <div className="product-pack-show__header shrink-0">
           <button
             type="button"
             className="btn btn-circle btn-ghost product-pack-show__close text-[30px]"
@@ -294,7 +294,7 @@ function ProductDetailModal({
             <HiXMark className="size-6" />
           </button>
         </div>
-        <div className="product-pack-show__body">
+        <div className="product-pack-show__body min-h-0 flex-1 overflow-y-auto pr-1">
           {showSkeleton ? skeletonContent : (
           <section
             className="product-pack-show__summary"

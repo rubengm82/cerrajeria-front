@@ -109,10 +109,10 @@ function CheckoutReview() {
     customerData.name &&
     customerData.email &&
     customerData.shipping_address &&
-    customerData.installation_address &&
     customerData.zip_code &&
     customerData.country &&
-    (!customerData.use_billing_address || (customerData.billing_address && customerData.billing_zip_code && customerData.billing_country))
+    (!customerData.use_billing_address || (customerData.billing_address && customerData.billing_zip_code && customerData.billing_country)) &&
+    (!customerData.use_installation_address || (customerData.installation_address && customerData.installation_zip_code && customerData.installation_province))
   )
   const hasPaymentMethod = Boolean(paymentMethod)
 
@@ -285,8 +285,10 @@ function CheckoutReview() {
             <section className="checkout-review__section" aria-labelledby="checkout-review-address-title">
               <h3 id="checkout-review-address-title">Adreces de la comanda</h3>
               <dl className="checkout-review__details">
-                <div><dt>Instal·lació</dt><dd>{customerData.installation_address}</dd></div>
-                <div><dt>Enviament</dt><dd>{customerData.shipping_address}</dd></div>
+                <div><dt>Enviament</dt><dd>{`${customerData.shipping_address}, ${customerData.shipping_zip_code || ""} ${customerData.shipping_province || ""}, ${customerData.shipping_country || ""}`}</dd></div>
+                {customerData.installation_address && (
+                  <div><dt>Instal·lació</dt><dd>{`${customerData.installation_address}, ${customerData.installation_zip_code || ""} ${customerData.installation_province || ""}, ${customerData.installation_country || ""}`}</dd></div>
+                )}
               </dl>
             </section>
 

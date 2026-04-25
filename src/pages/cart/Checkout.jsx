@@ -40,6 +40,7 @@ const getInitialFormData = (user) => {
   const defaultProvince = savedData.province || savedData.shipping_province || user?.shipping_province || user?.province || ""
   const parsedDefaultAddress = parseAddress(defaultAddress)
   const parsedBillingAddress = parseAddress(savedData.billing_address || user?.billing_address || "")
+  const parsedInstallationAddress = parseAddress(savedData.installation_address || "")
 
   return {
     name: savedData.name || user?.name || "",
@@ -56,13 +57,16 @@ const getInitialFormData = (user) => {
     province: defaultProvince,
     country: "España",
     shipping_address: savedData.shipping_address || defaultAddress,
-    installation_address: savedData.installation_address || defaultAddress,
+    installation_address: savedData.installation_address || "",
     shipping_zip_code: savedData.shipping_zip_code || defaultZipCode,
-    installation_zip_code: savedData.installation_zip_code || defaultZipCode,
+    installation_zip_code: savedData.installation_zip_code || "",
     shipping_province: savedData.shipping_province || defaultProvince,
-    installation_province: savedData.installation_province || defaultProvince,
+    installation_province: savedData.installation_province || "",
     shipping_country: "España",
     installation_country: "España",
+    installation_street: savedData.installation_street || parsedInstallationAddress.street,
+    installation_floor: savedData.installation_floor || parsedInstallationAddress.floor,
+    installation_staircase: savedData.installation_staircase || parsedInstallationAddress.staircase,
     billing_address: savedData.billing_address || user?.billing_address || "",
     billing_street: savedData.billing_street || parsedBillingAddress.street,
     billing_floor: savedData.billing_floor || parsedBillingAddress.floor,
@@ -71,6 +75,7 @@ const getInitialFormData = (user) => {
     billing_province: savedData.billing_province || user?.billing_province || "",
     billing_country: "España",
     use_billing_address: false,
+    use_installation_address: Boolean(savedData.use_installation_address),
   }
 }
 
@@ -113,6 +118,7 @@ function Checkout() {
     }
     const address = joinAddress(mergedFormData.street, mergedFormData.floor, mergedFormData.staircase)
     const billingAddress = joinAddress(mergedFormData.billing_street, mergedFormData.billing_floor, mergedFormData.billing_staircase)
+    const installationAddress = mergedFormData.use_installation_address ? joinAddress(mergedFormData.installation_street, mergedFormData.installation_floor, mergedFormData.installation_staircase) : ""
 
     sessionStorage.setItem(checkoutDataKey, JSON.stringify({
       ...mergedFormData,
@@ -124,13 +130,16 @@ function Checkout() {
       province: mergedFormData.province,
       country: "España",
       shipping_address: address,
-      installation_address: address,
+      installation_address: installationAddress,
       shipping_zip_code: mergedFormData.zip_code,
-      installation_zip_code: mergedFormData.zip_code,
+      installation_zip_code: mergedFormData.use_installation_address ? mergedFormData.installation_zip_code : "",
       shipping_province: mergedFormData.province,
-      installation_province: mergedFormData.province,
+      installation_province: mergedFormData.use_installation_address ? mergedFormData.installation_province : "",
       shipping_country: "España",
-      installation_country: "España",
+      installation_country: mergedFormData.use_installation_address ? "España" : "",
+      installation_street: mergedFormData.use_installation_address ? mergedFormData.installation_street : "",
+      installation_floor: mergedFormData.use_installation_address ? mergedFormData.installation_floor : "",
+      installation_staircase: mergedFormData.use_installation_address ? mergedFormData.installation_staircase : "",
       billing_address: mergedFormData.use_billing_address ? billingAddress : "",
       billing_street: mergedFormData.use_billing_address ? mergedFormData.billing_street : "",
       billing_floor: mergedFormData.use_billing_address ? mergedFormData.billing_floor : "",
@@ -139,6 +148,7 @@ function Checkout() {
       billing_province: mergedFormData.use_billing_address ? mergedFormData.billing_province : "",
       billing_country: "España",
       use_billing_address: Boolean(mergedFormData.use_billing_address),
+      use_installation_address: Boolean(mergedFormData.use_installation_address),
     }))
     navigate("/checkout/payment")
   }
@@ -209,6 +219,10 @@ function Checkout() {
                 <input id="checkout-email" className="input input-bordered" type="email" name="email" value={getFieldValue("email")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Ex: client@email.com" required />
               </label>
 
+              <div className="checkout-form__field checkout-form__field--wide">
+                <p className="font-medium mb-3">Dirección de envío</p>
+              </div>
+
               <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-address">
                 <span>Carrer / Porta *</span>
                 <input id="checkout-address" className="input input-bordered" type="text" name="street" value={getFieldValue("street")} onChange={handleChange} aria-describedby={userDataDescriptionId} placeholder="Carrer, número de porta..." required />
@@ -260,9 +274,12 @@ function Checkout() {
                   />
                 </label>
               </div>
-
               {getFieldValue("use_billing_address") && (
                 <>
+                  <div className="checkout-form__field checkout-form__field--wide">
+                    <p className="font-medium mb-3">Dirección de facturación</p>
+                  </div>
+
                   <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-billing-address">
                     <span>Carrer / Porta de facturació *</span>
                     <input
@@ -307,7 +324,7 @@ function Checkout() {
                   </label>
 
                   <label className="checkout-form__field" htmlFor="checkout-billing-zip-code">
-                    <span>Codi postal de facturació *</span>
+                    <span>Codi postal *</span>
                     <input
                       id="checkout-billing-zip-code"
                       className="input input-bordered"
@@ -322,7 +339,7 @@ function Checkout() {
                   </label>
 
                   <label className="checkout-form__field" htmlFor="checkout-billing-province">
-                    <span>Província de facturació *</span>
+                    <span>Província *</span>
                     <select
                       id="checkout-billing-province"
                       name="billing_province"
@@ -346,6 +363,119 @@ function Checkout() {
                       className="input input-bordered"
                       type="text"
                       name="billing_country"
+                      value="España"
+                      disabled
+                      aria-describedby={userDataDescriptionId}
+                    />
+                  </label>
+                </>
+              )}
+              <div className="checkout-form checkout-form__field--wide">
+                <label className="flex items-center justify-between gap-4 rounded-xl border border-base-300 bg-base-200/40 px-4 py-3 cursor-pointer" htmlFor="checkout-use-installation-address">
+                  <div>
+                    <p className="font-medium">Afegir adreça de instal·lació diferent</p>
+                    <p className="text-sm text-base-400">Si la instal·lació ha de ser en una altra adreça, activa aquesta opció.</p>
+                  </div>
+                  <input
+                    id="checkout-use-installation-address"
+                    className="toggle toggle-primary"
+                    type="checkbox"
+                    name="use_installation_address"
+                    checked={Boolean(getFieldValue("use_installation_address"))}
+                    onChange={handleChange}
+                  />
+                </label>
+              </div>
+
+              {getFieldValue("use_installation_address") && (
+                <>
+                  <div className="checkout-form__field checkout-form__field--wide">
+                    <p className="font-medium mb-3">Dirección de instal·lació</p>
+                  </div>
+
+                  <label className="checkout-form__field checkout-form__field--wide" htmlFor="checkout-installation-address">
+                    <span>Carrer / Porta de instal·lació *</span>
+                    <input
+                      id="checkout-installation-address"
+                      className="input input-bordered"
+                      type="text"
+                      name="installation_street"
+                      value={getFieldValue("installation_street")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Carrer, número de porta..."
+                      required={Boolean(getFieldValue("use_installation_address"))}
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-installation-floor">
+                    <span>Pis</span>
+                    <input
+                      id="checkout-installation-floor"
+                      className="input input-bordered"
+                      type="text"
+                      name="installation_floor"
+                      value={getFieldValue("installation_floor")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Pis (ex: 1r, 2n)"
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-installation-staircase">
+                    <span>Escala</span>
+                    <input
+                      id="checkout-installation-staircase"
+                      className="input input-bordered"
+                      type="text"
+                      name="installation_staircase"
+                      value={getFieldValue("installation_staircase")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Escala (ex.: A, B)"
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-installation-zip-code">
+                    <span>Codi postal *</span>
+                    <input
+                      id="checkout-installation-zip-code"
+                      className="input input-bordered"
+                      type="text"
+                      name="installation_zip_code"
+                      value={getFieldValue("installation_zip_code")}
+                      onChange={handleChange}
+                      aria-describedby={userDataDescriptionId}
+                      placeholder="Ex: 08021"
+                      required={Boolean(getFieldValue("use_installation_address"))}
+                    />
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-installation-province">
+                    <span>Província *</span>
+                    <select
+                      id="checkout-installation-province"
+                      name="installation_province"
+                      value={getFieldValue("installation_province")}
+                      onChange={handleChange}
+                      className="select select-bordered w-full"
+                      aria-describedby={userDataDescriptionId}
+                      required={Boolean(getFieldValue("use_installation_address"))}
+                    >
+                      <option value="">Selecciona una província</option>
+                      {provinciasEspana.map((provincia) => (
+                        <option key={provincia} value={provincia}>{provincia}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="checkout-form__field" htmlFor="checkout-installation-country">
+                    <span>País</span>
+                    <input
+                      id="checkout-installation-country"
+                      className="input input-bordered"
+                      type="text"
+                      name="installation_country"
                       value="España"
                       disabled
                       aria-describedby={userDataDescriptionId}

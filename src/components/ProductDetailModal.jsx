@@ -265,7 +265,7 @@ function ProductDetailModal({
   return (
     <div
       id="product-view-modal"
-      className="modal modal-bottom items-start overflow-y-auto py-2 md:modal-middle md:items-center modal-lg"
+      className="modal modal-bottom items-end overflow-y-auto pt-2 pb-0 md:modal-middle md:items-center md:py-2 modal-lg"
       open={isOpen}
       role="dialog"
       aria-modal="true"

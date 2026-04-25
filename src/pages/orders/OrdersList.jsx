@@ -9,8 +9,7 @@ import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
 import { formatPrice, getCartTotals, getMatchingInstallationRule } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
-
-const INSTALLATION_STATUSES = ['installation_pending', 'installation_confirmed', 'installation_finished']
+import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder } from '../../utils/orderStatus'
 const SETTINGS_SAVE_DEBOUNCE_MS = 500
 
 const getOrderCustomerName = (order) => (
@@ -46,23 +45,19 @@ const ORDER_STATUS_OPTIONS = [
   { value: 'installation_finished', label: 'Instal·lació finalitzada', className: 'bg-success border-success-content text-success-content' },
 ]
 
-  const getFilteredStatusOptions = (currentStatus, installationScheduledAt) => {
-    const installationStatuses = ['installation_pending', 'installation_confirmed', 'installation_finished']
-    const isInstallationOrder = installationStatuses.includes(currentStatus)
+  const getFilteredStatusOptions = (order) => {
+    const installationScheduledAt = order.installation_scheduled_at
+    const installationOrder = isInstallationOrder(order)
     
     return ORDER_STATUS_OPTIONS.filter(option => {
-      // For installation orders
-      if (isInstallationOrder) {
-        // If no installation date is set, only show 'installation_pending'
+      if (installationOrder) {
         if (!installationScheduledAt) {
           return option.value === 'installation_pending'
         }
-        // If installation date exists, show all installation options
-        return installationStatuses.includes(option.value)
+        return INSTALLATION_STATUSES.includes(option.value)
       }
       
-      // For regular orders, exclude installation statuses
-      return !installationStatuses.includes(option.value)
+      return !INSTALLATION_STATUSES.includes(option.value)
     })
   }
 
@@ -700,11 +695,11 @@ function OrdersList() {
                   <td>
                     {isAdmin ? (
                         <select
-                          value={order.status}
+                          value={getEffectiveOrderStatus(order)}
                           onChange={(e) => handleStatusChange(order.id, e.target.value, order)}
-                          className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(order.status).className}`}
+                          className={`select select-sm select-bordered w-auto min-w-36 flex justify-center text-center font-medium ${getOrderStatusOption(getEffectiveOrderStatus(order)).className}`}
                         >
-                         {getFilteredStatusOptions(order.status, order.installation_scheduled_at).map((option) => (
+                         {getFilteredStatusOptions(order).map((option) => (
                            <option key={option.value} value={option.value} className={option.className}>
                              {option.label}
                            </option>
@@ -712,26 +707,26 @@ function OrdersList() {
                        </select>
                     ) : (
                        <span className={`badge ${
-                         order.status === 'completed' ? 'badge-success' :
-                         order.status === 'pending' ? 'badge-warning' :
-                         order.status === 'shipped' ? 'badge-success' :
-                         order.status === 'installation_confirmed' ? 'badge-warning' :
-                         order.status === 'installation_pending' ? 'badge-error' :
-                         order.status === 'installation_finished' ? 'badge-success' :
-                         order.status === 'cancelled' ? 'badge-error' : 'badge-info'
+                         getEffectiveOrderStatus(order) === 'completed' ? 'badge-success' :
+                         getEffectiveOrderStatus(order) === 'pending' ? 'badge-warning' :
+                         getEffectiveOrderStatus(order) === 'shipped' ? 'badge-success' :
+                         getEffectiveOrderStatus(order) === 'installation_confirmed' ? 'badge-warning' :
+                         getEffectiveOrderStatus(order) === 'installation_pending' ? 'badge-error' :
+                         getEffectiveOrderStatus(order) === 'installation_finished' ? 'badge-success' :
+                         getEffectiveOrderStatus(order) === 'cancelled' ? 'badge-error' : 'badge-info'
                        }`}>
-                         {order.status === 'completed' ? 'Completada' :
-                          order.status === 'pending' ? 'Comanda pendent' :
-                          order.status === 'shipped' ? 'Comanda enviada' :
-                          order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
-                          order.status === 'installation_pending' ? 'Instal·lació pendent' :
-                          order.status === 'installation_finished' ? 'Instal·lació finalitzada' :
-                          order.status === 'cancelled' ? 'Cancel·lada' : order.status}
+                         {getEffectiveOrderStatus(order) === 'completed' ? 'Completada' :
+                          getEffectiveOrderStatus(order) === 'pending' ? 'Comanda pendent' :
+                          getEffectiveOrderStatus(order) === 'shipped' ? 'Comanda enviada' :
+                          getEffectiveOrderStatus(order) === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                          getEffectiveOrderStatus(order) === 'installation_pending' ? 'Instal·lació pendent' :
+                          getEffectiveOrderStatus(order) === 'installation_finished' ? 'Instal·lació finalitzada' :
+                          getEffectiveOrderStatus(order) === 'cancelled' ? 'Cancel·lada' : getEffectiveOrderStatus(order)}
                       </span>
                     )}
                   </td>
                   <td>
-                    {isAdmin && order.status === 'installation_pending' ? (
+                    {isAdmin && getEffectiveOrderStatus(order) === 'installation_pending' ? (
                        <div>
                          <div className="text-error-content text-sm mb-1 text-center">Manca posar data</div>
                          <input
@@ -755,29 +750,23 @@ function OrdersList() {
                     {isAdmin && (
                       <td className={`text-sm mb-1 text-center ${
                         order.shipped_at ? '' : 
-                        (order.status.startsWith('installation_') ? '' : 'text-error-content')
+                        (isInstallationOrder(order) ? '' : 'text-error-content')
                       }`}>
                         {(() => {
-                          const installationStatuses = ['installation_pending', 'installation_confirmed', 'installation_finished']
-                          const isInstallationOrder = installationStatuses.includes(order.status)
-                          
-                          // Para órdenes de instalación, mostrar vacío si no hay shipped_at
-                          if (isInstallationOrder) {
+                          if (isInstallationOrder(order)) {
                             return order.shipped_at ? formatDate(order.shipped_at) : ''
                           }
-                          
-                          // Para comandas regulares
                           return order.shipped_at ? formatDate(order.shipped_at) : 'Manca Enviar'
                         })()}
                       </td>
                     )}
                   <td>
                     {(() => {
-                      const { subtotal } = getCartTotals(getOrderItems(order))
+                      const { subtotal, subtotalExcludingVat, iva } = getCartTotals(getOrderItems(order))
                       let shipping = Number(order.shipping_price || 0)
                       let installation = Number(order.installation_price || 0)
-                      const isInstallation = INSTALLATION_STATUSES.includes(order.status)
-                      const isOnline = ['pending', 'shipped'].includes(order.status)
+                      const isInstallation = isInstallationOrder(order)
+                      const isOnline = !isInstallation
                       
                         if (settingsForm) {
                         if (isOnline && shipping === 0) {
@@ -790,11 +779,9 @@ function OrdersList() {
                         }
                       }
 
-                      const iva = (subtotal + shipping + installation) * 0.21
-                      
                       return (
                         <div className="text-left text-xs">
-                          <div>Subtotal: {formatPrice(subtotal)}</div>
+                          <div>Subtotal: {formatPrice(subtotalExcludingVat)}</div>
                           {shipping > 0 && !isInstallation && <div>Enviament: {formatPrice(shipping)}</div>}
                           {installation > 0 && isInstallation && <div>Instal·lació: {formatPrice(installation)}</div>}
                           <div>IVA: {formatPrice(iva)}</div>
@@ -807,8 +794,8 @@ function OrdersList() {
                        const { subtotal } = getCartTotals(getOrderItems(order))
                        let shipping = Number(order.shipping_price || 0)
                        let installation = Number(order.installation_price || 0)
-                       const isInstallation = INSTALLATION_STATUSES.includes(order.status)
-                       const isOnline = ['pending', 'shipped'].includes(order.status)
+                       const isInstallation = isInstallationOrder(order)
+                       const isOnline = !isInstallation
 
                       if (settingsForm) {
                         if (isOnline && shipping === 0) {
@@ -821,8 +808,7 @@ function OrdersList() {
                         }
                       }
 
-                       const iva = (subtotal + shipping + installation) * 0.21
-                       const total = subtotal + shipping + installation + iva
+                       const total = subtotal + shipping + installation
                        return formatPrice(total)
                      })()}
                   </td>

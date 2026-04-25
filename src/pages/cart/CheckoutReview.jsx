@@ -6,10 +6,10 @@ import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
-import LoadingAnimation from "../../components/LoadingAnimation"
+import CheckoutSkeleton from "../../components/CheckoutSkeleton"
 import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
-import { formatPrice, getCartTotals, getProductPrice } from "../../utils/cartTotals"
+import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice } from "../../utils/cartTotals"
 import { clearLocalCart, getLocalCartItems } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
@@ -28,7 +28,7 @@ const getImportantImage = (product) => (
 
 function CheckoutReviewProduct({ product }) {
   const quantity = Number(product?.pivot?.quantity || 1)
-  const currentPrice = getProductPrice(product)
+  const currentPrice = getPriceExcludingVat(getProductPrice(product))
   const lineTotal = currentPrice * quantity
   const image = getImportantImage(product)
   const itemTypeLabel = product.cartItemType === "pack" ? "Pack" : product.category?.name || "Producte"
@@ -47,7 +47,7 @@ function CheckoutReviewProduct({ product }) {
         <p className="checkout-review-product__category text-base-400">{itemTypeLabel}</p>
         <h3>{product.name}</h3>
         <p className="text-base-400">{quantity} unitats x {formatPrice(currentPrice)}</p>
-        {product.pivot?.installation_requested && (
+        {Boolean(Number(product.pivot?.installation_requested)) && (
           <p className="text-primary font-semibold">Amb instal·lació</p>
         )}
       </div>
@@ -103,7 +103,7 @@ function CheckoutReview() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
   const hasCustomerData = Boolean(
     customerData.name &&
@@ -163,15 +163,12 @@ function CheckoutReview() {
           shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
           shipping_province: customerData.shipping_province || customerData.province,
           shipping_country: customerData.shipping_country || customerData.country,
+          installation_address: customerData.use_installation_address ? customerData.installation_address : null,
+          installation_zip_code: customerData.use_installation_address ? customerData.installation_zip_code : null,
+          installation_province: customerData.use_installation_address ? customerData.installation_province : null,
+          installation_country: customerData.use_installation_address ? customerData.installation_country : null,
           payment_method: paymentMethod,
           status: "pending",
-        }
-
-        if (customerData.use_installation_address) {
-          orderData.installation_address = customerData.installation_address
-          orderData.installation_zip_code = customerData.installation_zip_code
-          orderData.installation_province = customerData.installation_province
-          orderData.installation_country = customerData.installation_country
         }
 
         await updateOrder(cartOrder.id, orderData)
@@ -251,7 +248,7 @@ function CheckoutReview() {
   }
 
   const content = authLoading || (user && isLoading) ? (
-    <LoadingAnimation heightClass="h-32" />
+    <CheckoutSkeleton step={3} />
   ) : user && isError ? (
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
@@ -319,7 +316,8 @@ function CheckoutReview() {
         </section>
 
         <OrderSummary
-          subtotal={subtotal}
+          subtotal={subtotalExcludingVat}
+          iva={iva}
           shipping={shipping}
           installation={installation}
           total={total}

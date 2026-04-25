@@ -25,7 +25,7 @@ export default function SideBarDashboard({ userRole }) {
    // Links específics per a administradors (ordenats alfabèticament)
    const adminLinks = [
      // Productes - Grup principal
-     { to: '/admin/products', label: 'Veure Productes', parent: 'Productes', icon: (
+     { to: '/admin/products', label: 'Productes', parent: 'Productes', icon: (
        <HiOutlineShoppingBag className="size-6" aria-hidden="true" />
      ) },
      // Categories - anidat dins Productes

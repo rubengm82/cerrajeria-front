@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
-import LoadingAnimation from "../../components/LoadingAnimation"
+import CheckoutSkeleton from "../../components/CheckoutSkeleton"
 import OrderSummary from "../../components/OrderSummary"
 import { getCartTotals } from "../../utils/cartTotals"
 import { getLocalCartItems } from "../../utils/localCart"
@@ -40,7 +40,7 @@ function CheckoutPayment() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const paymentDescriptionId = "checkout-payment-description"
   const paymentFormId = "checkout-payment-form"
 
@@ -51,7 +51,7 @@ function CheckoutPayment() {
   }
 
   const content = authLoading || (user && isLoading) ? (
-    <LoadingAnimation heightClass="h-32" />
+    <CheckoutSkeleton step={2} />
   ) : user && isError ? (
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
@@ -106,7 +106,8 @@ function CheckoutPayment() {
         </section>
 
         <OrderSummary
-          subtotal={subtotal}
+          subtotal={subtotalExcludingVat}
+          iva={iva}
           shipping={shipping}
           installation={installation}
           total={total}

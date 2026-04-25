@@ -7,6 +7,13 @@ export const formatPrice = (price) => {
   }).format(numericPrice)
 }
 
+export const VAT_RATE = 0.21
+export const VAT_DIVISOR = 1 + VAT_RATE
+
+export const getPriceExcludingVat = (price) => Number(price || 0) / VAT_DIVISOR
+
+export const getVatFromGrossPrice = (price) => Number(price || 0) - getPriceExcludingVat(price)
+
 export const getProductPrice = (product) => {
   if (product?.cartItemType === "pack") {
     return Number(product?.total_price || 0)
@@ -29,6 +36,16 @@ export const hasInstallationSelected = (products = []) => products.some((product
 export const getCartSubtotal = (products = []) => products.reduce((total, product) => {
   const quantity = Number(product?.pivot?.quantity || 0)
   return total + getProductPrice(product) * quantity
+}, 0)
+
+export const getCartSubtotalExcludingVat = (products = []) => products.reduce((total, product) => {
+  const quantity = Number(product?.pivot?.quantity || 0)
+  return total + getPriceExcludingVat(getProductPrice(product)) * quantity
+}, 0)
+
+export const getCartVat = (products = []) => products.reduce((total, product) => {
+  const quantity = Number(product?.pivot?.quantity || 0)
+  return total + getVatFromGrossPrice(getProductPrice(product)) * quantity
 }, 0)
 
 export const getMatchingInstallationRule = (subtotal = 0, settings = {}) => {
@@ -60,12 +77,16 @@ export const getCartTotals = (products = [], settings = {}) => {
   const subtotal = getCartSubtotal(products)
   const shipping = Number(settings?.shipping_price || 0)
   const installation = getInstallationPrice(products, settings)
+  const subtotalExcludingVat = getCartSubtotalExcludingVat(products)
+  const iva = getCartVat(products)
 
   return {
     itemCount,
     subtotal,
+    subtotalExcludingVat,
     shipping,
     installation,
+    iva,
     total: subtotal + shipping + installation,
   }
 }

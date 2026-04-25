@@ -11,7 +11,7 @@ import ConfirmableModal from "../../components/ConfirmableModal"
 import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
-import { formatPrice, getCartTotals, getProductPrice, isProductInstallable } from "../../utils/cartTotals"
+import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, isProductInstallable } from "../../utils/cartTotals"
 import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct, updateLocalCartProductInstallation } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
@@ -75,8 +75,9 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onRemove, o
   const descriptionId = `cart-item-description-${product.id}`
   const installationId = `cart-installation-${product.id}`
   const currentPrice = getProductPrice(product)
-  const lineTotal = currentPrice * quantity
-  const oldLineTotal = Number(product.price || 0) * quantity
+  const unitPriceExcludingVat = getPriceExcludingVat(currentPrice)
+  const lineTotal = unitPriceExcludingVat * quantity
+  const oldLineTotal = getPriceExcludingVat(Number(product.price || 0)) * quantity
   const hasDiscount = Number(product.discount || 0) > 0
   const image = getImportantImage(product)
 
@@ -322,7 +323,7 @@ function Cart() {
     ...item,
     stock: getAvailableStockForCartItem(item, rawCartItems),
   }))
-  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(cartItems, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(cartItems, commerceSettings)
   const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
   const handleQuantityChange = async (product, nextQuantity) => {
@@ -439,7 +440,6 @@ function Cart() {
     <div className="cart-page__layout" aria-hidden="true">
       <div className="cart-page__items">
         <CartItemSkeleton hasInstallation />
-        <CartItemSkeleton hasInstallation />
         <CartItemSkeleton />
       </div>
       <OrderSummarySkeleton />
@@ -471,7 +471,8 @@ function Cart() {
       </div>
 
       <OrderSummary
-        subtotal={subtotal}
+        subtotal={subtotalExcludingVat}
+        iva={iva}
         shipping={shipping}
         installation={installation}
         total={total}

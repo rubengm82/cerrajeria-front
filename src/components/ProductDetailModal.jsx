@@ -372,6 +372,8 @@ function ProductDetailModal({
                   {formatPrice(currentPrice)}
                 </p>
 
+                <p className="text-sm text-base-400">Inclou IVA</p>
+
                   {!isPack && product?.discount > 0 && (
                    <p className="product-pack-show__old-price text-base-400">
                      {formatPrice(product?.price)}

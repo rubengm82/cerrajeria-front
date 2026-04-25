@@ -4,10 +4,8 @@ import { getOrder } from '../../api/orders_api'
 import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
-import { formatPrice, getCartTotals, getMatchingInstallationRule, getProductPrice } from '../../utils/cartTotals'
-
-const INSTALLATION_STATUSES = ['installation_confirmed', 'installation_pending', 'installation_finished']
-const ONLINE_STATUSES = ['pending', 'shipped']
+import { formatPrice, getCartTotals, getMatchingInstallationRule, getPriceExcludingVat, getProductPrice } from '../../utils/cartTotals'
+import { getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
 
 const getOrderCustomerName = (order) => (
   [
@@ -98,13 +96,15 @@ function OrderShow() {
 
    const orderItems = getOrderItems(order)
    const albaranNumber = formatAlbaranNumber(order.id)
-   const { subtotal } = getCartTotals(orderItems)
+   const { subtotal, subtotalExcludingVat, iva } = getCartTotals(orderItems)
    
    let shipping = Number(order.shipping_price || 0)
    let installation = Number(order.installation_price || 0)
 
-   const isInstallation = INSTALLATION_STATUSES.includes(order.status)
-   const isOnline = ONLINE_STATUSES.includes(order.status)
+   const displayStatus = getEffectiveOrderStatus(order)
+   const isInstallation = isInstallationOrder(order)
+   const hasRequestedInstallation = orderHasInstallation(order)
+   const isOnline = !isInstallation
 
    // Si en la DB son 0, aplicamos los baremos de los settings
    if (settings) {
@@ -118,9 +118,7 @@ function OrderShow() {
      }
    }
    
-   // El IVA se calcula sobre el subtotal + envío/instalación
-   const iva = (subtotal + shipping + installation) * 0.21
-   const total = subtotal + shipping + installation + iva
+   const total = subtotal + shipping + installation
 
   return (
     <div className="p-4 md:p-0">
@@ -149,21 +147,21 @@ function OrderShow() {
                )}
               <p><span className="font-medium">Estat:</span> 
                 <span className={`badge ml-2 ${
-                  order.status === 'completed' ? 'badge-success' :
-                  order.status === 'pending' ? 'badge-error' :
-                  order.status === 'shipped' ? 'badge-success' :
-                  order.status === 'installation_confirmed' ? 'badge-warning' :
-                  order.status === 'installation_pending' ? 'badge-error' :
-                  order.status === 'installation_finished' ? 'badge-success' :
-                  order.status === 'cancelled' ? 'badge-error' : 'badge-info'
+                  displayStatus === 'completed' ? 'badge-success' :
+                  displayStatus === 'pending' ? 'badge-error' :
+                  displayStatus === 'shipped' ? 'badge-success' :
+                  displayStatus === 'installation_confirmed' ? 'badge-warning' :
+                  displayStatus === 'installation_pending' ? 'badge-error' :
+                  displayStatus === 'installation_finished' ? 'badge-success' :
+                  displayStatus === 'cancelled' ? 'badge-error' : 'badge-info'
                 }`}>
-                  {order.status === 'completed' ? 'Completada' :
-                   order.status === 'pending' ? 'Pendent' :
-                   order.status === 'shipped' ? 'Enviat' :
-                   order.status === 'installation_confirmed' ? 'Instal·lació confirmada' :
-                   order.status === 'installation_pending' ? 'Instal·lació pendent' :
-                   order.status === 'installation_finished' ? 'Instal·lació finalitzada' :
-                   order.status === 'cancelled' ? 'Cancel·lada' : order.status}
+                  {displayStatus === 'completed' ? 'Completada' :
+                   displayStatus === 'pending' ? 'Pendent' :
+                   displayStatus === 'shipped' ? 'Enviat' :
+                   displayStatus === 'installation_confirmed' ? 'Instal·lació confirmada' :
+                   displayStatus === 'installation_pending' ? 'Instal·lació pendent' :
+                   displayStatus === 'installation_finished' ? 'Instal·lació finalitzada' :
+                   displayStatus === 'cancelled' ? 'Cancel·lada' : displayStatus}
                 </span>
               </p>
               <p><span className="font-medium">Mètode de Pagament:</span> {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1)}</p>
@@ -176,14 +174,15 @@ function OrderShow() {
               <p><span className="font-medium">Correu:</span> {order.customer_email || order.user?.email || ''}</p>
               <p><span className="font-medium">Telèfon:</span> {order.customer_phone || order.user?.phone || ''}</p>
               <p><span className="font-medium">DNI:</span> {order.customer_dni || order.user?.dni || ''}</p>
-               <p><span className="font-medium">Adreça:</span> {order.customer_address || order.user?.shipping_address || ''}</p>
               <p><span className="font-medium">Codi postal:</span> {order.customer_zip_code || order.user?.shipping_zip_code || ''}</p>
               <p><span className="font-medium">Província:</span> {order.customer_province || order.user?.shipping_province || ''}</p>
               <p><span className="font-medium">País:</span> {order.customer_country || order.user?.shipping_country || ''}</p>
               {order.billing_address && (
                 <p><span className="font-medium">Adreça de Facturació:</span> {[order.billing_address, order.billing_zip_code, order.billing_province, order.billing_country].filter(Boolean).join(', ')}</p>
               )}
-               <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address}</p>
+              {hasRequestedInstallation && (
+                <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address || order.shipping_address || ''}</p>
+              )}
                <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>
             </div>
           </div>
@@ -211,8 +210,8 @@ function OrderShow() {
                     <td className="text-base-400">{product.code || '-'}</td>
                     <td className="text-center">{product.pivot.quantity}</td>
                     <td className="text-center">{product.pivot.installation_requested ? 'Sí' : '-'}</td>
-                    <td className="text-right">{formatPrice(getProductPrice(product))}</td>
-                    <td className="text-right font-medium">{formatPrice(getProductPrice(product) * product.pivot.quantity)}</td>
+                    <td className="text-right">{formatPrice(getPriceExcludingVat(getProductPrice(product)))}</td>
+                    <td className="text-right font-medium">{formatPrice(getPriceExcludingVat(getProductPrice(product)) * product.pivot.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -226,7 +225,7 @@ function OrderShow() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>{formatPrice(subtotal)}</span>
+                <span>{formatPrice(subtotalExcludingVat)}</span>
               </div>
               {shipping > 0 && !isInstallation && (
                 <div className="flex justify-between">

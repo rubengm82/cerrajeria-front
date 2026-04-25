@@ -6,9 +6,9 @@ import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder } from "../../api/orders_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
-import LoadingAnimation from "../../components/LoadingAnimation"
+import CheckoutSkeleton from "../../components/CheckoutSkeleton"
 import OrderSummary from "../../components/OrderSummary"
-import { getCartTotals } from "../../utils/cartTotals"
+import { getCartTotals, hasInstallationSelected } from "../../utils/cartTotals"
 import { getLocalCartItems } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
@@ -29,8 +29,15 @@ const parseAddress = (address) => {
   }
 }
 
+const normalizeAddressPart = (value) => (
+  typeof value === "string" ? value.trim() : ""
+)
+
 const joinAddress = (street, floor, staircase) => (
-  [street, floor, staircase].filter(Boolean).join(", ")
+  [street, floor, staircase]
+    .map(normalizeAddressPart)
+    .filter(Boolean)
+    .join(", ")
 )
 
 const getInitialFormData = (user) => {
@@ -116,9 +123,10 @@ function Checkout() {
       ...getInitialFormData(user),
       ...formData,
     }
+    const useInstallationAddress = hasInstallationProducts && Boolean(mergedFormData.use_installation_address)
     const address = joinAddress(mergedFormData.street, mergedFormData.floor, mergedFormData.staircase)
     const billingAddress = joinAddress(mergedFormData.billing_street, mergedFormData.billing_floor, mergedFormData.billing_staircase)
-    const installationAddress = mergedFormData.use_installation_address ? joinAddress(mergedFormData.installation_street, mergedFormData.installation_floor, mergedFormData.installation_staircase) : null
+    const installationAddress = useInstallationAddress ? joinAddress(mergedFormData.installation_street, mergedFormData.installation_floor, mergedFormData.installation_staircase) : null
 
     sessionStorage.setItem(checkoutDataKey, JSON.stringify({
       ...mergedFormData,
@@ -132,14 +140,14 @@ function Checkout() {
       shipping_address: address,
       installation_address: installationAddress,
       shipping_zip_code: mergedFormData.zip_code,
-      installation_zip_code: mergedFormData.use_installation_address ? mergedFormData.installation_zip_code : null,
+      installation_zip_code: useInstallationAddress ? mergedFormData.installation_zip_code : null,
       shipping_province: mergedFormData.province,
-      installation_province: mergedFormData.use_installation_address ? mergedFormData.installation_province : null,
+      installation_province: useInstallationAddress ? mergedFormData.installation_province : null,
       shipping_country: "España",
-      installation_country: mergedFormData.use_installation_address ? "España" : null,
-      installation_street: mergedFormData.use_installation_address ? mergedFormData.installation_street : null,
-      installation_floor: mergedFormData.use_installation_address ? mergedFormData.installation_floor : null,
-      installation_staircase: mergedFormData.use_installation_address ? mergedFormData.installation_staircase : null,
+      installation_country: useInstallationAddress ? "España" : null,
+      installation_street: useInstallationAddress ? mergedFormData.installation_street : null,
+      installation_floor: useInstallationAddress ? mergedFormData.installation_floor : null,
+      installation_staircase: useInstallationAddress ? mergedFormData.installation_staircase : null,
       billing_address: mergedFormData.use_billing_address ? billingAddress : "",
       billing_street: mergedFormData.use_billing_address ? mergedFormData.billing_street : "",
       billing_floor: mergedFormData.use_billing_address ? mergedFormData.billing_floor : "",
@@ -148,23 +156,25 @@ function Checkout() {
       billing_province: mergedFormData.use_billing_address ? mergedFormData.billing_province : "",
       billing_country: "España",
       use_billing_address: Boolean(mergedFormData.use_billing_address),
-      use_installation_address: Boolean(mergedFormData.use_installation_address),
+      use_installation_address: useInstallationAddress,
     }))
     navigate("/checkout/payment")
   }
 
   const getFieldValue = (fieldName) => formData[fieldName] ?? getInitialFormData(user)[fieldName]
 
-   const products = [
+  const products = [
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotal, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const hasInstallationProducts = hasInstallationSelected(products)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
   const userDataDescriptionId = "checkout-user-data-description"
   const checkoutFormId = "checkout-user-data-form"
+  const useInstallationAddress = hasInstallationProducts && Boolean(getFieldValue("use_installation_address"))
 
   const content = authLoading || (user && isLoading) ? (
-    <LoadingAnimation heightClass="h-32" />
+    <CheckoutSkeleton step={1} />
   ) : user && isError ? (
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
@@ -370,24 +380,26 @@ function Checkout() {
                   </label>
                 </>
               )}
-              <div className="checkout-form checkout-form__field--wide">
-                <label className="flex items-center justify-between gap-4 rounded-xl border border-base-300 bg-base-200/40 px-4 py-3 cursor-pointer" htmlFor="checkout-use-installation-address">
-                  <div>
-                    <p className="font-medium">Afegir adreça de instal·lació diferent</p>
-                    <p className="text-sm text-base-400">Si la instal·lació ha de ser en una altra adreça, activa aquesta opció.</p>
-                  </div>
-                  <input
-                    id="checkout-use-installation-address"
-                    className="toggle toggle-primary"
-                    type="checkbox"
-                    name="use_installation_address"
-                    checked={Boolean(getFieldValue("use_installation_address"))}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
+              {hasInstallationProducts && (
+                <div className="checkout-form checkout-form__field--wide">
+                  <label className="flex items-center justify-between gap-4 rounded-xl border border-base-300 bg-base-200/40 px-4 py-3 cursor-pointer" htmlFor="checkout-use-installation-address">
+                    <div>
+                      <p className="font-medium">Afegir adreça de instal·lació diferent</p>
+                      <p className="text-sm text-base-400">Si la instal·lació ha de ser en una altra adreça, activa aquesta opció.</p>
+                    </div>
+                    <input
+                      id="checkout-use-installation-address"
+                      className="toggle toggle-primary"
+                      type="checkbox"
+                      name="use_installation_address"
+                      checked={useInstallationAddress}
+                      onChange={handleChange}
+                    />
+                  </label>
+                </div>
+              )}
 
-              {getFieldValue("use_installation_address") && (
+              {useInstallationAddress && (
                 <>
                   <div className="checkout-form__field checkout-form__field--wide">
                     <p className="font-medium mb-3">Dirección de instal·lació</p>
@@ -404,7 +416,7 @@ function Checkout() {
                       onChange={handleChange}
                       aria-describedby={userDataDescriptionId}
                       placeholder="Carrer, número de porta..."
-                      required={Boolean(getFieldValue("use_installation_address"))}
+                      required={useInstallationAddress}
                     />
                   </label>
 
@@ -447,7 +459,7 @@ function Checkout() {
                       onChange={handleChange}
                       aria-describedby={userDataDescriptionId}
                       placeholder="Ex: 08021"
-                      required={Boolean(getFieldValue("use_installation_address"))}
+                      required={useInstallationAddress}
                     />
                   </label>
 
@@ -460,7 +472,7 @@ function Checkout() {
                       onChange={handleChange}
                       className="select select-bordered w-full"
                       aria-describedby={userDataDescriptionId}
-                      required={Boolean(getFieldValue("use_installation_address"))}
+                      required={useInstallationAddress}
                     >
                       <option value="">Selecciona una província</option>
                       {provinciasEspana.map((provincia) => (
@@ -489,7 +501,8 @@ function Checkout() {
         </section>
 
         <OrderSummary
-          subtotal={subtotal}
+          subtotal={subtotalExcludingVat}
+          iva={iva}
           shipping={shipping}
           installation={installation}
           total={total}

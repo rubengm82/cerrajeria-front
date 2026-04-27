@@ -726,20 +726,45 @@ function OrdersList() {
                     )}
                   </td>
                   <td>
-                    {isAdmin && getEffectiveOrderStatus(order) === 'installation_pending' ? (
-                       <div>
-                         <div className="text-error-content text-sm mb-1 text-center">Manca posar data</div>
-                         <input
-                           type="datetime-local"
-                           className="input input-bordered input-sm"
-                           onBlur={(e) => {
-                             const value = e.target.value
-                             if (value) {
-                               handleInstallationDateChange(order.id, value)
-                             }
-                           }}
-                           key={`inst-${order.id}`}
-                         />
+{isAdmin && getEffectiveOrderStatus(order) === 'installation_pending' ? (
+                       <div className="flex flex-col gap-1">
+                         <div className="text-error-content text-sm text-center">Manca posar data</div>
+                         <div className="flex gap-1">
+                           <input
+                             type="date"
+                             className="input input-bordered input-sm w-28 date-input"
+                             onChange={(e) => {
+                               const dateValue = e.target.value
+                               const row = e.target.closest('tr')
+                               const timeSelect = row?.querySelector('.time-select')
+                               const timeValue = timeSelect?.value
+                               if (dateValue && timeValue) {
+                                 handleInstallationDateChange(order.id, `${dateValue}T${timeValue}`)
+                               }
+                             }}
+                           />
+                           <select
+                             className="select select-bordered select-sm w-20 time-select"
+                             onChange={(e) => {
+                               const timeValue = e.target.value
+                               const row = e.target.closest('tr')
+                               const dateInput = row?.querySelector('.date-input')
+                               const dateValue = dateInput?.value
+                               if (dateValue && timeValue) {
+                                 handleInstallationDateChange(order.id, `${dateValue}T${timeValue}`)
+                               }
+                             }}
+                           >
+                             <option value="">Hora</option>
+                             {Array.from({ length: 24 }, (_, h) =>
+                               ['00', '15', '30', '45'].map(m => (
+                                 <option key={`${h}:${m}`} value={`${h.toString().padStart(2, '0')}:${m}`}>
+                                   {`${h.toString().padStart(2, '0')}:${m}`}
+                                 </option>
+                               ))
+                             ).flat()}
+                           </select>
+                         </div>
                        </div>
                     ) : order.installation_scheduled_at ? (
                       <span>{formatDateTime(order.installation_scheduled_at)}</span>

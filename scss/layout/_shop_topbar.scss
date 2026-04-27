@@ -98,7 +98,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(4rem, 10vh, 7rem) 1rem 2rem;
+  padding: clamp(1rem, 3vh, 2rem) clamp(0.75rem, 3vw, 1.5rem) 2rem;
+  overflow-y: auto;
 }
 
 .shop-search-modal__backdrop {
@@ -115,6 +116,7 @@
 .shop-search-modal__panel {
   position: relative;
   width: min(100%, 52rem);
+  max-width: calc(100vw - 1.5rem);
   z-index: 1;
   opacity: 0;
   transform: translateY(2.5rem);
@@ -189,7 +191,13 @@
 
 @media (max-width: 640px) {
   .shop-search-modal {
-    padding-top: 4.75rem;
+    padding-top: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .shop-search-modal__panel {
+    width: 100%;
+    max-width: 100%;
   }
 
   .shop-search-modal__content {
@@ -198,5 +206,11 @@
       padding: 0.8rem 1rem;
       border-radius: 1.4rem;
     }
+  }
+}
+
+@media (min-width: 641px) and (max-width: 767px) {
+  .shop-search-modal__panel {
+    width: min(100%, 40rem);
   }
 }

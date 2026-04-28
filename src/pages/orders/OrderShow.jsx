@@ -4,7 +4,7 @@ import { getOrder } from '../../api/orders_api'
 import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
-import { formatPrice, getCartTotals, getMatchingInstallationRule, getPriceExcludingVat, getProductPrice } from '../../utils/cartTotals'
+import { formatPrice, getCartTotals, getMatchingInstallationRule, getPriceExcludingVat, getProductPrice, hasProductKeys } from '../../utils/cartTotals'
 import { getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
 
 const getOrderCustomerName = (order) => (
@@ -94,31 +94,31 @@ function OrderShow() {
     )
   }
 
-   const orderItems = getOrderItems(order)
-   const albaranNumber = formatAlbaranNumber(order.id)
-   const { subtotal, subtotalExcludingVat, iva } = getCartTotals(orderItems)
-   
-   let shipping = Number(order.shipping_price || 0)
-   let installation = Number(order.installation_price || 0)
+const orderItems = getOrderItems(order)
+    const albaranNumber = formatAlbaranNumber(order.id)
+    const { subtotal, subtotalExcludingVat, iva, keys: keysAmount } = getCartTotals(orderItems)
+    
+    let shipping = Number(order.shipping_price || 0)
+    let installation = Number(order.installation_price || 0)
 
-   const displayStatus = getEffectiveOrderStatus(order)
-   const isInstallation = isInstallationOrder(order)
-   const hasRequestedInstallation = orderHasInstallation(order)
-   const isOnline = !isInstallation
+    const displayStatus = getEffectiveOrderStatus(order)
+    const isInstallation = isInstallationOrder(order)
+    const hasRequestedInstallation = orderHasInstallation(order)
+    const isOnline = !isInstallation
 
-   // Si en la DB son 0, aplicamos los baremos de los settings
-   if (settings) {
-     if (isOnline && shipping === 0) {
-       shipping = Number(settings.shipping_price || 0)
-     } else if (isInstallation && installation === 0) {
-       const rule = getMatchingInstallationRule(subtotal, settings)
-       if (rule) {
-         installation = Number(rule.price)
-       }
-     }
-   }
-   
-   const total = subtotal + shipping + installation
+    // Si en la DB son 0, aplicamos los baremos de los settings
+    if (settings) {
+      if (isOnline && shipping === 0) {
+        shipping = Number(settings.shipping_price || 0)
+      } else if (isInstallation && installation === 0) {
+        const rule = getMatchingInstallationRule(subtotal, settings)
+        if (rule) {
+          installation = Number(rule.price)
+        }
+      }
+    }
+    
+    const total = subtotal + shipping + installation + keysAmount
 
   return (
     <div className="p-4 md:p-0">
@@ -199,21 +199,28 @@ function OrderShow() {
                   <th>Codi</th>
                   <th className="text-center">Quantitat</th>
                   <th className="text-center">Instal·lació</th>
+                  <th className="text-center">Claus</th>
                   <th className="text-right">Preu Unitari</th>
                   <th className="text-right">Total</th>
                 </tr>
               </thead>
               <tbody>
-                {orderItems.map((product) => (
+                {orderItems.map((product) => {
+                  const hasKeys = hasProductKeys(product) && product.pivot?.keys_requested
+                  const keysQty = product.pivot?.keys_quantity || 1
+                  return (
                   <tr key={`${product.cartItemType}-${product.id}`}>
                     <td className="font-medium">{product.cartItemType === 'pack' ? 'Pack: ' : ''}{product.name}</td>
                     <td className="text-base-400">{product.code || '-'}</td>
                     <td className="text-center">{product.pivot.quantity}</td>
                     <td className="text-center">{product.pivot.installation_requested ? 'Sí' : '-'}</td>
+                    <td className="text-center">
+                      {hasKeys ? `${keysQty}x ${formatPrice(Number(product.price_keys))}` : '-'}
+                    </td>
                     <td className="text-right">{formatPrice(getPriceExcludingVat(getProductPrice(product)))}</td>
-                    <td className="text-right font-medium">{formatPrice(getPriceExcludingVat(getProductPrice(product)) * product.pivot.quantity)}</td>
+                    <td className="text-right font-medium">{formatPrice(getPriceExcludingVat(getProductPrice(product)) * product.pivot.quantity + (hasKeys ? Number(product.price_keys) * keysQty : 0))}</td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
@@ -237,6 +244,12 @@ function OrderShow() {
                 <div className="flex justify-between">
                   <span>Instal·lació:</span>
                   <span>{formatPrice(installation)}</span>
+                </div>
+              )}
+              {keysAmount > 0 && (
+                <div className="flex justify-between">
+                  <span>Claus:</span>
+                  <span>{formatPrice(keysAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between">

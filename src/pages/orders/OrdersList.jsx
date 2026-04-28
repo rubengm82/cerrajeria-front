@@ -9,7 +9,7 @@ import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
 import { formatPrice, getCartTotals, getMatchingInstallationRule } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
-import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder } from '../../utils/orderStatus'
+import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
 const SETTINGS_SAVE_DEBOUNCE_MS = 500
 
 const getOrderCustomerName = (order) => (
@@ -20,10 +20,57 @@ const getOrderCustomerName = (order) => (
   ].filter(Boolean).join(' ')
 )
 
-const getOrderItems = (order) => [
-  ...(order.products || []).map((product) => ({ ...product, cartItemType: 'product' })),
-  ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
-]
+const getOrderItems = (order) => {
+  const standaloneProducts = (order.products || [])
+    .filter(p => !p.pivot?.pack_id)
+    .map((product) => ({ ...product, cartItemType: 'product' }))
+
+  const packProductsMap = new Map()
+  ;(order.products || [])
+    .filter(p => p.pivot?.pack_id)
+    .forEach(p => {
+      const packId = p.pivot.pack_id
+      if (!packProductsMap.has(packId)) {
+        packProductsMap.set(packId, [])
+      }
+      packProductsMap.get(packId).push(p)
+    })
+
+  const productsWithExtras = []
+  const packs = (order.packs || []).map(pack => {
+    const packProducts = (packProductsMap.get(pack.id) || []).map(p => ({
+      ...p,
+      cartItemType: 'product',
+      pivot: {
+        quantity: p.pivot?.quantity || 1,
+        installation_requested: p.pivot?.installation_requested || false,
+        keys_requested: p.pivot?.keys_requested || false,
+        keys_quantity: p.pivot?.keys_quantity || 1,
+      },
+    }))
+
+    const productsWithoutExtras = []
+    const productsWithExtrasInPack = []
+
+    packProducts.forEach(p => {
+      if (p.pivot.installation_requested || p.pivot.keys_requested) {
+        productsWithExtrasInPack.push(p)
+      } else {
+        productsWithoutExtras.push(p)
+      }
+    })
+
+    productsWithExtras.push(...productsWithExtrasInPack)
+
+    return {
+      ...pack,
+      cartItemType: 'pack',
+      products: productsWithoutExtras,
+    }
+  })
+
+  return [...standaloneProducts, ...packs, ...productsWithExtras]
+}
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
 
@@ -791,17 +838,21 @@ function OrdersList() {
                       let shipping = Number(order.shipping_price || 0)
                       let installation = Number(order.installation_price || 0)
                       const isInstallation = isInstallationOrder(order)
+                      const hasRequestedInstallation = orderHasInstallation(order)
                       const isOnline = !isInstallation
                       const subtotal = subtotalExcludingVat
-                      
-                        if (settingsForm) {
-                        if (isOnline && shipping === 0) {
-                          shipping = Number(settingsForm.shipping_price || 0)
-                        } else if (isInstallation && installation === 0) {
-                          const rule = getMatchingInstallationRule(subtotal, settingsForm)
-                          if (rule) {
-                            installation = Number(rule.price)
+
+                      if (settingsForm) {
+                        if (hasRequestedInstallation) {
+                          if (installation === 0) {
+                            const rule = getMatchingInstallationRule(subtotal, settingsForm)
+                            if (rule) {
+                              installation = Number(rule.price)
+                            }
                           }
+                          shipping = 0
+                        } else if (isOnline && shipping === 0) {
+                          shipping = Number(settingsForm.shipping_price || 0)
                         }
                       }
 

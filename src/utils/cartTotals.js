@@ -92,11 +92,17 @@ export const getKeysPrice = (products = []) => products.reduce((total, product) 
 }, 0)
 
 export const getCartTotals = (products = [], settings = {}) => {
-  const itemCount = products.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
+  const allProducts = products.flatMap(item =>
+    item.cartItemType === "pack" && item.products
+      ? item.products.map(p => ({ ...p, pivot: { ...item.pivot, ...p.pivot } }))
+      : [item]
+  )
+
+  const itemCount = allProducts.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
   const subtotal = getCartSubtotal(products)
   const shipping = Number(settings?.shipping_price || 0)
-  const installation = getInstallationPrice(products, settings)
-  const keys = getKeysPrice(products)
+  const installation = getInstallationPrice(allProducts, settings)
+  const keys = getKeysPrice(allProducts)
   const subtotalExcludingVat = getCartSubtotalExcludingVat(products)
   const iva = getCartVat(products) + getVatFromGrossPrice(keys)
 

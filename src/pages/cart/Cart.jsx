@@ -12,7 +12,7 @@ import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
 import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, hasProductKeys, isProductInstallable } from "../../utils/cartTotals"
-import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct, updateLocalCartProductInstallation, updateLocalCartProductKeys } from "../../utils/localCart"
+import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
@@ -503,30 +503,44 @@ function Cart() {
   const currentProductsById = new Map(currentProducts.map((product) => [product.id, product]))
   const products = user
     ? (cartOrder?.products || []).filter(p => !p.pivot?.pack_id)
-    : localCartItems.map((item) => {
-      if ((item.cartItemType || "product") === "pack") {
-        return item
-      }
+    : localCartItems
+      .filter(item => (item.cartItemType || "product") === "product")
+      .map((item) => {
+        const currentProduct = currentProductsById.get(item.id)
 
-      const currentProduct = currentProductsById.get(item.id)
-
-      return currentProduct
-        ? {
-          ...item,
-          ...currentProduct,
-          cartItemType: item.cartItemType || "product",
-          pivot: item.pivot,
-        }
-        : item
-    })
+        return currentProduct
+          ? {
+            ...item,
+            ...currentProduct,
+            cartItemType: item.cartItemType || "product",
+            pivot: item.pivot,
+          }
+          : item
+      })
 
   const packProducts = user ? (cartOrder?.products || []).filter(p => p.pivot?.pack_id) : []
-  const packs = user 
+  const packs = user
     ? (cartOrder?.packs || []).map(pack => ({
       ...pack,
       products: packProducts.filter(p => p.pivot?.pack_id === pack.id)
     }))
-    : []
+    : localCartItems
+      .filter(item => (item.cartItemType || "product") === "pack")
+      .map(packItem => {
+        const packProductsWithPivot = (packItem.products || []).map(p => ({
+          ...p,
+          pivot: {
+            quantity: p.pivot?.quantity || packItem.pivot?.quantity || 1,
+            installation_requested: p.pivot?.installation_requested ?? false,
+            keys_requested: p.pivot?.keys_requested ?? false,
+            keys_quantity: p.pivot?.keys_quantity || 1,
+          },
+        }))
+        return {
+          ...packItem,
+          products: packProductsWithPivot,
+        }
+      })
 
   const rawCartItems = [
     ...products.map((product) => ({ ...product, cartItemType: product.cartItemType || "product" })),
@@ -597,6 +611,14 @@ function Cart() {
               ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
               : p
           ),
+          packs: (old.packs || []).map(pack => ({
+            ...pack,
+            products: (pack.products || []).map(p =>
+              p.id === product.id
+                ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
+                : p
+            ),
+          })),
         }
       })
     }
@@ -608,11 +630,29 @@ function Cart() {
           installation_requested: installationRequested,
         })
       } else {
-        updateLocalCartProductInstallation(product.id, installationRequested)
+        const nextCartItems = getLocalCartItems().map((item) => {
+          if ((item.cartItemType || "product") === "pack" && item.products) {
+            return {
+              ...item,
+              products: item.products.map((p) =>
+                p.id === product.id
+                  ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
+                  : p
+              ),
+            }
+          }
+          if (item.id === product.id) {
+            return { ...item, pivot: { ...item.pivot, installation_requested: installationRequested } }
+          }
+          return item
+        })
+        localStorage.setItem("guestCart", JSON.stringify(nextCartItems))
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
     } catch (error) {
-      queryClient.setQueryData(["cart-order"], previousCartOrder)
+      if (user) {
+        queryClient.setQueryData(["cart-order"], previousCartOrder)
+      }
       showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la instal·lació."))
     }
   }
@@ -635,6 +675,14 @@ function Cart() {
               ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
               : p
           ),
+          packs: (old.packs || []).map(pack => ({
+            ...pack,
+            products: (pack.products || []).map(p =>
+              p.id === product.id
+                ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
+                : p
+            ),
+          })),
         }
       })
     }
@@ -647,11 +695,29 @@ function Cart() {
           keys_quantity: quantity,
         })
       } else {
-        updateLocalCartProductKeys(product.id, keysRequested, quantity)
+        const nextCartItems = getLocalCartItems().map((item) => {
+          if ((item.cartItemType || "product") === "pack" && item.products) {
+            return {
+              ...item,
+              products: item.products.map((p) =>
+                p.id === product.id
+                  ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
+                  : p
+              ),
+            }
+          }
+          if (item.id === product.id) {
+            return { ...item, pivot: { ...item.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
+          }
+          return item
+        })
+        localStorage.setItem("guestCart", JSON.stringify(nextCartItems))
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
     } catch (error) {
-      queryClient.setQueryData(["cart-order"], previousCartOrder)
+      if (user) {
+        queryClient.setQueryData(["cart-order"], previousCartOrder)
+      }
       showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar les claus."))
     }
   }

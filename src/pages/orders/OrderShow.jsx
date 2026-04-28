@@ -19,7 +19,7 @@ const getOrderItems = (order) => {
   const standaloneProducts = (order.products || [])
     .filter(p => !p.pivot?.pack_id)
     .map((product) => ({ ...product, cartItemType: 'product' }))
-  
+
   const packProductsMap = new Map()
   ;(order.products || [])
     .filter(p => p.pivot?.pack_id)
@@ -31,13 +31,40 @@ const getOrderItems = (order) => {
       packProductsMap.get(packId).push(p)
     })
 
-  const packs = (order.packs || []).map(pack => ({
-    ...pack,
-    cartItemType: 'pack',
-    products: packProductsMap.get(pack.id) || []
-  }))
+  const productsWithExtras = []
+  const packs = (order.packs || []).map(pack => {
+    const packProducts = (packProductsMap.get(pack.id) || []).map(p => ({
+      ...p,
+      cartItemType: 'product',
+      pivot: {
+        quantity: p.pivot?.quantity || 1,
+        installation_requested: p.pivot?.installation_requested || false,
+        keys_requested: p.pivot?.keys_requested || false,
+        keys_quantity: p.pivot?.keys_quantity || 1,
+      },
+    }))
 
-  return [...standaloneProducts, ...packs]
+    const productsWithoutExtras = []
+    const productsWithExtrasInPack = []
+
+    packProducts.forEach(p => {
+      if (p.pivot.installation_requested || p.pivot.keys_requested) {
+        productsWithExtrasInPack.push(p)
+      } else {
+        productsWithoutExtras.push(p)
+      }
+    })
+
+    productsWithExtras.push(...productsWithExtrasInPack)
+
+    return {
+      ...pack,
+      cartItemType: 'pack',
+      products: productsWithoutExtras,
+    }
+  })
+
+  return [...standaloneProducts, ...packs, ...productsWithExtras]
 }
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
@@ -117,7 +144,7 @@ function OrderShow() {
 const orderItems = getOrderItems(order)
     const albaranNumber = formatAlbaranNumber(order.id)
     const { subtotal, subtotalExcludingVat, iva, keys: keysAmount } = getCartTotals(orderItems)
-    
+
     let shipping = Number(order.shipping_price || 0)
     let installation = Number(order.installation_price || 0)
 
@@ -126,18 +153,21 @@ const orderItems = getOrderItems(order)
     const hasRequestedInstallation = orderHasInstallation(order)
     const isOnline = !isInstallation
 
-    // Si en la DB son 0, aplicamos los baremos de los settings
+    // Si hay instalación solicitada, el envío es 0 y aplicamos baremos de instalación
     if (settings) {
-      if (isOnline && shipping === 0) {
-        shipping = Number(settings.shipping_price || 0)
-      } else if (isInstallation && installation === 0) {
-        const rule = getMatchingInstallationRule(subtotal, settings)
-        if (rule) {
-          installation = Number(rule.price)
+      if (hasRequestedInstallation) {
+        if (installation === 0) {
+          const rule = getMatchingInstallationRule(subtotal, settings)
+          if (rule) {
+            installation = Number(rule.price)
+          }
         }
+        shipping = 0
+      } else if (isOnline && shipping === 0) {
+        shipping = Number(settings.shipping_price || 0)
       }
     }
-    
+
     const total = subtotal + shipping + installation + keysAmount
 
   return (

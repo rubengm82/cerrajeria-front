@@ -278,7 +278,7 @@ function CheckoutReview() {
       queryClient.invalidateQueries({ queryKey: ["products"] })
       queryClient.invalidateQueries({ queryKey: ["packs"] })
       queryClient.invalidateQueries({ queryKey: ["cart-order"] })
-      navigate(user ? "/my-orders" : "/products", {
+      navigate("/", {
         state: {
           notificationType: "success",
           notificationMessage: "La comanda s'ha generat correctament.",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
@@ -186,7 +186,7 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
                     checked={keysChecked}
                     onChange={(event) => onKeysChange(product, event.target.checked, keysQuantity)}
                   />
-                  <span>Afegir claus ({formatPrice(priceKeys)}/unitat)</span>
+                  <span>Afegir claus ({formatPrice(getPriceExcludingVat(priceKeys))}/unitat)</span>
                 </label>
               )}
             </div>
@@ -195,7 +195,7 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
           <div className="cart-item__prices">
             {hasDiscount && <span className="cart-item__old-price text-base-300">{formatPrice(oldLineTotal)}</span>}
             <strong className="cart-item__price">{formatPrice(lineTotal)}</strong>
-            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(keysLineTotal)} Claus</span>}
+            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(getPriceExcludingVat(keysLineTotal))} Claus</span>}
           </div>
         </div>
       </div>
@@ -206,7 +206,7 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
 function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onProductKeysChange, onRemove, onView }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const quantity = Number(pack?.pivot?.quantity || 1)
-  const availableStock = pack?.products ? Math.min(...pack.products.map(p => Number(p.stock || 0))) : 0
+  const availableStock = Number(pack?.stock || 0)
   const quantityId = `cart-quantity-pack-${pack.id}`
   const currentPrice = getProductPrice(pack)
   const unitPriceExcludingVat = getPriceExcludingVat(currentPrice)
@@ -305,7 +305,7 @@ function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onP
                 <div key={`${pack.cartItemType}-${pack.id}-product-${product.id}`} className="cart-item__pack-product">
                   <div className="cart-item__pack-product-info">
                     <span className="cart-item__pack-product-name">{product.name}</span>
-                    <span className="cart-item__pack-product-price">{formatPrice(productPriceKeys)}/unitat</span>
+                    <span className="cart-item__pack-product-price">{formatPrice(getPriceExcludingVat(productPriceKeys))}/unitat</span>
                   </div>
 
                   <div className="cart-item__pack-product-controls">
@@ -356,7 +356,7 @@ function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onP
 
                   {productKeysChecked && (
                     <div className="cart-item__pack-product-keys-total">
-                      <span className="text-base-400 text-xs">+ {formatPrice(productKeysLineTotal)} Claus</span>
+                      <span className="text-base-400 text-xs">+ {formatPrice(getPriceExcludingVat(productKeysLineTotal))} Claus</span>
                     </div>
                   )}
                 </div>
@@ -457,6 +457,11 @@ function Cart() {
   const [selectedItem, setSelectedItem] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoadingSelectedItem, setIsLoadingSelectedItem] = useState(false)
+
+  // State for optimistic quantity updates to avoid lag
+  const [optimisticQuantities, setOptimisticQuantities] = useState({})
+  const syncTimeoutRef = useRef({})
+
   const { data: cartOrder, isLoading, isError } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
@@ -480,7 +485,6 @@ function Cart() {
       const response = await getProducts()
       return response.data
     },
-    enabled: !user,
     retry: 1,
   })
 
@@ -501,8 +505,16 @@ function Cart() {
 
   const localCartItems = getLocalCartItems(localCartVersion)
   const currentProductsById = new Map(currentProducts.map((product) => [product.id, product]))
+  
   const products = user
-    ? (cartOrder?.products || []).filter(p => !p.pivot?.pack_id)
+    ? (cartOrder?.products || [])
+        .filter(p => !p.pivot?.pack_id)
+        .map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id), // Merge real-time stock and data
+          cartItemType: "product",
+          pivot: p.pivot
+        }))
     : localCartItems
       .filter(item => (item.cartItemType || "product") === "product")
       .map((item) => {
@@ -518,7 +530,16 @@ function Cart() {
           : item
       })
 
-  const packProducts = user ? (cartOrder?.products || []).filter(p => p.pivot?.pack_id) : []
+  const packProducts = user 
+    ? (cartOrder?.products || [])
+        .filter(p => p.pivot?.pack_id)
+        .map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id), // Merge real-time stock and data
+          pivot: p.pivot
+        }))
+    : []
+
   const packs = user
     ? (cartOrder?.packs || []).map(pack => ({
       ...pack,
@@ -529,6 +550,7 @@ function Cart() {
       .map(packItem => {
         const packProductsWithPivot = (packItem.products || []).map(p => ({
           ...p,
+          ...currentProductsById.get(p.id), // Merge real-time stock and data
           pivot: {
             quantity: p.pivot?.quantity || packItem.pivot?.quantity || 1,
             installation_requested: p.pivot?.installation_requested ?? false,
@@ -543,8 +565,22 @@ function Cart() {
       })
 
   const rawCartItems = [
-    ...products.map((product) => ({ ...product, cartItemType: product.cartItemType || "product" })),
-    ...packs.map((pack) => ({ ...pack, cartItemType: "pack" })),
+    ...products.map((product) => ({ 
+      ...product, 
+      cartItemType: product.cartItemType || "product",
+      pivot: {
+        ...product.pivot,
+        quantity: optimisticQuantities[`${product.cartItemType || "product"}-${product.id}`] ?? product.pivot?.quantity ?? 1
+      }
+    })),
+    ...packs.map((pack) => ({ 
+      ...pack, 
+      cartItemType: "pack",
+      pivot: {
+        ...pack.pivot,
+        quantity: optimisticQuantities[`pack-${pack.id}`] ?? pack.pivot?.quantity ?? 1
+      }
+    })),
   ]
   const cartItems = rawCartItems.map((item) => ({
     ...item,
@@ -553,9 +589,10 @@ function Cart() {
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(cartItems, commerceSettings)
   const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
-  const handleQuantityChange = async (product, nextQuantity) => {
+  const handleQuantityChange = (product, nextQuantity) => {
     const availableStock = Number(product.stock || 0)
     const quantity = Math.max(1, nextQuantity)
+    const itemKey = `${product.cartItemType || "product"}-${product.id}`
 
     if (quantity > availableStock) {
       showNotification("info", product.cartItemType === "pack"
@@ -565,22 +602,72 @@ function Cart() {
       return
     }
 
-    try {
-      if (user) {
-        if (product.cartItemType === "pack") {
-          await updateCartPack(product.id, { quantity })
-        } else {
-          await updateCartProduct(product.id, { quantity })
-        }
-        queryClient.invalidateQueries({ queryKey: ["cart-order"] })
-      } else {
-        updateLocalCartProduct(product.id, quantity, product.cartItemType || "product")
-        setLocalCartVersion((currentVersion) => currentVersion + 1)
-      }
-    } catch (error) {
-      showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la quantitat."))
+    // Update UI immediately
+    setOptimisticQuantities(prev => ({ ...prev, [itemKey]: quantity }))
+
+    // Debounce the actual sync
+    if (syncTimeoutRef.current[itemKey]) {
+      clearTimeout(syncTimeoutRef.current[itemKey])
     }
+
+    syncTimeoutRef.current[itemKey] = setTimeout(async () => {
+      try {
+        if (user) {
+          if (product.cartItemType === "pack") {
+            await updateCartPack(product.id, { quantity })
+          } else {
+            await updateCartProduct(product.id, { quantity })
+          }
+          await queryClient.invalidateQueries({ queryKey: ["cart-order"] })
+        } else {
+          updateLocalCartProduct(product.id, quantity, product.cartItemType || "product")
+          setLocalCartVersion((currentVersion) => currentVersion + 1)
+        }
+        
+        // We don't clear optimistic quantities here anymore to avoid the "jump" back.
+        // It will be cleaned up in the next render cycle when server data matches.
+      } catch (error) {
+        showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la quantitat."))
+        // On error, we DO clear it to revert to the last known good state
+        setOptimisticQuantities(prev => {
+          const next = { ...prev }
+          delete next[itemKey]
+          return next
+        })
+      } finally {
+        delete syncTimeoutRef.current[itemKey]
+      }
+    }, 500)
   }
+
+  // Effect to clean up optimistic values that have already been synchronized by the server
+  useEffect(() => {
+    if (!cartOrder && user) return
+
+    setOptimisticQuantities(prev => {
+      const next = { ...prev }
+      let hasChanges = false
+
+      Object.keys(next).forEach(key => {
+        const [type, id] = key.split("-")
+        const targetId = Number(id)
+        
+        let serverQty = null
+        if (type === "pack") {
+          serverQty = cartOrder?.packs?.find(p => p.id === targetId)?.pivot?.quantity
+        } else {
+          serverQty = cartOrder?.products?.find(p => p.id === targetId && !p.pivot?.pack_id)?.pivot?.quantity
+        }
+
+        if (serverQty !== undefined && Number(serverQty) === next[key]) {
+          delete next[key]
+          hasChanges = true
+        }
+      })
+
+      return hasChanges ? next : prev
+    })
+  }, [cartOrder, user])
 
   const handleCheckout = () => {
     if (stockConflictItem) {

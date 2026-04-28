@@ -236,14 +236,29 @@ function CheckoutReview() {
             billing_country: customerData.use_billing_address ? customerData.billing_country : null,
             payment_method: paymentMethod,
           },
-          items: products.map((product) => ({
-            type: product.cartItemType || "product",
-            id: product.id,
-            quantity: Number(product.pivot?.quantity || 1),
-            installation_requested: Boolean(product.pivot?.installation_requested),
-            keys_requested: Boolean(product.pivot?.keys_requested),
-            keys_quantity: Number(product.pivot?.keys_quantity || 1),
-          })),
+          items: products.map((item) => {
+            const baseItem = {
+              type: item.cartItemType || "product",
+              id: item.id,
+              quantity: Number(item.pivot?.quantity || 1),
+              installation_requested: Boolean(item.pivot?.installation_requested),
+              keys_requested: Boolean(item.pivot?.keys_requested),
+              keys_quantity: Number(item.pivot?.keys_quantity || 1),
+            }
+
+            if (item.cartItemType === "pack" && item.products) {
+              baseItem.products = item.products.map(p => ({
+                id: p.id,
+                pivot: {
+                  installation_requested: Boolean(p.pivot?.installation_requested),
+                  keys_requested: Boolean(p.pivot?.keys_requested),
+                  keys_quantity: Number(p.pivot?.keys_quantity || 1),
+                }
+              }))
+            }
+
+            return baseItem
+          }),
         }
 
         if (customerData.use_installation_address) {

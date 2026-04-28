@@ -213,20 +213,45 @@ function OrderShow() {
                 </tr>
               </thead>
               <tbody>
-                {orderItems.map((product) => {
-                  const hasKeys = hasProductKeys(product) && product.pivot?.keys_requested
-                  const keysQty = product.pivot?.keys_quantity || 1
+                {orderItems.map((item) => {
+                  let hasKeys = false
+                  let keysInfo = '-'
+                  let itemKeysPrice = 0
+
+                  if (item.cartItemType === 'pack') {
+                    const packKeys = (item.products || []).filter(p => p.pivot?.keys_requested)
+                    if (packKeys.length > 0) {
+                      hasKeys = true
+                      keysInfo = packKeys.map(p => `${p.pivot.keys_quantity}x ${p.name} (${formatPrice(Number(p.price_keys))})`).join(', ')
+                      itemKeysPrice = packKeys.reduce((sum, p) => sum + (Number(p.price_keys) * (p.pivot.keys_quantity || 1)), 0)
+                    }
+                  } else {
+                    hasKeys = hasProductKeys(item) && item.pivot?.keys_requested
+                    if (hasKeys) {
+                      const keysQty = item.pivot?.keys_quantity || 1
+                      keysInfo = `${keysQty}x ${formatPrice(Number(item.price_keys))}`
+                      itemKeysPrice = Number(item.price_keys) * keysQty
+                    }
+                  }
+
+                  const unitPriceExcludingVat = getPriceExcludingVat(getProductPrice(item))
+                  const lineTotal = (unitPriceExcludingVat * item.pivot.quantity) + getPriceExcludingVat(itemKeysPrice)
+
                   return (
-                  <tr key={`${product.cartItemType}-${product.id}`}>
-                    <td className="font-medium">{product.cartItemType === 'pack' ? 'Pack: ' : ''}{product.name}</td>
-                    <td className="text-base-400">{product.code || '-'}</td>
-                    <td className="text-center">{product.pivot.quantity}</td>
-                    <td className="text-center">{product.pivot.installation_requested ? 'Sí' : '-'}</td>
+                  <tr key={`${item.cartItemType}-${item.id}`}>
+                    <td className="font-medium">{item.cartItemType === 'pack' ? 'Pack: ' : ''}{item.name}</td>
+                    <td className="text-base-400">{item.code || '-'}</td>
+                    <td className="text-center">{item.pivot.quantity}</td>
                     <td className="text-center">
-                      {hasKeys ? `${keysQty}x ${formatPrice(Number(product.price_keys))}` : '-'}
+                      {item.cartItemType === 'pack' 
+                        ? (item.products?.some(p => p.pivot.installation_requested) ? 'Sí' : '-')
+                        : (item.pivot.installation_requested ? 'Sí' : '-')}
                     </td>
-                    <td className="text-right">{formatPrice(getPriceExcludingVat(getProductPrice(product)))}</td>
-                    <td className="text-right font-medium">{formatPrice(getPriceExcludingVat(getProductPrice(product)) * product.pivot.quantity + (hasKeys ? Number(product.price_keys) * keysQty : 0))}</td>
+                    <td className="text-center">
+                      <span className="text-xs">{keysInfo}</span>
+                    </td>
+                    <td className="text-right">{formatPrice(unitPriceExcludingVat)}</td>
+                    <td className="text-right font-medium">{formatPrice(lineTotal)}</td>
                   </tr>
                 )})}
               </tbody>

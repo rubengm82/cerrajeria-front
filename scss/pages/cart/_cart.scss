@@ -296,6 +296,58 @@
     }
   }
 
+  &__keys {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+  }
+
+  &__keys-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--color-base-400);
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    input {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__keys-quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-left: 1.7rem;
+    color: var(--color-base-400);
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    input {
+      width: 5.5rem;
+      height: 2.5rem;
+      border: 1px solid var(--color-base-300);
+      border-radius: 0.5rem;
+      background: var(--color-base-100);
+      color: var(--color-base-content);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 0.15rem;
+      }
+    }
+  }
+
+  &__keys-price {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
   &__quantity input {
     width: 5.5rem;
     height: 2.5rem;

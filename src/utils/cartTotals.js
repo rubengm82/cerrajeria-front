@@ -29,8 +29,16 @@ export const isProductInstallable = (product) => (
   product?.cartItemType !== "pack" && (product?.is_installable === true || product?.is_installable === 1 || product?.is_installable === "1")
 )
 
+export const hasProductKeys = (product) => (
+  product?.cartItemType !== "pack" && Number(product?.price_keys || 0) > 0
+)
+
 export const hasInstallationSelected = (products = []) => products.some((product) => (
   isProductInstallable(product) && Boolean(product?.pivot?.installation_requested)
+))
+
+export const hasKeysSelected = (products = []) => products.some((product) => (
+  hasProductKeys(product) && Boolean(product?.pivot?.keys_requested)
 ))
 
 export const getCartSubtotal = (products = []) => products.reduce((total, product) => {
@@ -72,13 +80,25 @@ export const getInstallationPrice = (products = [], settings = {}) => {
   return Number(matchingRule?.price || 0)
 }
 
+export const getKeysPrice = (products = []) => products.reduce((total, product) => {
+  if (!hasProductKeys(product) || !product?.pivot?.keys_requested) {
+    return total
+  }
+
+  const keysQuantity = Number(product?.pivot?.keys_quantity || 1)
+  const priceKeys = Number(product?.price_keys || 0)
+
+  return total + priceKeys * keysQuantity
+}, 0)
+
 export const getCartTotals = (products = [], settings = {}) => {
   const itemCount = products.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
   const subtotal = getCartSubtotal(products)
   const shipping = Number(settings?.shipping_price || 0)
   const installation = getInstallationPrice(products, settings)
+  const keys = getKeysPrice(products)
   const subtotalExcludingVat = getCartSubtotalExcludingVat(products)
-  const iva = getCartVat(products)
+  const iva = getCartVat(products) + getVatFromGrossPrice(keys)
 
   return {
     itemCount,
@@ -86,7 +106,8 @@ export const getCartTotals = (products = [], settings = {}) => {
     subtotalExcludingVat,
     shipping,
     installation,
+    keys,
     iva,
-    total: subtotal + shipping + installation,
+    total: subtotal + shipping + installation + keys,
   }
 }

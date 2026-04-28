@@ -168,7 +168,7 @@ function Checkout() {
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
   const hasInstallationProducts = hasInstallationSelected(products)
-  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const userDataDescriptionId = "checkout-user-data-description"
   const checkoutFormId = "checkout-user-data-form"
   const useInstallationAddress = hasInstallationProducts && Boolean(getFieldValue("use_installation_address"))
@@ -505,6 +505,7 @@ function Checkout() {
           iva={iva}
           shipping={shipping}
           installation={installation}
+          keys={keys}
           total={total}
           itemCount={itemCount}
           buttonLabel="Continuar amb el pagament"

@@ -40,7 +40,7 @@ function CheckoutPayment() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const paymentDescriptionId = "checkout-payment-description"
   const paymentFormId = "checkout-payment-form"
 
@@ -110,6 +110,7 @@ function CheckoutPayment() {
           iva={iva}
           shipping={shipping}
           installation={installation}
+          keys={keys}
           total={total}
           itemCount={itemCount}
           buttonLabel="Revisar la comanda"

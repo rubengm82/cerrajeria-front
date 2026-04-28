@@ -32,6 +32,11 @@ function CheckoutReviewProduct({ product }) {
   const lineTotal = currentPrice * quantity
   const image = getImportantImage(product)
   const itemTypeLabel = product.cartItemType === "pack" ? "Pack" : product.category?.name || "Producte"
+  const hasInstallation = Boolean(Number(product.pivot?.installation_requested))
+  const hasKeys = Boolean(product.pivot?.keys_requested)
+  const keysQuantity = Number(product.pivot?.keys_quantity || 1)
+  const priceKeys = Number(product.price_keys || 0)
+  const keysLineTotal = hasKeys ? priceKeys * keysQuantity : 0
 
   return (
     <article className="checkout-review-product border-base-300" aria-label={`${product.name}, ${quantity} unitats`}>
@@ -47,12 +52,15 @@ function CheckoutReviewProduct({ product }) {
         <p className="checkout-review-product__category text-base-400">{itemTypeLabel}</p>
         <h3>{product.name}</h3>
         <p className="text-base-400">{quantity} unitats x {formatPrice(currentPrice)}</p>
-        {Boolean(Number(product.pivot?.installation_requested)) && (
+        {hasInstallation && (
           <p className="text-primary font-semibold">Amb instal·lació</p>
+        )}
+        {hasKeys && (
+          <p className="text-primary font-semibold">Amb {keysQuantity} clau/s ({formatPrice(priceKeys)}/unitat)</p>
         )}
       </div>
 
-      <strong className="checkout-review-product__total">{formatPrice(lineTotal)}</strong>
+      <strong className="checkout-review-product__total">{formatPrice(lineTotal + keysLineTotal)}</strong>
     </article>
   )
 }
@@ -103,7 +111,7 @@ function CheckoutReview() {
     ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
     ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
   ]
-  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(products, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
   const hasCustomerData = Boolean(
     customerData.name &&
@@ -206,6 +214,8 @@ function CheckoutReview() {
             id: product.id,
             quantity: Number(product.pivot?.quantity || 1),
             installation_requested: Boolean(product.pivot?.installation_requested),
+            keys_requested: Boolean(product.pivot?.keys_requested),
+            keys_quantity: Number(product.pivot?.keys_quantity || 1),
           })),
         }
 
@@ -320,6 +330,7 @@ function CheckoutReview() {
           iva={iva}
           shipping={shipping}
           installation={installation}
+          keys={keys}
           total={total}
           itemCount={itemCount}
           buttonLabel={isConfirming ? "Generant comanda..." : "Confirmar comanda"}

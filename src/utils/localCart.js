@@ -12,12 +12,16 @@ const isProductInstallable = (product) => (
   product?.is_installable === true || product?.is_installable === 1 || product?.is_installable === "1"
 )
 
-const getProductSnapshot = (product, quantity, cartItemType = product.cartItemType || "product", installationRequested = product?.pivot?.installation_requested || false) => ({
+const hasProductKeys = (product) => Number(product?.price_keys || 0) > 0
+
+const getProductSnapshot = (product, quantity, cartItemType = product.cartItemType || "product", installationRequested = product?.pivot?.installation_requested || false, keysRequested = product?.pivot?.keys_requested || false, keysQuantity = product?.pivot?.keys_quantity || 1) => ({
   ...product,
   cartItemType,
   pivot: {
     quantity,
     installation_requested: cartItemType === "product" && isProductInstallable(product) && !!installationRequested,
+    keys_requested: cartItemType === "product" && hasProductKeys(product) && !!keysRequested,
+    keys_quantity: keysQuantity,
   },
 })
 
@@ -67,7 +71,20 @@ export const updateLocalCartProduct = (productId, quantity, cartItemType = "prod
 export const updateLocalCartProductInstallation = (productId, installationRequested) => {
   const nextCartItems = getStoredCart().map((item) => (
     item.id === productId && (item.cartItemType || "product") === "product"
-      ? getProductSnapshot(item, Number(item.pivot?.quantity || 1), "product", installationRequested)
+      ? getProductSnapshot(item, Number(item.pivot?.quantity || 1), "product", installationRequested, Boolean(item.pivot?.keys_requested), Number(item.pivot?.keys_quantity || 1))
+      : item
+  ))
+
+  localStorage.setItem(localCartKey, JSON.stringify(nextCartItems))
+  window.dispatchEvent(new Event('guestCartChanged'))
+
+  return nextCartItems
+}
+
+export const updateLocalCartProductKeys = (productId, keysRequested, keysQuantity = 1) => {
+  const nextCartItems = getStoredCart().map((item) => (
+    item.id === productId && (item.cartItemType || "product") === "product"
+      ? getProductSnapshot(item, Number(item.pivot?.quantity || 1), "product", Boolean(item.pivot?.installation_requested), keysRequested, keysQuantity)
       : item
   ))
 
@@ -92,7 +109,7 @@ export const syncLocalCartProducts = (products = []) => {
         ...item,
         ...currentProduct,
         pivot: item.pivot,
-      }, Number(item.pivot?.quantity || 1), "product", Boolean(item.pivot?.installation_requested))
+      }, Number(item.pivot?.quantity || 1), "product", Boolean(item.pivot?.installation_requested), Boolean(item.pivot?.keys_requested), Number(item.pivot?.keys_quantity || 1))
       : item
   })
 
@@ -126,5 +143,7 @@ export const getLocalCartMergeItems = () => getStoredCart()
     id: item.id,
     quantity: Number(item.pivot?.quantity || 1),
     installation_requested: isProductInstallable(item) && Boolean(item.pivot?.installation_requested),
+    keys_requested: hasProductKeys(item) && Boolean(item.pivot?.keys_requested),
+    keys_quantity: Number(item.pivot?.keys_quantity || 1),
   }))
   .filter((item) => item.id && item.quantity > 0)

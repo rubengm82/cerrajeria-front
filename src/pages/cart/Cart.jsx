@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { HiArrowLeft, HiOutlinePhoto, HiOutlineTrash } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
 import { getPack } from "../../api/packs_api"
@@ -11,8 +11,8 @@ import ConfirmableModal from "../../components/ConfirmableModal"
 import Notifications from "../../components/Notifications"
 import OrderSummary from "../../components/OrderSummary"
 import ProductDetailModal from "../../components/ProductDetailModal"
-import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, isProductInstallable } from "../../utils/cartTotals"
-import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct, updateLocalCartProductInstallation } from "../../utils/localCart"
+import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, hasProductKeys, isProductInstallable } from "../../utils/cartTotals"
+import { getLocalCartItems, removeLocalCartProduct, syncLocalCartProducts, updateLocalCartProduct, updateLocalCartProductInstallation, updateLocalCartProductKeys } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const getImportantImage = (product) => (
@@ -65,21 +65,28 @@ const getApiErrorMessage = (error, fallbackMessage) => {
   return validationMessage || error.response?.data?.message || fallbackMessage
 }
 
-function CartItem({ product, onQuantityChange, onInstallationChange, onRemove, onView }) {
+function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChange, onRemove, onView }) {
   const quantity = Number(product?.pivot?.quantity || 1)
   const availableStock = Number(product?.stock || 0)
   const isPack = product.cartItemType === "pack"
   const isInstallable = isProductInstallable(product)
   const installationChecked = Boolean(product?.pivot?.installation_requested)
+  const hasKeys = hasProductKeys(product)
+  const keysChecked = Boolean(product?.pivot?.keys_requested)
+  const keysQuantity = Number(product?.pivot?.keys_quantity || 1)
+  const priceKeys = Number(product?.price_keys || 0)
   const quantityId = `cart-quantity-${product.id}`
   const descriptionId = `cart-item-description-${product.id}`
   const installationId = `cart-installation-${product.id}`
+  const keysId = `cart-keys-${product.id}`
+  const keysQuantityId = `cart-keys-quantity-${product.id}`
   const currentPrice = getProductPrice(product)
   const unitPriceExcludingVat = getPriceExcludingVat(currentPrice)
   const lineTotal = unitPriceExcludingVat * quantity
   const oldLineTotal = getPriceExcludingVat(Number(product.price || 0)) * quantity
   const hasDiscount = Number(product.discount || 0) > 0
   const image = getImportantImage(product)
+  const keysLineTotal = keysChecked ? priceKeys * keysQuantity : 0
 
   return (
     <article className="cart-item border-base-300" aria-describedby={descriptionId}>
@@ -153,11 +160,40 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onRemove, o
               </label>
             )}
 
+            {hasKeys && (
+              <div className="cart-item__keys">
+                <label className="cart-item__keys-checkbox" htmlFor={keysId}>
+                  <input
+                    id={keysId}
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    checked={keysChecked}
+                    onChange={(event) => onKeysChange(product, event.target.checked, keysQuantity)}
+                  />
+                  <span>Afegir claus ({formatPrice(priceKeys)}/unitat)</span>
+                </label>
+                {keysChecked && (
+                  <label className="cart-item__keys-quantity" htmlFor={keysQuantityId}>
+                    <span>Quantitat claus</span>
+                    <input
+                      id={keysQuantityId}
+                      type="number"
+                      min="1"
+                      value={keysQuantity}
+                      onChange={(event) => onKeysChange(product, true, Number(event.target.value || 1))}
+                      aria-label={`Quantitat de claus per a ${product.name}`}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
           </div>
 
           <div className="cart-item__prices">
             {hasDiscount && <span className="cart-item__old-price text-base-300">{formatPrice(oldLineTotal)}</span>}
             <strong className="cart-item__price">{formatPrice(lineTotal)}</strong>
+            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(keysLineTotal)} Claus</span>}
           </div>
         </div>
       </div>
@@ -247,12 +283,13 @@ function OrderSummarySkeleton() {
 function Cart() {
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
+  const queryClient = useQueryClient()
   const [notification, setNotification] = useState(null)
   const [localCartVersion, setLocalCartVersion] = useState(0)
   const [selectedItem, setSelectedItem] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoadingSelectedItem, setIsLoadingSelectedItem] = useState(false)
-  const { data: cartOrder, isLoading, isError, refetch } = useQuery({
+  const { data: cartOrder, isLoading, isError } = useQuery({
     queryKey: ["cart-order"],
     queryFn: async () => {
       const response = await getCartOrder()
@@ -323,7 +360,7 @@ function Cart() {
     ...item,
     stock: getAvailableStockForCartItem(item, rawCartItems),
   }))
-  const { itemCount, subtotalExcludingVat, iva, shipping, installation, total } = getCartTotals(cartItems, commerceSettings)
+  const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(cartItems, commerceSettings)
   const stockConflictItem = cartItems.find((item) => getItemQuantity(item) > Number(item.stock || 0))
 
   const handleQuantityChange = async (product, nextQuantity) => {
@@ -345,7 +382,7 @@ function Cart() {
         } else {
           await updateCartProduct(product.id, { quantity })
         }
-        await refetch()
+        queryClient.invalidateQueries({ queryKey: ["cart-order"] })
       } else {
         updateLocalCartProduct(product.id, quantity, product.cartItemType || "product")
         setLocalCartVersion((currentVersion) => currentVersion + 1)
@@ -372,19 +409,74 @@ function Cart() {
       return
     }
 
+    const previousCartOrder = queryClient.getQueryData(["cart-order"])
+
+    if (user) {
+      queryClient.setQueryData(["cart-order"], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === product.id
+              ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
+              : p
+          ),
+        }
+      })
+    }
+
     try {
       if (user) {
         await updateCartProduct(product.id, {
           quantity: getItemQuantity(product),
           installation_requested: installationRequested,
         })
-        await refetch()
       } else {
         updateLocalCartProductInstallation(product.id, installationRequested)
         setLocalCartVersion((currentVersion) => currentVersion + 1)
       }
     } catch (error) {
+      queryClient.setQueryData(["cart-order"], previousCartOrder)
       showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar la instal·lació."))
+    }
+  }
+
+  const handleKeysChange = async (product, keysRequested, keysQuantity) => {
+    if (!hasProductKeys(product) || product.cartItemType === "pack") {
+      return
+    }
+
+    const quantity = Math.max(1, keysQuantity)
+    const previousCartOrder = queryClient.getQueryData(["cart-order"])
+
+    if (user) {
+      queryClient.setQueryData(["cart-order"], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          products: old.products.map((p) =>
+            p.id === product.id
+              ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
+              : p
+          ),
+        }
+      })
+    }
+
+    try {
+      if (user) {
+        await updateCartProduct(product.id, {
+          quantity: getItemQuantity(product),
+          keys_requested: keysRequested,
+          keys_quantity: quantity,
+        })
+      } else {
+        updateLocalCartProductKeys(product.id, keysRequested, quantity)
+        setLocalCartVersion((currentVersion) => currentVersion + 1)
+      }
+    } catch (error) {
+      queryClient.setQueryData(["cart-order"], previousCartOrder)
+      showNotification("error", getApiErrorMessage(error, "No hem pogut actualitzar les claus."))
     }
   }
 
@@ -396,7 +488,7 @@ function Cart() {
         } else {
           await removeCartProduct(product.id)
         }
-        await refetch()
+        queryClient.invalidateQueries({ queryKey: ["cart-order"] })
       } else {
         removeLocalCartProduct(product.id, product.cartItemType || "product")
         setLocalCartVersion((currentVersion) => currentVersion + 1)
@@ -464,6 +556,7 @@ function Cart() {
             product={product}
             onQuantityChange={handleQuantityChange}
             onInstallationChange={handleInstallationChange}
+            onKeysChange={handleKeysChange}
             onRemove={handleRemove}
             onView={handleViewItem}
           />
@@ -475,6 +568,7 @@ function Cart() {
         iva={iva}
         shipping={shipping}
         installation={installation}
+        keys={keys}
         total={total}
         itemCount={itemCount}
         onAction={handleCheckout}

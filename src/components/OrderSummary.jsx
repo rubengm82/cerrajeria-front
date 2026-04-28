@@ -7,6 +7,7 @@ function OrderSummary({
   iva = 0,
   shipping = 0,
   installation = 0,
+  keys = 0,
   total = 0,
   itemCount = 0,
   actionTo,
@@ -42,6 +43,13 @@ function OrderSummary({
           <div className="order-summary__line">
             <span>Instal·lació</span>
             <strong>{formatPrice(installation)}</strong>
+          </div>
+        )}
+
+        {keys > 0 && (
+          <div className="order-summary__line">
+            <span>Claus</span>
+            <strong>{formatPrice(keys)}</strong>
           </div>
         )}
       </div>

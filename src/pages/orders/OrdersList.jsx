@@ -858,19 +858,22 @@ function OrdersList() {
                   )}
                   {isAdmin && (
                     <td className="h-12">
-                      <div className='flex items-center justify-center gap-3'>
-                        <Link to={`/orders/${order.id}`} className="text-base-400 hover:text-primary transition-colors">
-                          <HiEye className="size-6" />
-                        </Link>
-                        <ConfirmableModal
-                          title="Eliminar comanda permanentment"
-                          message={`Segur que vols eliminar permanentment la comanda ${formatAlbaranNumber(order.id)}? Aquesta acció no es pot desfer.`}
-                          onConfirm={() => handleForceDelete(order.id)}
-                        >
-                          <button className={`text-base-400 hover:text-error-content transition-colors cursor-pointer ${!order.deleted_at ? 'invisible' : ''}`}>
-                            <HiTrash className="size-6" />
-                          </button>
-                        </ConfirmableModal>
+                      <div className='flex items-center justify-center'>
+                        {!order.deleted_at ? (
+                          <Link to={`/orders/${order.id}`} className="text-base-400 hover:text-primary transition-colors" title="Veure detall">
+                            <HiEye className="size-6" />
+                          </Link>
+                        ) : (
+                          <ConfirmableModal
+                            title="Eliminar comanda permanentment"
+                            message={`Segur que vols eliminar permanentment la comanda ${formatAlbaranNumber(order.id)}? Aquesta acció no es pot desfer.`}
+                            onConfirm={() => handleForceDelete(order.id)}
+                          >
+                            <button className="text-base-400 hover:text-error-content transition-colors cursor-pointer" title="Eliminar permanentment">
+                              <HiTrash className="size-6" />
+                            </button>
+                          </ConfirmableModal>
+                        )}
                       </div>
                     </td>
                   )}

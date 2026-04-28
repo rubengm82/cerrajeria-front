@@ -36,40 +36,19 @@ const getOrderItems = (order) => {
       packProductsMap.get(packId).push(p)
     })
 
-  const productsWithExtras = []
-  const packs = (order.packs || []).map(pack => {
-    const packProducts = (packProductsMap.get(pack.id) || []).map(p => ({
+  const packs = (order.packs || []).map(pack => ({
+    ...pack,
+    cartItemType: 'pack',
+    products: (packProductsMap.get(pack.id) || []).map(p => ({
       ...p,
-      cartItemType: 'product',
       pivot: {
-        quantity: p.pivot?.quantity || 1,
-        installation_requested: p.pivot?.installation_requested || false,
-        keys_requested: p.pivot?.keys_requested || false,
-        keys_quantity: p.pivot?.keys_quantity || 1,
-      },
-    }))
-
-    const productsWithoutExtras = []
-    const productsWithExtrasInPack = []
-
-    packProducts.forEach(p => {
-      if (p.pivot.installation_requested || p.pivot.keys_requested) {
-        productsWithExtrasInPack.push(p)
-      } else {
-        productsWithoutExtras.push(p)
+        ...p.pivot,
+        quantity: p.pivot?.quantity || pack.pivot?.quantity || 1,
       }
-    })
+    }))
+  }))
 
-    productsWithExtras.push(...productsWithExtrasInPack)
-
-    return {
-      ...pack,
-      cartItemType: 'pack',
-      products: productsWithoutExtras,
-    }
-  })
-
-  return [...standaloneProducts, ...packs, ...productsWithExtras]
+  return [...standaloneProducts, ...packs]
 }
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
@@ -834,33 +813,14 @@ function OrdersList() {
                     )}
 <td>
                     {(() => {
-                      const { subtotalExcludingVat, iva, keys: keysAmount } = getCartTotals(getOrderItems(order))
-                      let shipping = Number(order.shipping_price || 0)
-                      let installation = Number(order.installation_price || 0)
+                      const { subtotalExcludingVat, iva, shipping, installation, keys: keysAmount } = getCartTotals(getOrderItems(order), settingsForm)
                       const isInstallation = isInstallationOrder(order)
-                      const hasRequestedInstallation = orderHasInstallation(order)
-                      const isOnline = !isInstallation
-                      const subtotal = subtotalExcludingVat
-
-                      if (settingsForm) {
-                        if (hasRequestedInstallation) {
-                          if (installation === 0) {
-                            const rule = getMatchingInstallationRule(subtotal, settingsForm)
-                            if (rule) {
-                              installation = Number(rule.price)
-                            }
-                          }
-                          shipping = 0
-                        } else if (isOnline && shipping === 0) {
-                          shipping = Number(settingsForm.shipping_price || 0)
-                        }
-                      }
 
                       return (
                         <div className="text-left text-xs">
                           <div>Subtotal: {formatPrice(subtotalExcludingVat)}</div>
-                          {shipping > 0 && !isInstallation && <div>Enviament: {formatPrice(shipping)}</div>}
-                          {installation > 0 && isInstallation && <div>Instal·lació: {formatPrice(installation)}</div>}
+                          {installation === 0 && <div>Enviament: {shipping > 0 ? formatPrice(shipping) : 'Gratuït'}</div>}
+                          {installation > 0 && <div>Instal·lació: {formatPrice(installation)}</div>}
                           {keysAmount > 0 && <div>Claus: {formatPrice(keysAmount)}</div>}
                           <div>IVA: {formatPrice(iva)}</div>
                         </div>
@@ -869,25 +829,7 @@ function OrdersList() {
                   </td>
                    <td className="font-bold text-primary">
                      {(() => {
-                       const { subtotalExcludingVat, keys: keysAmount } = getCartTotals(getOrderItems(order))
-                       const subtotal = subtotalExcludingVat
-                       let shipping = Number(order.shipping_price || 0)
-                       let installation = Number(order.installation_price || 0)
-                       const isInstallation = isInstallationOrder(order)
-                       const isOnline = !isInstallation
-
-                      if (settingsForm) {
-                        if (isOnline && shipping === 0) {
-                          shipping = Number(settingsForm.shipping_price || 0)
-                        } else if (isInstallation && installation === 0) {
-                          const rule = getMatchingInstallationRule(subtotal, settingsForm)
-                          if (rule) {
-                            installation = Number(rule.price)
-                          }
-                        }
-                      }
-
-                       const total = subtotal + shipping + installation + keysAmount
+                       const { total } = getCartTotals(getOrderItems(order), settingsForm)
                        return formatPrice(total)
                      })()}
                    </td>

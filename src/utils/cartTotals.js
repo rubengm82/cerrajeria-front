@@ -100,8 +100,11 @@ export const getCartTotals = (products = [], settings = {}) => {
 
   const itemCount = allProducts.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
   const subtotal = getCartSubtotal(products)
-  const shipping = Number(settings?.shipping_price || 0)
+  const hasInstallation = hasInstallationSelected(allProducts)
+
   const installation = getInstallationPrice(allProducts, settings)
+  const shipping = hasInstallation ? 0 : Number(settings?.shipping_price || 0)
+
   const keys = getKeysPrice(allProducts)
   const subtotalExcludingVat = getCartSubtotalExcludingVat(products)
   const iva = getCartVat(products) + getVatFromGrossPrice(keys)

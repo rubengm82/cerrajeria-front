@@ -126,7 +126,13 @@ function CheckoutReview() {
     const packs = (cartOrder?.packs || []).map(pack => ({
       ...pack,
       cartItemType: "pack",
-      products: packProductsMap.get(pack.id) || []
+      products: (packProductsMap.get(pack.id) || []).map(p => ({
+        ...p,
+        pivot: {
+          ...p.pivot,
+          quantity: p.pivot?.quantity || pack.pivot?.quantity || 1,
+        }
+      }))
     }))
 
     return [...standaloneProducts, ...packs]

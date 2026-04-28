@@ -29,10 +29,12 @@ function OrderSummary({
           <strong>{formatPrice(subtotal)}</strong>
         </div>
 
-        <div className="order-summary__line">
-          <span>Enviament</span>
-          <strong>{shipping > 0 ? formatPrice(shipping) : "Gratuït"}</strong>
-        </div>
+        {installation === 0 && (
+          <div className="order-summary__line">
+            <span>Enviament</span>
+            <strong>{shipping > 0 ? formatPrice(shipping) : "Gratuït"}</strong>
+          </div>
+        )}
 
         <div className="order-summary__line">
           <span>IVA</span>

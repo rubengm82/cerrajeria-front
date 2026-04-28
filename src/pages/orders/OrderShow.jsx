@@ -31,40 +31,19 @@ const getOrderItems = (order) => {
       packProductsMap.get(packId).push(p)
     })
 
-  const productsWithExtras = []
-  const packs = (order.packs || []).map(pack => {
-    const packProducts = (packProductsMap.get(pack.id) || []).map(p => ({
+  const packs = (order.packs || []).map(pack => ({
+    ...pack,
+    cartItemType: 'pack',
+    products: (packProductsMap.get(pack.id) || []).map(p => ({
       ...p,
-      cartItemType: 'product',
       pivot: {
-        quantity: p.pivot?.quantity || 1,
-        installation_requested: p.pivot?.installation_requested || false,
-        keys_requested: p.pivot?.keys_requested || false,
-        keys_quantity: p.pivot?.keys_quantity || 1,
-      },
-    }))
-
-    const productsWithoutExtras = []
-    const productsWithExtrasInPack = []
-
-    packProducts.forEach(p => {
-      if (p.pivot.installation_requested || p.pivot.keys_requested) {
-        productsWithExtrasInPack.push(p)
-      } else {
-        productsWithoutExtras.push(p)
+        ...p.pivot,
+        quantity: p.pivot?.quantity || pack.pivot?.quantity || 1,
       }
-    })
+    }))
+  }))
 
-    productsWithExtras.push(...productsWithExtrasInPack)
-
-    return {
-      ...pack,
-      cartItemType: 'pack',
-      products: productsWithoutExtras,
-    }
-  })
-
-  return [...standaloneProducts, ...packs, ...productsWithExtras]
+  return [...standaloneProducts, ...packs]
 }
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
@@ -141,34 +120,13 @@ function OrderShow() {
     )
   }
 
-const orderItems = getOrderItems(order)
+    const orderItems = getOrderItems(order)
     const albaranNumber = formatAlbaranNumber(order.id)
-    const { subtotal, subtotalExcludingVat, iva, keys: keysAmount } = getCartTotals(orderItems)
-
-    let shipping = Number(order.shipping_price || 0)
-    let installation = Number(order.installation_price || 0)
+    const { subtotalExcludingVat, iva, shipping, installation, keys: keysAmount, total } = getCartTotals(orderItems, settings)
 
     const displayStatus = getEffectiveOrderStatus(order)
     const isInstallation = isInstallationOrder(order)
     const hasRequestedInstallation = orderHasInstallation(order)
-    const isOnline = !isInstallation
-
-    // Si hay instalación solicitada, el envío es 0 y aplicamos baremos de instalación
-    if (settings) {
-      if (hasRequestedInstallation) {
-        if (installation === 0) {
-          const rule = getMatchingInstallationRule(subtotal, settings)
-          if (rule) {
-            installation = Number(rule.price)
-          }
-        }
-        shipping = 0
-      } else if (isOnline && shipping === 0) {
-        shipping = Number(settings.shipping_price || 0)
-      }
-    }
-
-    const total = subtotal + shipping + installation + keysAmount
 
   return (
     <div className="p-4 md:p-0">
@@ -284,13 +242,13 @@ const orderItems = getOrderItems(order)
                 <span>Subtotal:</span>
                 <span>{formatPrice(subtotalExcludingVat)}</span>
               </div>
-              {shipping > 0 && !isInstallation && (
+              {installation === 0 && (
                 <div className="flex justify-between">
                   <span>Enviament:</span>
-                  <span>{formatPrice(shipping)}</span>
+                  <span>{shipping > 0 ? formatPrice(shipping) : 'Gratuït'}</span>
                 </div>
               )}
-              {installation > 0 && isInstallation && (
+              {installation > 0 && (
                 <div className="flex justify-between">
                   <span>Instal·lació:</span>
                   <span>{formatPrice(installation)}</span>

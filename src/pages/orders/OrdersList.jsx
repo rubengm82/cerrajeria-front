@@ -691,15 +691,14 @@ function OrdersList() {
           <table className="table table-zebra w-full">
              <thead>
                <tr>
-                 <th className="bg-base-200">Nombre Comanda</th>
+                 <th className="bg-base-200">Comanda</th>
                  {isAdmin && <th className="bg-base-200">Client</th>}
                  <th className="bg-base-200">Data Comanda</th>
-                 <th className="bg-base-200">Mètode Pagament</th>
+                 <th className="bg-base-200">Pagat amb</th>
                  <th className="bg-base-200">Estat Comanda</th>
                  <th className="bg-base-200">Instal·lació Data</th>
                   {isAdmin && <th className="bg-base-200">Enviament Data</th>}
-                 <th className="bg-base-200">Subtotal i IVA</th>
-                 <th className="bg-base-200">Total</th>
+                 <th className="bg-base-200">Desglossament</th>
                  <th className="bg-base-200">Descàrrega</th>
                  {isAdmin && <th className="bg-base-200">Estat</th>}
                  {isAdmin && <th className="bg-base-200">Accions</th>}
@@ -709,15 +708,29 @@ function OrdersList() {
               {filteredOrders.map((order) => (
                 <tr key={order.id}>
                   <td className="font-semibold">{formatAlbaranNumber(order.id)}</td>
-                  {isAdmin &&                    <td>
-                     <div className="relative group">
-                       <span>{getOrderCustomerName(order) || 'Client sense usuari'}</span>
-                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-base-300 text-base-content p-2 rounded shadow-lg text-sm z-10 min-w-max">
+                  {isAdmin && (
+                    <td>
+                      <div className="relative group text-sm leading-tight text-base-content">
+                        <div className="flex flex-col">
+                          <span>
+                            {order.customer_name ?? order.user?.name ?? 'Client'}
+                          </span>
+                          <span>
+                            {order.customer_last_name_one ?? order.user?.last_name_one ?? 'sense usuari'}
+                          </span>
+                          {Boolean(order.customer_last_name_second ?? order.user?.last_name_second) && (
+                            <span>
+                              {order.customer_last_name_second ?? order.user?.last_name_second}
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-base-300 p-2 rounded shadow-lg text-sm z-10 min-w-max">
                           <div>Telèfon: {order.customer_phone || order.user?.phone || 'No disponible'}</div>
                           <div>Email: {order.customer_email || order.user?.email || 'No disponible'}</div>
                         </div>
-                     </div>
-                   </td>}
+                      </div>
+                    </td>
+                  )}
                   <td>{formatDate(order.created_at)}</td>
                   <td>{formatPaymentMethod(order.payment_method)}</td>
                   <td>
@@ -757,10 +770,10 @@ function OrdersList() {
 {isAdmin && getEffectiveOrderStatus(order) === 'installation_pending' ? (
                        <div className="flex flex-col gap-1">
                          <div className="text-error-content text-sm text-center">Manca posar data</div>
-                         <div className="flex gap-1">
+                         <div className="flex flex-col gap-1 items-center">
                            <input
                              type="date"
-                             className="input input-bordered input-sm w-28 date-input"
+                             className="input input-bordered input-sm w-full max-w-28 date-input"
                              onChange={(e) => {
                                const dateValue = e.target.value
                                const row = e.target.closest('tr')
@@ -772,7 +785,7 @@ function OrdersList() {
                              }}
                            />
                            <select
-                             className="select select-bordered select-sm w-20 time-select"
+                             className="select select-bordered select-sm w-full max-w-28 time-select"
                              onChange={(e) => {
                                const timeValue = e.target.value
                                const row = e.target.closest('tr')
@@ -815,10 +828,10 @@ function OrdersList() {
                     )}
 <td>
                     {(() => {
-                      const { subtotalExcludingVat, iva, shippingExcludingVat, installationExcludingVat, keysExcludingVat, installation } = getCartTotals(getOrderItems(order), settingsForm)
+                      const { subtotalExcludingVat, iva, shippingExcludingVat, installationExcludingVat, keysExcludingVat, installation, total } = getCartTotals(getOrderItems(order), settingsForm)
 
                       return (
-                        <div className="text-left text-xs">
+                        <div className="text-left text-xs space-y-0.5">
                           <div>Subtotal: {formatPrice(subtotalExcludingVat)}</div>
                           {keysExcludingVat > 0 && <div>Claus: {formatPrice(keysExcludingVat)}</div>}
                           {installation === 0 && (
@@ -828,16 +841,13 @@ function OrdersList() {
                             <div>Instal·lació: {formatPrice(installationExcludingVat)}</div>
                           )}
                           <div>IVA: {formatPrice(iva)}</div>
+                          <div className="font-bold text-primary border-t border-base-300 mt-1 pt-0.5 text-sm">
+                            Total: {formatPrice(total)}
+                          </div>
                         </div>
                       )
                     })()}
                   </td>
-                   <td className="font-bold text-primary">
-                     {(() => {
-                       const { total } = getCartTotals(getOrderItems(order), settingsForm)
-                       return formatPrice(total)
-                     })()}
-                   </td>
                   <td>
                     <button
                       onClick={() => downloadAlbaran(order.id)}

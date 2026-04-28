@@ -134,34 +134,50 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
 
         <div className="cart-item__footer">
           <div className="cart-item__controls">
-            <label className="cart-item__quantity" htmlFor={quantityId}>
-              <span>Quantitat</span>
-              <input
-                id={quantityId}
-                type="number"
-                min="1"
-                max={availableStock}
-                value={quantity}
-                onChange={(event) => onQuantityChange(product, Number(event.target.value || 1))}
-                aria-label={`Quantitat de ${product.name}`}
-              />
-            </label>
-
-            {isInstallable && (
-              <label className="cart-item__installation" htmlFor={installationId}>
+            <div className="cart-item__inputs">
+              <label className="cart-item__quantity" htmlFor={quantityId}>
+                <span>Quantitat</span>
                 <input
-                  id={installationId}
-                  type="checkbox"
-                  className="checkbox checkbox-primary"
-                  checked={installationChecked}
-                  onChange={(event) => onInstallationChange(product, event.target.checked)}
+                  id={quantityId}
+                  type="number"
+                  min="1"
+                  max={availableStock}
+                  value={quantity}
+                  onChange={(event) => onQuantityChange(product, Number(event.target.value || 1))}
+                  aria-label={`Quantitat de ${product.name}`}
                 />
-                <span>Afegir instal·lacio</span>
               </label>
-            )}
 
-            {hasKeys && (
-              <div className="cart-item__keys">
+              {hasKeys && keysChecked && (
+                <label className="cart-item__keys-quantity" htmlFor={keysQuantityId}>
+                  <span>Claus</span>
+                  <input
+                    id={keysQuantityId}
+                    type="number"
+                    min="1"
+                    value={keysQuantity}
+                    onChange={(event) => onKeysChange(product, true, Number(event.target.value || 1))}
+                    aria-label={`Quantitat de claus per a ${product.name}`}
+                  />
+                </label>
+              )}
+            </div>
+
+            <div className="cart-item__checkboxes">
+              {isInstallable && (
+                <label className="cart-item__installation" htmlFor={installationId}>
+                  <input
+                    id={installationId}
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    checked={installationChecked}
+                    onChange={(event) => onInstallationChange(product, event.target.checked)}
+                  />
+                  <span>Afegir instal·lacio</span>
+                </label>
+              )}
+
+              {hasKeys && (
                 <label className="cart-item__keys-checkbox" htmlFor={keysId}>
                   <input
                     id={keysId}
@@ -172,22 +188,8 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
                   />
                   <span>Afegir claus ({formatPrice(priceKeys)}/unitat)</span>
                 </label>
-                {keysChecked && (
-                  <label className="cart-item__keys-quantity" htmlFor={keysQuantityId}>
-                    <span>Quantitat claus</span>
-                    <input
-                      id={keysQuantityId}
-                      type="number"
-                      min="1"
-                      value={keysQuantity}
-                      onChange={(event) => onKeysChange(product, true, Number(event.target.value || 1))}
-                      aria-label={`Quantitat de claus per a ${product.name}`}
-                    />
-                  </label>
-                )}
-              </div>
-            )}
-
+              )}
+            </div>
           </div>
 
           <div className="cart-item__prices">

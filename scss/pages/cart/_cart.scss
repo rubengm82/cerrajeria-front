@@ -268,9 +268,22 @@
 
   &__controls {
     display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__inputs {
+    display: flex;
+    align-items: flex-start;
     gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__checkboxes {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   &__quantity {
@@ -282,45 +295,10 @@
     font-weight: 500;
   }
 
-  &__installation {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 2.5rem;
-    color: var(--color-base-400);
-    font-size: 0.8rem;
-    font-weight: 600;
-
-    input {
-      flex: 0 0 auto;
-    }
-  }
-
-  &__keys {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    min-height: 2.5rem;
-  }
-
-  &__keys-checkbox {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    color: var(--color-base-400);
-    font-size: 0.8rem;
-    font-weight: 600;
-
-    input {
-      flex: 0 0 auto;
-    }
-  }
-
   &__keys-quantity {
     display: flex;
     flex-direction: column;
     gap: 0.35rem;
-    margin-left: 1.7rem;
     color: var(--color-base-400);
     font-size: 0.75rem;
     font-weight: 500;
@@ -343,12 +321,40 @@
     }
   }
 
+  &__installation {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    color: var(--color-base-400);
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    input {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__keys-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--color-base-400);
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    input {
+      flex: 0 0 auto;
+    }
+  }
+
   &__keys-price {
     font-size: 0.75rem;
     font-weight: 600;
   }
 
-  &__quantity input {
+  &__quantity input,
+  &__keys-quantity input {
     width: 5.5rem;
     height: 2.5rem;
     border: 1px solid var(--color-base-300);
@@ -601,5 +607,22 @@
   .cart-item {
     grid-template-columns: minmax(6.5rem, 8rem) minmax(0, 1fr);
     gap: 0.75rem;
+
+    &__footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    &__inputs,
+    &__checkboxes {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    &__prices {
+      justify-content: flex-end;
+    }
   }
 }

@@ -108,10 +108,9 @@ export const getCartTotals = (products = [], settings = {}) => {
   const shippingGross = hasInstallation ? 0 : Number(settings?.shipping_price || 0)
   
   const keysGross = getKeysPrice(allProducts)
-  const keysNet = getPriceExcludingVat(keysGross)
 
-  // El IVA solo se calcula sobre productos y llaves
-  const taxableIva = (subtotalGross - subtotalNet) + (keysGross - keysNet)
+  // El IVA solo se calcula sobre productos ahora
+  const taxableIva = (subtotalGross - subtotalNet)
   const totalGross = subtotalGross + shippingGross + installationGross + keysGross
 
   return {
@@ -123,7 +122,7 @@ export const getCartTotals = (products = [], settings = {}) => {
     installation: installationGross,
     installationExcludingVat: installationGross, // No se descuenta IVA
     keys: keysGross,
-    keysExcludingVat: keysNet,
+    keysExcludingVat: keysGross, // No se descuenta IVA (precio base de datos)
     iva: taxableIva,
     total: totalGross,
   }

@@ -86,7 +86,6 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
   const oldLineTotal = getPriceExcludingVat(Number(product.price || 0)) * quantity
   const hasDiscount = Number(product.discount || 0) > 0
   const image = getImportantImage(product)
-  const keysLineTotal = keysChecked ? priceKeys * keysQuantity : 0
 
   return (
     <article className="cart-item border-base-300" aria-describedby={descriptionId}>
@@ -195,7 +194,6 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
           <div className="cart-item__prices">
             {hasDiscount && <span className="cart-item__old-price text-base-300">{formatPrice(oldLineTotal)}</span>}
             <strong className="cart-item__price">{formatPrice(lineTotal)}</strong>
-            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(keysLineTotal)} Claus</span>}
           </div>
         </div>
       </div>
@@ -299,7 +297,6 @@ function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onP
               const productInstallationId = `cart-installation-pack-product-${pack.id}-${product.id}`
               const productKeysId = `cart-keys-pack-product-${pack.id}-${product.id}`
               const productKeysQuantityId = `cart-keys-quantity-pack-product-${pack.id}-${product.id}`
-              const productKeysLineTotal = productKeysChecked ? productPriceKeys * productKeysQuantity : 0
 
               return (
                 <div key={`${pack.cartItemType}-${pack.id}-product-${product.id}`} className="cart-item__pack-product">

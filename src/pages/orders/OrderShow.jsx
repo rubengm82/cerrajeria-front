@@ -222,20 +222,20 @@ function OrderShow() {
                     const packKeys = (item.products || []).filter(p => p.pivot?.keys_requested)
                     if (packKeys.length > 0) {
                       hasKeys = true
-                      keysInfo = packKeys.map(p => `${p.pivot.keys_quantity}x ${p.name} (${formatPrice(getPriceExcludingVat(Number(p.price_keys)))})`).join(', ')
+                      keysInfo = packKeys.map(p => `${p.pivot.keys_quantity}x ${p.name} (${formatPrice(Number(p.price_keys))})`).join(', ')
                       itemKeysPrice = packKeys.reduce((sum, p) => sum + (Number(p.price_keys) * (p.pivot.keys_quantity || 1)), 0)
                     }
                   } else {
                     hasKeys = hasProductKeys(item) && item.pivot?.keys_requested
                     if (hasKeys) {
                       const keysQty = item.pivot?.keys_quantity || 1
-                      keysInfo = `${keysQty}x ${formatPrice(getPriceExcludingVat(Number(item.price_keys)))}`
+                      keysInfo = `${keysQty}x ${formatPrice(Number(item.price_keys))}`
                       itemKeysPrice = Number(item.price_keys) * keysQty
                     }
                   }
 
                   const unitPriceExcludingVat = getPriceExcludingVat(getProductPrice(item))
-                  const lineTotal = (unitPriceExcludingVat * item.pivot.quantity) + getPriceExcludingVat(itemKeysPrice)
+                  const lineTotal = (unitPriceExcludingVat * item.pivot.quantity) + itemKeysPrice
 
                   return (
                   <tr key={`${item.cartItemType}-${item.id}`}>

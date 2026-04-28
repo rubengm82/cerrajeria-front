@@ -203,6 +203,172 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
   )
 }
 
+function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onProductKeysChange, onRemove, onView }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const quantity = Number(pack?.pivot?.quantity || 1)
+  const availableStock = pack?.products ? Math.min(...pack.products.map(p => Number(p.stock || 0))) : 0
+  const quantityId = `cart-quantity-pack-${pack.id}`
+  const currentPrice = getProductPrice(pack)
+  const unitPriceExcludingVat = getPriceExcludingVat(currentPrice)
+  const lineTotal = unitPriceExcludingVat * quantity
+  const image = getImportantImage(pack)
+
+  const packProducts = pack?.products?.filter(p => !p?.deleted_at) || []
+
+  return (
+    <article className="cart-item cart-item--pack border-base-300">
+      <div className="cart-item__media">
+        <div className="cart-item__image bg-base-500">
+          {image?.path ? (
+            <img src={`/storage/${image.path}`} alt={pack.name} />
+          ) : (
+            <div className="cart-item__empty" aria-label={`Sense imatge per a ${pack.name}`}>
+              <HiOutlinePhoto className="cart-item__empty-icon text-primary" aria-hidden="true" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="cart-item__body">
+        <div className="cart-item__heading">
+          <div className="cart-item__copy">
+            <p className="cart-item__category">Pack</p>
+            <button type="button" className="cart-item__name-button" onClick={() => onView(pack)} aria-label={`Veure el detall de ${pack.name}`}>
+              <h2 className="cart-item__name">{pack.name}</h2>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            className="cart-item__expand"
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-label={isExpanded ? "Col·lapsar pack" : "Expandir pack"}
+          >
+            {isExpanded ? "▲" : "▼"}
+          </button>
+
+          <ConfirmableModal
+            title="Eliminar del carret"
+            message={`Vols eliminar ${pack.name} del carret?`}
+            onConfirm={() => onRemove(pack)}
+          >
+            <button type="button" className="cart-item__remove" aria-label={`Eliminar ${pack.name} del carret`}>
+              <HiOutlineTrash aria-hidden="true" />
+            </button>
+          </ConfirmableModal>
+        </div>
+
+        <p className="cart-item__description text-base-400">
+          {pack.description || "Sense descripció disponible."}
+        </p>
+
+        <div className="cart-item__footer">
+          <div className="cart-item__controls">
+            <div className="cart-item__inputs">
+              <label className="cart-item__quantity" htmlFor={quantityId}>
+                <span>Quantitat</span>
+                <input
+                  id={quantityId}
+                  type="number"
+                  min="1"
+                  max={availableStock}
+                  value={quantity}
+                  onChange={(event) => onQuantityChange(pack, Number(event.target.value || 1))}
+                  aria-label={`Quantitat de ${pack.name}`}
+                />
+              </label>
+            </div>
+          </div>
+
+          <div className="cart-item__prices">
+            <strong className="cart-item__price">{formatPrice(lineTotal)}</strong>
+          </div>
+        </div>
+
+        {isExpanded && (
+          <div className="cart-item__pack-products">
+            <h4 className="cart-item__pack-products-title">Productes del pack:</h4>
+            {packProducts.map((product) => {
+              const productInstallable = isProductInstallable(product)
+              const productInstallationChecked = Boolean(product?.pivot?.installation_requested)
+              const productHasKeys = hasProductKeys(product)
+              const productKeysChecked = Boolean(product?.pivot?.keys_requested)
+              const productKeysQuantity = Number(product?.pivot?.keys_quantity || 1)
+              const productPriceKeys = Number(product?.price_keys || 0)
+              const productInstallationId = `cart-installation-pack-product-${pack.id}-${product.id}`
+              const productKeysId = `cart-keys-pack-product-${pack.id}-${product.id}`
+              const productKeysQuantityId = `cart-keys-quantity-pack-product-${pack.id}-${product.id}`
+              const productKeysLineTotal = productKeysChecked ? productPriceKeys * productKeysQuantity : 0
+
+              return (
+                <div key={`${pack.cartItemType}-${pack.id}-product-${product.id}`} className="cart-item__pack-product">
+                  <div className="cart-item__pack-product-info">
+                    <span className="cart-item__pack-product-name">{product.name}</span>
+                    <span className="cart-item__pack-product-price">{formatPrice(productPriceKeys)}/unitat</span>
+                  </div>
+
+                  <div className="cart-item__pack-product-controls">
+                    <div className="cart-item__inputs">
+                      {productHasKeys && productKeysChecked && (
+                        <label className="cart-item__keys-quantity" htmlFor={productKeysQuantityId}>
+                          <span>Claus</span>
+                          <input
+                            id={productKeysQuantityId}
+                            type="number"
+                            min="1"
+                            value={productKeysQuantity}
+                            onChange={(event) => onProductKeysChange(product, true, Number(event.target.value || 1), pack.id)}
+                            aria-label={`Quantitat de claus per a ${product.name}`}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    <div className="cart-item__checkboxes">
+                      {productInstallable && (
+                        <label className="cart-item__installation" htmlFor={productInstallationId}>
+                          <input
+                            id={productInstallationId}
+                            type="checkbox"
+                            className="checkbox checkbox-primary"
+                            checked={productInstallationChecked}
+                            onChange={(event) => onProductInstallationChange(product, event.target.checked, pack.id)}
+                          />
+                          <span>Instal·lació</span>
+                        </label>
+                      )}
+
+                      {productHasKeys && (
+                        <label className="cart-item__keys-checkbox" htmlFor={productKeysId}>
+                          <input
+                            id={productKeysId}
+                            type="checkbox"
+                            className="checkbox checkbox-primary"
+                            checked={productKeysChecked}
+                            onChange={(event) => onProductKeysChange(product, event.target.checked, productKeysQuantity, pack.id)}
+                          />
+                          <span>Claus</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {productKeysChecked && (
+                    <div className="cart-item__pack-product-keys-total">
+                      <span className="text-base-400 text-xs">+ {formatPrice(productKeysLineTotal)} Claus</span>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </article>
+  )
+}
+
 function CartItemSkeleton({ hasInstallation = false }) {
   return (
     <article className="cart-item cart-item--skeleton border-base-300" aria-hidden="true">
@@ -336,7 +502,7 @@ function Cart() {
   const localCartItems = getLocalCartItems(localCartVersion)
   const currentProductsById = new Map(currentProducts.map((product) => [product.id, product]))
   const products = user
-    ? cartOrder?.products || []
+    ? (cartOrder?.products || []).filter(p => !p.pivot?.pack_id)
     : localCartItems.map((item) => {
       if ((item.cartItemType || "product") === "pack") {
         return item
@@ -353,7 +519,15 @@ function Cart() {
         }
         : item
     })
-  const packs = user ? cartOrder?.packs || [] : []
+
+  const packProducts = user ? (cartOrder?.products || []).filter(p => p.pivot?.pack_id) : []
+  const packs = user 
+    ? (cartOrder?.packs || []).map(pack => ({
+      ...pack,
+      products: packProducts.filter(p => p.pivot?.pack_id === pack.id)
+    }))
+    : []
+
   const rawCartItems = [
     ...products.map((product) => ({ ...product, cartItemType: product.cartItemType || "product" })),
     ...packs.map((pack) => ({ ...pack, cartItemType: "pack" })),
@@ -552,17 +726,32 @@ function Cart() {
   ) : (
     <div className="cart-page__layout">
       <div className="cart-page__items" aria-label="Productes del carret">
-        {cartItems.map((product) => (
-          <CartItem
-            key={`${product.cartItemType}-${product.id}`}
-            product={product}
-            onQuantityChange={handleQuantityChange}
-            onInstallationChange={handleInstallationChange}
-            onKeysChange={handleKeysChange}
-            onRemove={handleRemove}
-            onView={handleViewItem}
-          />
-        ))}
+        {cartItems.map((item) => {
+          if (item.cartItemType === "pack") {
+            return (
+              <CartPackItem
+                key={`pack-${item.id}`}
+                pack={item}
+                onQuantityChange={handleQuantityChange}
+                onProductInstallationChange={handleInstallationChange}
+                onProductKeysChange={handleKeysChange}
+                onRemove={handleRemove}
+                onView={handleViewItem}
+              />
+            )
+          }
+          return (
+            <CartItem
+              key={`product-${item.id}`}
+              product={item}
+              onQuantityChange={handleQuantityChange}
+              onInstallationChange={handleInstallationChange}
+              onKeysChange={handleKeysChange}
+              onRemove={handleRemove}
+              onView={handleViewItem}
+            />
+          )
+        })}
       </div>
 
       <OrderSummary

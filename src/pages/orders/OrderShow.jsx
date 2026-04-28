@@ -15,10 +15,30 @@ const getOrderCustomerName = (order) => (
   ].filter(Boolean).join(' ')
 )
 
-const getOrderItems = (order) => [
-  ...(order.products || []).map((product) => ({ ...product, cartItemType: 'product' })),
-  ...(order.packs || []).map((pack) => ({ ...pack, cartItemType: 'pack' })),
-]
+const getOrderItems = (order) => {
+  const standaloneProducts = (order.products || [])
+    .filter(p => !p.pivot?.pack_id)
+    .map((product) => ({ ...product, cartItemType: 'product' }))
+  
+  const packProductsMap = new Map()
+  ;(order.products || [])
+    .filter(p => p.pivot?.pack_id)
+    .forEach(p => {
+      const packId = p.pivot.pack_id
+      if (!packProductsMap.has(packId)) {
+        packProductsMap.set(packId, [])
+      }
+      packProductsMap.get(packId).push(p)
+    })
+
+  const packs = (order.packs || []).map(pack => ({
+    ...pack,
+    cartItemType: 'pack',
+    products: packProductsMap.get(pack.id) || []
+  }))
+
+  return [...standaloneProducts, ...packs]
+}
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
 

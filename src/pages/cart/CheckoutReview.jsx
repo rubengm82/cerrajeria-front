@@ -107,10 +107,31 @@ function CheckoutReview() {
     loadCartOrder()
   }, [authLoading, user])
 
-  const products = [
-    ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
-    ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
-  ]
+  const products = user ? (() => {
+    const standaloneProducts = (cartOrder?.products || [])
+      .filter(p => !p.pivot?.pack_id)
+      .map((product) => ({ ...product, cartItemType: "product" }))
+    
+    const packProductsMap = new Map()
+    ;(cartOrder?.products || [])
+      .filter(p => p.pivot?.pack_id)
+      .forEach(p => {
+        const packId = p.pivot.pack_id
+        if (!packProductsMap.has(packId)) {
+          packProductsMap.set(packId, [])
+        }
+        packProductsMap.get(packId).push(p)
+      })
+
+    const packs = (cartOrder?.packs || []).map(pack => ({
+      ...pack,
+      cartItemType: "pack",
+      products: packProductsMap.get(pack.id) || []
+    }))
+
+    return [...standaloneProducts, ...packs]
+  })() : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product" || item.cartItemType === "pack")
+    .map((item) => ({ ...item, cartItemType: item.cartItemType || "product" }))
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
   const hasCustomerData = Boolean(

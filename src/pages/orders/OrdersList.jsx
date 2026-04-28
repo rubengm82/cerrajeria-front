@@ -476,10 +476,12 @@ function OrdersList() {
     : 'Gestiona i descarrega els teus albarans'
 
   const ordersWithAlbaran = useMemo(() => {
-    return orders.map(order => ({
-      ...order,
-      albaran_number: formatAlbaranNumber(order.id)
-    }))
+    return [...orders]
+      .sort((a, b) => b.id - a.id)
+      .map(order => ({
+        ...order,
+        albaran_number: formatAlbaranNumber(order.id)
+      }))
   }, [orders])
 
   const filteredByStatus = useMemo(() => {

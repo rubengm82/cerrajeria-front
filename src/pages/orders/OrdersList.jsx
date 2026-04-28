@@ -663,9 +663,9 @@ function OrdersList() {
           <table className="table table-zebra w-full">
              <thead>
                <tr>
-                 <th className="bg-base-200">ID Comanda</th>
+                 <th className="bg-base-200">Nombre Comanda</th>
                  {isAdmin && <th className="bg-base-200">Client</th>}
-                 <th className="bg-base-200">Data Albarà</th>
+                 <th className="bg-base-200">Data Comanda</th>
                  <th className="bg-base-200">Mètode Pagament</th>
                  <th className="bg-base-200">Estat Comanda</th>
                  <th className="bg-base-200">Instal·lació Data</th>

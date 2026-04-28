@@ -785,13 +785,14 @@ function OrdersList() {
                         })()}
                       </td>
                     )}
-                  <td>
+<td>
                     {(() => {
-                      const { subtotal, subtotalExcludingVat, iva } = getCartTotals(getOrderItems(order))
+                      const { subtotalExcludingVat, iva, keys: keysAmount } = getCartTotals(getOrderItems(order))
                       let shipping = Number(order.shipping_price || 0)
                       let installation = Number(order.installation_price || 0)
                       const isInstallation = isInstallationOrder(order)
                       const isOnline = !isInstallation
+                      const subtotal = subtotalExcludingVat
                       
                         if (settingsForm) {
                         if (isOnline && shipping === 0) {
@@ -809,6 +810,7 @@ function OrdersList() {
                           <div>Subtotal: {formatPrice(subtotalExcludingVat)}</div>
                           {shipping > 0 && !isInstallation && <div>Enviament: {formatPrice(shipping)}</div>}
                           {installation > 0 && isInstallation && <div>Instal·lació: {formatPrice(installation)}</div>}
+                          {keysAmount > 0 && <div>Claus: {formatPrice(keysAmount)}</div>}
                           <div>IVA: {formatPrice(iva)}</div>
                         </div>
                       )
@@ -816,7 +818,8 @@ function OrdersList() {
                   </td>
                    <td className="font-bold text-primary">
                      {(() => {
-                       const { subtotal } = getCartTotals(getOrderItems(order))
+                       const { subtotalExcludingVat, keys: keysAmount } = getCartTotals(getOrderItems(order))
+                       const subtotal = subtotalExcludingVat
                        let shipping = Number(order.shipping_price || 0)
                        let installation = Number(order.installation_price || 0)
                        const isInstallation = isInstallationOrder(order)
@@ -833,10 +836,10 @@ function OrdersList() {
                         }
                       }
 
-                       const total = subtotal + shipping + installation
+                       const total = subtotal + shipping + installation + keysAmount
                        return formatPrice(total)
                      })()}
-                  </td>
+                   </td>
                   <td>
                     <button
                       onClick={() => downloadAlbaran(order.id)}

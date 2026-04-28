@@ -5,6 +5,7 @@ import { HiArrowLeft } from "react-icons/hi2"
 import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { getCartOrder } from "../../api/orders_api"
+import { getProducts } from "../../api/products_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import CheckoutSkeleton from "../../components/CheckoutSkeleton"
 import OrderSummary from "../../components/OrderSummary"
@@ -108,6 +109,14 @@ function Checkout() {
     },
     retry: 1,
   })
+  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const response = await getProducts()
+      return response.data
+    },
+    retry: 1,
+  })
 
   const handleChange = (event) => {
     const { name, type, checked, value } = event.target
@@ -163,10 +172,59 @@ function Checkout() {
 
   const getFieldValue = (fieldName) => formData[fieldName] ?? getInitialFormData(user)[fieldName]
 
-  const products = [
-    ...(user ? cartOrder?.products || [] : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product")).map((product) => ({ ...product, cartItemType: "product" })),
-    ...(user ? cartOrder?.packs || [] : getLocalCartItems().filter((item) => item.cartItemType === "pack")).map((pack) => ({ ...pack, cartItemType: "pack" })),
-  ]
+  const currentProductsById = new Map(currentProducts.map((product) => [product.id, product]))
+
+  const mappedProducts = user
+    ? (cartOrder?.products || [])
+        .filter(p => !p.pivot?.pack_id)
+        .map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id),
+          cartItemType: "product",
+          pivot: p.pivot
+        }))
+    : getLocalCartItems()
+      .filter(item => (item.cartItemType || "product") === "product")
+      .map((item) => {
+        const currentProduct = currentProductsById.get(item.id)
+        return currentProduct
+          ? { ...item, ...currentProduct, cartItemType: "product", pivot: item.pivot }
+          : item
+      })
+
+  const packProducts = user 
+    ? (cartOrder?.products || [])
+        .filter(p => p.pivot?.pack_id)
+        .map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id),
+          pivot: p.pivot
+        }))
+    : []
+
+  const mappedPacks = user
+    ? (cartOrder?.packs || []).map(pack => ({
+        ...pack,
+        cartItemType: "pack",
+        products: packProducts.filter(p => p.pivot?.pack_id === pack.id)
+      }))
+    : getLocalCartItems()
+      .filter(item => item.cartItemType === "pack")
+      .map(packItem => {
+        const productsWithPivot = (packItem.products || []).map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id),
+          pivot: {
+            quantity: p.pivot?.quantity || packItem.pivot?.quantity || 1,
+            installation_requested: p.pivot?.installation_requested ?? false,
+            keys_requested: p.pivot?.keys_requested ?? false,
+            keys_quantity: p.pivot?.keys_quantity || 1,
+          },
+        }))
+        return { ...packItem, cartItemType: "pack", products: productsWithPivot }
+      })
+
+  const products = [...mappedProducts, ...mappedPacks]
   const hasInstallationProducts = hasInstallationSelected(products)
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const userDataDescriptionId = "checkout-user-data-description"

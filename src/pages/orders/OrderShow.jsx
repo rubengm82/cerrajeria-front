@@ -122,7 +122,7 @@ function OrderShow() {
 
     const orderItems = getOrderItems(order)
     const albaranNumber = formatAlbaranNumber(order.id)
-    const { subtotalExcludingVat, iva, shipping, installation, keysExcludingVat, total } = getCartTotals(orderItems, settings)
+    const { subtotalExcludingVat, iva, shippingExcludingVat, installationExcludingVat, keysExcludingVat, total, installation } = getCartTotals(orderItems, settings)
 
     const displayStatus = getEffectiveOrderStatus(order)
     const isInstallation = isInstallationOrder(order)
@@ -270,13 +270,13 @@ function OrderShow() {
               {installation === 0 && (
                 <div className="flex justify-between">
                   <span>Enviament:</span>
-                  <span>{shipping > 0 ? formatPrice(shipping) : 'Gratuït'}</span>
+                  <span>{shippingExcludingVat > 0 ? formatPrice(shippingExcludingVat) : 'Gratuït'}</span>
                 </div>
               )}
               {installation > 0 && (
                 <div className="flex justify-between">
                   <span>Instal·lació:</span>
-                  <span>{formatPrice(installation)}</span>
+                  <span>{formatPrice(installationExcludingVat)}</span>
                 </div>
               )}
               {keysExcludingVat > 0 && (

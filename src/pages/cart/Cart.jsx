@@ -186,7 +186,7 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
                     checked={keysChecked}
                     onChange={(event) => onKeysChange(product, event.target.checked, keysQuantity)}
                   />
-                  <span>Afegir claus ({formatPrice(getPriceExcludingVat(priceKeys))}/unitat)</span>
+                  <span>Afegir claus ({formatPrice(priceKeys)}/unitat)</span>
                 </label>
               )}
             </div>
@@ -195,7 +195,7 @@ function CartItem({ product, onQuantityChange, onInstallationChange, onKeysChang
           <div className="cart-item__prices">
             {hasDiscount && <span className="cart-item__old-price text-base-300">{formatPrice(oldLineTotal)}</span>}
             <strong className="cart-item__price">{formatPrice(lineTotal)}</strong>
-            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(getPriceExcludingVat(keysLineTotal))} Claus</span>}
+            {keysChecked && <span className="cart-item__keys-price text-base-400">+ {formatPrice(keysLineTotal)} Claus</span>}
           </div>
         </div>
       </div>
@@ -305,7 +305,6 @@ function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onP
                 <div key={`${pack.cartItemType}-${pack.id}-product-${product.id}`} className="cart-item__pack-product">
                   <div className="cart-item__pack-product-info">
                     <span className="cart-item__pack-product-name">{product.name}</span>
-                    <span className="cart-item__pack-product-price">{formatPrice(getPriceExcludingVat(productPriceKeys))}/unitat</span>
                   </div>
 
                   <div className="cart-item__pack-product-controls">
@@ -348,17 +347,11 @@ function CartPackItem({ pack, onQuantityChange, onProductInstallationChange, onP
                             checked={productKeysChecked}
                             onChange={(event) => onProductKeysChange(product, event.target.checked, productKeysQuantity, pack.id)}
                           />
-                          <span>Claus</span>
+                          <span>Afegir claus ({formatPrice(productPriceKeys)}/unitat)</span>
                         </label>
                       )}
                     </div>
                   </div>
-
-                  {productKeysChecked && (
-                    <div className="cart-item__pack-product-keys-total">
-                      <span className="text-base-400 text-xs">+ {formatPrice(getPriceExcludingVat(productKeysLineTotal))} Claus</span>
-                    </div>
-                  )}
                 </div>
               )
             })}

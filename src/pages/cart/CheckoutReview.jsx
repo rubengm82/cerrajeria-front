@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
 import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
+import { getProducts } from "../../api/products_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import CheckoutSkeleton from "../../components/CheckoutSkeleton"
 import Notifications from "../../components/Notifications"
@@ -84,6 +85,14 @@ function CheckoutReview() {
     },
     retry: 1,
   })
+  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const response = await getProducts()
+      return response.data
+    },
+    retry: 1,
+  })
 
   useEffect(() => {
     const loadCartOrder = async () => {
@@ -107,37 +116,54 @@ function CheckoutReview() {
     loadCartOrder()
   }, [authLoading, user])
 
+  const currentProductsById = new Map(currentProducts.map((product) => [product.id, product]))
+
   const products = user ? (() => {
     const standaloneProducts = (cartOrder?.products || [])
       .filter(p => !p.pivot?.pack_id)
-      .map((product) => ({ ...product, cartItemType: "product" }))
+      .map(p => ({
+        ...p,
+        ...currentProductsById.get(p.id),
+        cartItemType: "product",
+        pivot: p.pivot
+      }))
     
-    const packProductsMap = new Map()
-    ;(cartOrder?.products || [])
+    const packProducts = (cartOrder?.products || [])
       .filter(p => p.pivot?.pack_id)
-      .forEach(p => {
-        const packId = p.pivot.pack_id
-        if (!packProductsMap.has(packId)) {
-          packProductsMap.set(packId, [])
-        }
-        packProductsMap.get(packId).push(p)
-      })
+      .map(p => ({
+        ...p,
+        ...currentProductsById.get(p.id),
+        pivot: p.pivot
+      }))
 
     const packs = (cartOrder?.packs || []).map(pack => ({
       ...pack,
       cartItemType: "pack",
-      products: (packProductsMap.get(pack.id) || []).map(p => ({
-        ...p,
-        pivot: {
-          ...p.pivot,
-          quantity: p.pivot?.quantity || pack.pivot?.quantity || 1,
-        }
-      }))
+      products: packProducts.filter(p => p.pivot?.pack_id === pack.id)
     }))
 
     return [...standaloneProducts, ...packs]
-  })() : getLocalCartItems().filter((item) => (item.cartItemType || "product") === "product" || item.cartItemType === "pack")
-    .map((item) => ({ ...item, cartItemType: item.cartItemType || "product" }))
+  })() : getLocalCartItems()
+    .filter(item => (item.cartItemType || "product") === "product" || item.cartItemType === "pack")
+    .map((item) => {
+      if (item.cartItemType === "pack") {
+        const productsWithPivot = (item.products || []).map(p => ({
+          ...p,
+          ...currentProductsById.get(p.id),
+          pivot: {
+            quantity: p.pivot?.quantity || item.pivot?.quantity || 1,
+            installation_requested: p.pivot?.installation_requested ?? false,
+            keys_requested: p.pivot?.keys_requested ?? false,
+            keys_quantity: p.pivot?.keys_quantity || 1,
+          },
+        }))
+        return { ...item, products: productsWithPivot }
+      }
+      const currentProduct = currentProductsById.get(item.id)
+      return currentProduct
+        ? { ...item, ...currentProduct, cartItemType: "product", pivot: item.pivot }
+        : item
+    })
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
   const hasCustomerData = Boolean(

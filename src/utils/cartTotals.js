@@ -101,27 +101,30 @@ export const getCartTotals = (products = [], settings = {}) => {
   const itemCount = allProducts.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
   
   const subtotalGross = getCartSubtotal(products)
+  const subtotalNet = getPriceExcludingVat(subtotalGross)
+  
   const hasInstallation = hasInstallationSelected(allProducts)
   const installationGross = getInstallationPrice(allProducts, settings)
   const shippingGross = hasInstallation ? 0 : Number(settings?.shipping_price || 0)
-  const keysGross = getKeysPrice(allProducts)
-
-  const totalGross = subtotalGross + shippingGross + installationGross + keysGross
   
-  const totalNet = getPriceExcludingVat(totalGross)
-  const totalIva = totalGross - totalNet
+  const keysGross = getKeysPrice(allProducts)
+  const keysNet = getPriceExcludingVat(keysGross)
+
+  // El IVA solo se calcula sobre productos y llaves
+  const taxableIva = (subtotalGross - subtotalNet) + (keysGross - keysNet)
+  const totalGross = subtotalGross + shippingGross + installationGross + keysGross
 
   return {
     itemCount,
     subtotal: subtotalGross,
-    subtotalExcludingVat: getPriceExcludingVat(subtotalGross),
+    subtotalExcludingVat: subtotalNet,
     shipping: shippingGross,
-    shippingExcludingVat: getPriceExcludingVat(shippingGross),
+    shippingExcludingVat: shippingGross, // No se descuenta IVA
     installation: installationGross,
-    installationExcludingVat: getPriceExcludingVat(installationGross),
+    installationExcludingVat: installationGross, // No se descuenta IVA
     keys: keysGross,
-    keysExcludingVat: getPriceExcludingVat(keysGross),
-    iva: totalIva,
+    keysExcludingVat: keysNet,
+    iva: taxableIva,
     total: totalGross,
   }
 }

@@ -594,8 +594,8 @@ function Cart() {
     navigate("/checkout")
   }
 
-  const handleInstallationChange = async (product, installationRequested) => {
-    if (!isProductInstallable(product) || product.cartItemType === "pack") {
+  const handleInstallationChange = async (product, installationRequested, packId = null) => {
+    if (!isProductInstallable(product) || (product.cartItemType === "pack" && !packId)) {
       return
     }
 
@@ -606,19 +606,15 @@ function Cart() {
         if (!old) return old
         return {
           ...old,
-          products: old.products.map((p) =>
-            p.id === product.id
+          products: old.products.map((p) => {
+            const isTarget = packId 
+              ? (p.id === product.id && p.pivot?.pack_id === packId)
+              : (p.id === product.id && !p.pivot?.pack_id);
+            
+            return isTarget
               ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
-              : p
-          ),
-          packs: (old.packs || []).map(pack => ({
-            ...pack,
-            products: (pack.products || []).map(p =>
-              p.id === product.id
-                ? { ...p, pivot: { ...p.pivot, installation_requested: installationRequested } }
-                : p
-            ),
-          })),
+              : p;
+          }),
         }
       })
     }
@@ -628,10 +624,11 @@ function Cart() {
         await updateCartProduct(product.id, {
           quantity: getItemQuantity(product),
           installation_requested: installationRequested,
+          pack_id: packId
         })
       } else {
         const nextCartItems = getLocalCartItems().map((item) => {
-          if ((item.cartItemType || "product") === "pack" && item.products) {
+          if ((item.cartItemType || "product") === "pack" && item.products && item.id === packId) {
             return {
               ...item,
               products: item.products.map((p) =>
@@ -641,7 +638,7 @@ function Cart() {
               ),
             }
           }
-          if (item.id === product.id) {
+          if (item.id === product.id && !packId) {
             return { ...item, pivot: { ...item.pivot, installation_requested: installationRequested } }
           }
           return item
@@ -657,8 +654,8 @@ function Cart() {
     }
   }
 
-  const handleKeysChange = async (product, keysRequested, keysQuantity) => {
-    if (!hasProductKeys(product) || product.cartItemType === "pack") {
+  const handleKeysChange = async (product, keysRequested, keysQuantity, packId = null) => {
+    if (!hasProductKeys(product) || (product.cartItemType === "pack" && !packId)) {
       return
     }
 
@@ -670,19 +667,15 @@ function Cart() {
         if (!old) return old
         return {
           ...old,
-          products: old.products.map((p) =>
-            p.id === product.id
+          products: old.products.map((p) => {
+            const isTarget = packId 
+              ? (p.id === product.id && p.pivot?.pack_id === packId)
+              : (p.id === product.id && !p.pivot?.pack_id);
+
+            return isTarget
               ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
-              : p
-          ),
-          packs: (old.packs || []).map(pack => ({
-            ...pack,
-            products: (pack.products || []).map(p =>
-              p.id === product.id
-                ? { ...p, pivot: { ...p.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
-                : p
-            ),
-          })),
+              : p;
+          }),
         }
       })
     }
@@ -693,10 +686,11 @@ function Cart() {
           quantity: getItemQuantity(product),
           keys_requested: keysRequested,
           keys_quantity: quantity,
+          pack_id: packId
         })
       } else {
         const nextCartItems = getLocalCartItems().map((item) => {
-          if ((item.cartItemType || "product") === "pack" && item.products) {
+          if ((item.cartItemType || "product") === "pack" && item.products && item.id === packId) {
             return {
               ...item,
               products: item.products.map((p) =>
@@ -706,7 +700,7 @@ function Cart() {
               ),
             }
           }
-          if (item.id === product.id) {
+          if (item.id === product.id && !packId) {
             return { ...item, pivot: { ...item.pivot, keys_requested: keysRequested, keys_quantity: quantity } }
           }
           return item
@@ -728,7 +722,7 @@ function Cart() {
         if (product.cartItemType === "pack") {
           await removeCartPack(product.id)
         } else {
-          await removeCartProduct(product.id)
+          await removeCartProduct(product.id, { pack_id: product.pivot?.pack_id || null })
         }
         queryClient.invalidateQueries({ queryKey: ["cart-order"] })
       } else {

@@ -99,24 +99,29 @@ export const getCartTotals = (products = [], settings = {}) => {
   )
 
   const itemCount = allProducts.reduce((total, product) => total + Number(product?.pivot?.quantity || 0), 0)
-  const subtotal = getCartSubtotal(products)
+  
+  const subtotalGross = getCartSubtotal(products)
   const hasInstallation = hasInstallationSelected(allProducts)
+  const installationGross = getInstallationPrice(allProducts, settings)
+  const shippingGross = hasInstallation ? 0 : Number(settings?.shipping_price || 0)
+  const keysGross = getKeysPrice(allProducts)
 
-  const installation = getInstallationPrice(allProducts, settings)
-  const shipping = hasInstallation ? 0 : Number(settings?.shipping_price || 0)
-
-  const keys = getKeysPrice(allProducts)
-  const subtotalExcludingVat = getCartSubtotalExcludingVat(products)
-  const iva = getCartVat(products) + getVatFromGrossPrice(keys)
+  const totalGross = subtotalGross + shippingGross + installationGross + keysGross
+  
+  const totalNet = getPriceExcludingVat(totalGross)
+  const totalIva = totalGross - totalNet
 
   return {
     itemCount,
-    subtotal,
-    subtotalExcludingVat,
-    shipping,
-    installation,
-    keys,
-    iva,
-    total: subtotal + shipping + installation + keys,
+    subtotal: subtotalGross,
+    subtotalExcludingVat: getPriceExcludingVat(subtotalGross),
+    shipping: shippingGross,
+    shippingExcludingVat: getPriceExcludingVat(shippingGross),
+    installation: installationGross,
+    installationExcludingVat: getPriceExcludingVat(installationGross),
+    keys: keysGross,
+    keysExcludingVat: getPriceExcludingVat(keysGross),
+    iva: totalIva,
+    total: totalGross,
   }
 }

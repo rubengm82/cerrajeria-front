@@ -813,15 +813,18 @@ function OrdersList() {
                     )}
 <td>
                     {(() => {
-                      const { subtotalExcludingVat, iva, shipping, installation, keys: keysAmount } = getCartTotals(getOrderItems(order), settingsForm)
-                      const isInstallation = isInstallationOrder(order)
+                      const { subtotalExcludingVat, iva, shippingExcludingVat, installationExcludingVat, keysExcludingVat, installation } = getCartTotals(getOrderItems(order), settingsForm)
 
                       return (
                         <div className="text-left text-xs">
                           <div>Subtotal: {formatPrice(subtotalExcludingVat)}</div>
-                          {installation === 0 && <div>Enviament: {shipping > 0 ? formatPrice(shipping) : 'Gratuït'}</div>}
-                          {installation > 0 && <div>Instal·lació: {formatPrice(installation)}</div>}
-                          {keysAmount > 0 && <div>Claus: {formatPrice(keysAmount)}</div>}
+                          {keysExcludingVat > 0 && <div>Claus: {formatPrice(keysExcludingVat)}</div>}
+                          {installation === 0 && (
+                            <div>Enviament: {shippingExcludingVat > 0 ? formatPrice(shippingExcludingVat) : 'Gratuït'}</div>
+                          )}
+                          {installation > 0 && (
+                            <div>Instal·lació: {formatPrice(installationExcludingVat)}</div>
+                          )}
                           <div>IVA: {formatPrice(iva)}</div>
                         </div>
                       )

@@ -74,8 +74,11 @@ export const getInstallationPrice = (products = [], settings = {}) => {
     return 0
   }
 
-  const cartSubtotal = getCartSubtotal(products)
-  const matchingRule = getMatchingInstallationRule(cartSubtotal, settings)
+  const installableProducts = products.filter(
+    (product) => isProductInstallable(product) && Boolean(product?.pivot?.installation_requested)
+  )
+  const installableSubtotal = getCartSubtotal(installableProducts)
+  const matchingRule = getMatchingInstallationRule(installableSubtotal, settings)
 
   return Number(matchingRule?.price || 0)
 }

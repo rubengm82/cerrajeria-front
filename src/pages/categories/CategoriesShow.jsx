@@ -42,6 +42,11 @@ function CategoriesShow() {
   const categoryProducts = Object.values(category?.products || {})
   const products = productsData || []
 
+  const getProductWithImages = (categoryProduct) => {
+    const fullProduct = products.find(p => p.id === categoryProduct.id)
+    return fullProduct || categoryProduct
+  }
+
   const openProductModal = async (product) => {
     setSelectedProduct(product)
     setIsLoadingSelectedProduct(true)
@@ -76,7 +81,7 @@ function CategoriesShow() {
           <h1 id="category-detail-title" className="mt-1 text-4xl font-medium tracking-tight sm:text-3xl mb-10">{category.name}:</h1>
           <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {categoryProducts.length > 0 ? categoryProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onView={openProductModal} />
+            <ProductCard key={product.id} product={getProductWithImages(product)} onView={openProductModal} />
           )) : <p className='col-span-full font-semibold text-2xl'>Actualment no hi ha productes</p> }
           </div>
         </div>

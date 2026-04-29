@@ -7,19 +7,11 @@ import { HiDocumentDownload, HiTrash, HiEye, HiCog, HiPlus, HiX } from 'react-ic
 import LoadingAnimation from '../../components/LoadingAnimation'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import Notifications from '../../components/Notifications'
-import { formatPrice, getCartTotals, getMatchingInstallationRule } from '../../utils/cartTotals'
+import { formatPrice, getCartTotals } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
-import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
+import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder } from '../../utils/orderStatus'
 import { getAuthCookie } from '../../utils/authCookie'
 const SETTINGS_SAVE_DEBOUNCE_MS = 500
-
-const getOrderCustomerName = (order) => (
-  [
-    order.customer_name ?? order.user?.name,
-    order.customer_last_name_one ?? order.user?.last_name_one,
-    order.customer_last_name_second ?? order.user?.last_name_second,
-  ].filter(Boolean).join(' ')
-)
 
 const getOrderItems = (order) => {
   const standaloneProducts = (order.products || [])
@@ -476,7 +468,7 @@ function OrdersList() {
     ? 'Gestiona totes les comandes i descarrega els albarans'
     : 'Gestiona i descarrega els teus albarans'
 
-  const ordersWithAlbaran = useMemo(() => {
+  const ordersSorted = useMemo(() => {
     return [...orders]
       .sort((a, b) => b.id - a.id)
       .map(order => ({
@@ -486,9 +478,9 @@ function OrdersList() {
   }, [orders])
 
   const filteredByStatus = useMemo(() => {
-    if (!isAdmin) return ordersWithAlbaran
+    if (!isAdmin) return ordersSorted
 
-    return ordersWithAlbaran.filter(order => {
+    return ordersSorted.filter(order => {
       // Filtro por tipo
       if (filters.type === 'orders') {
         if (INSTALLATION_STATUSES.includes(order.status)) return false
@@ -510,7 +502,7 @@ function OrdersList() {
 
       return true
     })
-  }, [ordersWithAlbaran, filters, isAdmin])
+  }, [ordersSorted, filters, isAdmin])
 
   if (loading) {
     return (

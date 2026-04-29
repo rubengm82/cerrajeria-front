@@ -4,16 +4,8 @@ import { getOrder } from '../../api/orders_api'
 import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
-import { formatPrice, getCartTotals, getMatchingInstallationRule, getPriceExcludingVat, getProductPrice, hasProductKeys } from '../../utils/cartTotals'
-import { getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
-
-const getOrderCustomerName = (order) => (
-  [
-    order.customer_name ?? order.user?.name,
-    order.customer_last_name_one ?? order.user?.last_name_one,
-    order.customer_last_name_second ?? order.user?.last_name_second,
-  ].filter(Boolean).join(' ')
-)
+import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, hasProductKeys } from '../../utils/cartTotals'
+import { getEffectiveOrderStatus, isInstallationOrder } from '../../utils/orderStatus'
 
 const getOrderItems = (order) => {
   const standaloneProducts = (order.products || [])
@@ -126,7 +118,6 @@ function OrderShow() {
 
     const displayStatus = getEffectiveOrderStatus(order)
     const isInstallation = isInstallationOrder(order)
-    const hasRequestedInstallation = orderHasInstallation(order)
 
   return (
     <div className="p-4 md:p-0">
@@ -178,7 +169,7 @@ function OrderShow() {
           <div>
             <h2 className="text-xl font-semibold mb-2">Informació del Client</h2>
             <div className="space-y-1 text-sm">
-              <p><span className="font-medium">Nom:</span> {getOrderCustomerName(order)}</p>
+              <p><span className="font-medium">Nom:</span> {[order.customer_name ?? order.user?.name, order.customer_last_name_one ?? order.user?.last_name_one, order.customer_last_name_second ?? order.user?.last_name_second].filter(Boolean).join(' ')}</p>
               <p><span className="font-medium">Correu:</span> {order.customer_email || order.user?.email || ''}</p>
               <p><span className="font-medium">Telèfon:</span> {order.customer_phone || order.user?.phone || ''}</p>
               <p><span className="font-medium">DNI:</span> {order.customer_dni || order.user?.dni || ''}</p>
@@ -188,7 +179,7 @@ function OrderShow() {
               {order.billing_address && (
                 <p><span className="font-medium">Adreça de Facturació:</span> {[order.billing_address, order.billing_zip_code, order.billing_province, order.billing_country].filter(Boolean).join(', ')}</p>
               )}
-              {hasRequestedInstallation && (
+              {isInstallation && (
                 <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address || order.shipping_address || ''}</p>
               )}
                <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>

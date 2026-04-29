@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getAuthCookie, deleteAuthCookie } from '../utils/authCookie'
 
 // Instancia de axios configurada
 const api = axios.create({
@@ -18,8 +19,8 @@ api.interceptors.request.use(
       config.headers['X-CSRF-TOKEN'] = csrfToken
     }
 
-    // Obtener el token de autenticación del localStorage
-    const token = localStorage.getItem('token')
+    // Obtener el token de autenticación de la cookie
+    const token = getAuthCookie()
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
@@ -67,7 +68,7 @@ api.interceptors.response.use(
         case 401:
           // Solo redirigir a home si NO estamos en una ruta pública
           if (!isPublicRoute) {
-            localStorage.removeItem('token')
+            deleteAuthCookie()
             localStorage.removeItem('user')
             window.location.href = '/'
           }

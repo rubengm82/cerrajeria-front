@@ -10,6 +10,7 @@ import Notifications from '../../components/Notifications'
 import { formatPrice, getCartTotals, getMatchingInstallationRule } from '../../utils/cartTotals'
 import SearchBarTableSimple from '../../components/SearchBarTableSimple'
 import { INSTALLATION_STATUSES, getEffectiveOrderStatus, isInstallationOrder, orderHasInstallation } from '../../utils/orderStatus'
+import { getAuthCookie } from '../../utils/authCookie'
 const SETTINGS_SAVE_DEBOUNCE_MS = 500
 
 const getOrderCustomerName = (order) => (
@@ -413,7 +414,7 @@ function OrdersList() {
   const downloadAlbaran = async (orderId) => {
     try {
       // Get the authentication token
-      const token = localStorage.getItem('token')
+      const token = getAuthCookie()
       if (!token) {
         alert('Debes iniciar sesión para descargar albaranes')
         return

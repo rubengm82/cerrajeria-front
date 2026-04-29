@@ -6,6 +6,7 @@ import LoadingAnimation from '../../components/LoadingAnimation'
 import Notifications from '../../components/Notifications'
 import ConfirmableModal from '../../components/ConfirmableModal'
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
+import { deleteAuthCookie } from '../../utils/authCookie'
 
 // Lista de provincias de España
 const provinciasEspana = [
@@ -229,7 +230,7 @@ function EditMyProfile() {
     setLoading(true)
     try {
       await deleteUser(authUser.id)
-      localStorage.removeItem('token')
+      deleteAuthCookie()
       localStorage.removeItem('user')
       window.location.href = '/'
     } catch (err) {

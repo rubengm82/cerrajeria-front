@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { mergeGuestCart } from '../api/orders_api'
 import { clearLocalCart, getLocalCartMergeItems } from '../utils/localCart'
+import { setAuthCookie, getAuthCookie, deleteAuthCookie } from '../utils/authCookie'
 
 export const AuthContext = createContext()
 
@@ -16,7 +17,7 @@ export function AuthProvider({ children }) {
   // USER
   useEffect(() => {
     const timer = setTimeout(() => {
-      const token = localStorage.getItem('token')
+      const token = getAuthCookie()
       const userData = localStorage.getItem('user')
       if (token && userData) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -24,7 +25,7 @@ export function AuthProvider({ children }) {
       }
       setLoading(false)
     }, 0)
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
     const response = await axios.post('/api/login', { email, password })
     const { token, user } = response.data
     
-    localStorage.setItem('token', token)
+    setAuthCookie(token)
     localStorage.setItem('user', JSON.stringify(user))
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
@@ -58,7 +59,7 @@ export function AuthProvider({ children }) {
     const isProtectedRoute = protectedRoutes.some(route => currentPath.startsWith(route))
     
     // Eliminar token y usuario inmediatamente
-    localStorage.removeItem('token')
+    deleteAuthCookie()
     localStorage.removeItem('user')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)

@@ -85,7 +85,7 @@ function CheckoutReview() {
     },
     retry: 1,
   })
-  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+  const { data: currentProducts = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const response = await getProducts()
@@ -166,6 +166,7 @@ function CheckoutReview() {
     })
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
+  const hasCartItems = products.length > 0
   const hasCustomerData = Boolean(
     customerData.name &&
     customerData.email &&
@@ -176,6 +177,20 @@ function CheckoutReview() {
     (!customerData.use_installation_address || (customerData.installation_address && customerData.installation_zip_code && customerData.installation_province))
   )
   const hasPaymentMethod = Boolean(paymentMethod)
+
+  useEffect(() => {
+    if (authLoading || (user && isLoading)) {
+      return
+    }
+
+    if (!isError && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+      navigate("/cart", { replace: true })
+    }
+  }, [authLoading, hasCartItems, hasCustomerData, hasPaymentMethod, isError, isLoading, navigate, user])
+
+  if (!isError && !authLoading && !(user && isLoading) && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+    return null
+  }
 
   const handleConfirm = () => {
     setNotification(null)
@@ -331,12 +346,6 @@ function CheckoutReview() {
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
       <p className="text-base-400">Torna-ho a provar d'aquí a uns instants.</p>
-    </div>
-  ) : (user && !cartOrder) || products.length === 0 ? (
-    <div className="checkout-page__notice checkout-page__notice--empty">
-      <h2>No hi ha productes per tramitar</h2>
-      <p className="text-base-400">Afegeix productes al carret abans de continuar.</p>
-      <Link to="/products" className="btn btn-primary">Veure productes</Link>
     </div>
   ) : (
     <>

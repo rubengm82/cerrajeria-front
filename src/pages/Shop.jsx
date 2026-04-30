@@ -5,7 +5,8 @@ import { getImportantCategories } from "../api/categories_api";
 import ProductCard from '../components/ProductCard'
 import CategoryCard from '../components/CategoryCard'
 import ProductDetailModal from '../components/ProductDetailModal'
-import { Link, useNavigate } from 'react-router-dom';
+import Notifications from '../components/Notifications'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react';
 import '../../scss/main_shop.scss'
@@ -15,6 +16,13 @@ const categorySkeletons = Array.from({ length: 5 })
 
 function Shop() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const locationState = location.state
+  const [notification, setNotification] = useState(locationState?.notificationMessage ? {
+    id: Date.now(),
+    type: locationState.notificationType || "info",
+    message: locationState.notificationMessage,
+  } : null)
   
   // Estado para el modal de ver producto
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -68,6 +76,15 @@ function Shop() {
 
   return (
     <div className="shop-home">
+      {notification && (
+        <Notifications
+          key={notification.id}
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className='shop-home__top'>
         <div className="shop-home__container shop-home__container--hero">
           <section className="hero-box">

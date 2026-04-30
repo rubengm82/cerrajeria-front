@@ -459,6 +459,10 @@ function Cart() {
       return response.data
     },
     enabled: Boolean(user),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 1,
   })
   const { data: commerceSettings } = useQuery({

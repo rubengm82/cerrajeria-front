@@ -22,6 +22,10 @@ export const mergeGuestCart = (items, token = null) => api.post(
 // Crear un pedido desde checkout público o invitado
 export const createCheckoutOrder = (checkoutData) => api.post('/checkout/orders', checkoutData)
 
+// Crear y confirmar una sesión de Stripe Checkout para pagos con tarjeta
+export const createStripeCheckoutSession = (checkoutData) => api.post('/checkout/stripe/session', checkoutData)
+export const confirmStripeCheckoutSession = (sessionId) => api.post('/checkout/stripe/session/confirm', { session_id: sessionId })
+
 // Añadir un producto al carrito del usuario autenticado
 export const addProductToCart = (cartData) => api.post('/orders/cart/products', cartData)
 

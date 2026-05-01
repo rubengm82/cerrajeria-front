@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { HiArrowLeft, HiOutlinePhoto } from "react-icons/hi2"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../../context/AuthContext"
 import { getCommerceSettings } from "../../api/commerce_settings_api"
-import { createCheckoutOrder, getCartOrder, updateOrder } from "../../api/orders_api"
+import { confirmStripeCheckoutSession, createCheckoutOrder, createStripeCheckoutSession, getCartOrder } from "../../api/orders_api"
 import { getProducts } from "../../api/products_api"
 import CheckoutSteps from "../../components/CheckoutSteps"
 import CheckoutSkeleton from "../../components/CheckoutSkeleton"
@@ -26,6 +26,30 @@ const paymentLabels = {
 const getImportantImage = (product) => (
   product?.images?.find((image) => image.is_important === true || image.is_important === 1) || product?.images?.[0]
 )
+
+const buildCheckoutItems = (items) => items.map((item) => {
+  const baseItem = {
+    type: item.cartItemType || "product",
+    id: item.id,
+    quantity: Number(item.pivot?.quantity || 1),
+    installation_requested: Boolean(item.pivot?.installation_requested),
+    keys_requested: Boolean(item.pivot?.keys_requested),
+    keys_quantity: Number(item.pivot?.keys_quantity || 1),
+  }
+
+  if (item.cartItemType === "pack" && item.products) {
+    baseItem.products = item.products.map((product) => ({
+      id: product.id,
+      pivot: {
+        installation_requested: Boolean(product.pivot?.installation_requested),
+        keys_requested: Boolean(product.pivot?.keys_requested),
+        keys_quantity: Number(product.pivot?.keys_quantity || 1),
+      },
+    }))
+  }
+
+  return baseItem
+})
 
 function CheckoutReviewProduct({ product }) {
   const quantity = Number(product?.pivot?.quantity || 1)
@@ -68,13 +92,17 @@ function CheckoutReviewProduct({ product }) {
 
 function CheckoutReview() {
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
   const { user, loading: authLoading } = useAuth()
   const [cartOrder, setCartOrder] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
+  const [hasLoadedCartOrder, setHasLoadedCartOrder] = useState(false)
   const [isConfirming, setIsConfirming] = useState(false)
+  const [isConfirmingStripeReturn, setIsConfirmingStripeReturn] = useState(false)
   const [notification, setNotification] = useState(null)
+  const [dismissedStripeStatus, setDismissedStripeStatus] = useState(null)
   const customerData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
   const paymentMethod = sessionStorage.getItem(checkoutPaymentKey) || ""
   const { data: commerceSettings } = useQuery({
@@ -85,7 +113,7 @@ function CheckoutReview() {
     },
     retry: 1,
   })
-  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+  const { data: currentProducts = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const response = await getProducts()
@@ -97,11 +125,15 @@ function CheckoutReview() {
   useEffect(() => {
     const loadCartOrder = async () => {
       if (authLoading || !user) {
+        if (!authLoading && !user) {
+          setHasLoadedCartOrder(true)
+        }
         return
       }
 
       setIsLoading(true)
       setIsError(false)
+      setHasLoadedCartOrder(false)
 
       try {
         const response = await getCartOrder()
@@ -110,6 +142,7 @@ function CheckoutReview() {
         setIsError(true)
       } finally {
         setIsLoading(false)
+        setHasLoadedCartOrder(true)
       }
     }
 
@@ -166,6 +199,7 @@ function CheckoutReview() {
     })
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const reviewDescriptionId = "checkout-review-description"
+  const hasCartItems = products.length > 0
   const hasCustomerData = Boolean(
     customerData.name &&
     customerData.email &&
@@ -176,6 +210,156 @@ function CheckoutReview() {
     (!customerData.use_installation_address || (customerData.installation_address && customerData.installation_zip_code && customerData.installation_province))
   )
   const hasPaymentMethod = Boolean(paymentMethod)
+  const isCardPayment = paymentMethod === "card"
+  const stripeStatus = new URLSearchParams(location.search).get("stripe_status")
+  const stripeSessionId = new URLSearchParams(location.search).get("session_id")
+  const stripeCancelledNotification = stripeStatus === "cancelled" && dismissedStripeStatus !== "cancelled"
+    ? {
+        id: "stripe-cancelled",
+        type: "info",
+        message: "Has cancel.lat el pagament amb targeta. Pots revisar la comanda i tornar-ho a provar.",
+      }
+    : null
+
+  useEffect(() => {
+    if (authLoading || (user && (!hasLoadedCartOrder || isLoading))) {
+      return
+    }
+
+    if (!isError && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+      navigate("/cart", { replace: true })
+    }
+  }, [authLoading, hasCartItems, hasCustomerData, hasLoadedCartOrder, hasPaymentMethod, isError, isLoading, navigate, user])
+
+  useEffect(() => {
+    if (!stripeStatus || authLoading) {
+      return
+    }
+
+    if (stripeStatus !== "success") {
+      return
+    }
+
+    if (!stripeSessionId) {
+      setNotification({
+        id: Date.now(),
+        type: "error",
+        message: "Stripe ha tornat sense identificador de sessió. No podem confirmar el pagament.",
+      })
+      return
+    }
+
+    const confirmStripeReturn = async () => {
+      setIsConfirmingStripeReturn(true)
+
+      try {
+        const response = await confirmStripeCheckoutSession(stripeSessionId)
+        const paymentStatus = response.data?.payment_status
+
+        if (paymentStatus !== "paid") {
+          setNotification({
+            id: Date.now(),
+            type: "info",
+            message: "El pagament encara no consta com a completat. Si us plau, espera uns instants i torna-ho a provar.",
+          })
+          return
+        }
+
+        sessionStorage.removeItem(checkoutDataKey)
+        sessionStorage.removeItem(checkoutPaymentKey)
+
+        if (!user) {
+          clearLocalCart()
+        }
+
+        queryClient.setQueryData(["cart-order"], null)
+        queryClient.invalidateQueries({ queryKey: ["products"] })
+        queryClient.invalidateQueries({ queryKey: ["packs"] })
+        queryClient.invalidateQueries({ queryKey: ["cart-order"] })
+
+        navigate("/", {
+          replace: true,
+          state: {
+            notificationType: "success",
+            notificationMessage: "El pagament amb targeta s'ha completat correctament.",
+          },
+        })
+      } catch (error) {
+        const validationMessage = error.response?.data?.errors
+          ? Object.values(error.response.data.errors)[0]?.[0]
+          : null
+
+        setNotification({
+          id: Date.now(),
+          type: "error",
+          message: validationMessage || error.response?.data?.message || "No hem pogut confirmar el pagament amb Stripe.",
+        })
+      } finally {
+        setIsConfirmingStripeReturn(false)
+      }
+    }
+
+    confirmStripeReturn()
+  }, [authLoading, navigate, queryClient, stripeSessionId, stripeStatus, user])
+
+  if (!isError && !authLoading && !(user && (!hasLoadedCartOrder || isLoading)) && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+    return null
+  }
+
+  const buildCheckoutPayload = () => {
+    const order = {
+      shipping_address: customerData.shipping_address,
+      shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
+      shipping_province: customerData.shipping_province || customerData.province,
+      shipping_country: customerData.shipping_country || customerData.country,
+      billing_address: customerData.use_billing_address ? customerData.billing_address : null,
+      billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
+      billing_province: customerData.use_billing_address ? customerData.billing_province : null,
+      billing_country: customerData.use_billing_address ? customerData.billing_country : null,
+      payment_method: paymentMethod,
+    }
+
+    if (customerData.use_installation_address) {
+      order.installation_address = customerData.installation_address
+      order.installation_zip_code = customerData.installation_zip_code
+      order.installation_province = customerData.installation_province
+      order.installation_country = customerData.installation_country
+    }
+
+    return {
+      customer: {
+        name: customerData.name,
+        last_name_one: customerData.last_name_one,
+        last_name_second: customerData.last_name_second,
+        dni: customerData.dni,
+        phone: customerData.phone,
+        email: customerData.email,
+        address: customerData.address,
+        zip_code: customerData.zip_code,
+        province: customerData.province,
+        country: customerData.country,
+        billing_address: customerData.use_billing_address ? customerData.billing_address : null,
+        billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
+        billing_province: customerData.use_billing_address ? customerData.billing_province : null,
+        billing_country: customerData.use_billing_address ? customerData.billing_country : null,
+      },
+      order,
+      items: buildCheckoutItems(products),
+      success_url: `${window.location.origin}/checkout/review?stripe_status=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${window.location.origin}/checkout/review?stripe_status=cancelled`,
+      ...(user ? { user_id: user.id, cart_order_id: cartOrder?.id || null } : {}),
+    }
+  }
+
+  const buildRegularCheckoutPayload = () => {
+    const payload = buildCheckoutPayload()
+
+    return {
+      customer: payload.customer,
+      order: payload.order,
+      items: payload.items,
+    }
+  }
 
   const handleConfirm = () => {
     setNotification(null)
@@ -203,104 +387,32 @@ function CheckoutReview() {
     setIsConfirming(true)
 
     try {
-      if (user) {
-        const orderData = {
-          user_id: user.id,
-          customer_name: customerData.name,
-          customer_last_name_one: customerData.last_name_one,
-          customer_last_name_second: customerData.last_name_second,
-          customer_dni: customerData.dni,
-          customer_phone: customerData.phone,
-          customer_email: customerData.email,
-          customer_address: customerData.address,
-          customer_zip_code: customerData.zip_code,
-          customer_province: customerData.province,
-          customer_country: customerData.country,
-          billing_address: customerData.use_billing_address ? customerData.billing_address : null,
-          billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
-          billing_province: customerData.use_billing_address ? customerData.billing_province : null,
-          billing_country: customerData.use_billing_address ? customerData.billing_country : null,
-          shipping_address: customerData.shipping_address,
-          shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
-          shipping_province: customerData.shipping_province || customerData.province,
-          shipping_country: customerData.shipping_country || customerData.country,
-          installation_address: customerData.use_installation_address ? customerData.installation_address : null,
-          installation_zip_code: customerData.use_installation_address ? customerData.installation_zip_code : null,
-          installation_province: customerData.use_installation_address ? customerData.installation_province : null,
-          installation_country: customerData.use_installation_address ? customerData.installation_country : null,
-          payment_method: paymentMethod,
-          status: "pending",
+      if (isCardPayment) {
+        const response = await createStripeCheckoutSession(buildCheckoutPayload())
+        const checkoutUrl = response.data?.url || response.data?.checkout_url || response.data?.session_url
+
+        if (!checkoutUrl) {
+          throw new Error("stripe_checkout_url_missing")
         }
 
-        await updateOrder(cartOrder.id, orderData)
-      } else {
-        const checkoutOrderData = {
-          customer: {
-            name: customerData.name,
-            last_name_one: customerData.last_name_one,
-            last_name_second: customerData.last_name_second,
-            dni: customerData.dni,
-            phone: customerData.phone,
-            email: customerData.email,
-            address: customerData.address,
-            zip_code: customerData.zip_code,
-            province: customerData.province,
-            country: customerData.country,
-            billing_address: customerData.use_billing_address ? customerData.billing_address : null,
-            billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
-            billing_province: customerData.use_billing_address ? customerData.billing_province : null,
-            billing_country: customerData.use_billing_address ? customerData.billing_country : null,
-          },
-          order: {
-            shipping_address: customerData.shipping_address,
-            shipping_zip_code: customerData.shipping_zip_code || customerData.zip_code,
-            shipping_province: customerData.shipping_province || customerData.province,
-            shipping_country: customerData.shipping_country || customerData.country,
-            billing_address: customerData.use_billing_address ? customerData.billing_address : null,
-            billing_zip_code: customerData.use_billing_address ? customerData.billing_zip_code : null,
-            billing_province: customerData.use_billing_address ? customerData.billing_province : null,
-            billing_country: customerData.use_billing_address ? customerData.billing_country : null,
-            payment_method: paymentMethod,
-          },
-          items: products.map((item) => {
-            const baseItem = {
-              type: item.cartItemType || "product",
-              id: item.id,
-              quantity: Number(item.pivot?.quantity || 1),
-              installation_requested: Boolean(item.pivot?.installation_requested),
-              keys_requested: Boolean(item.pivot?.keys_requested),
-              keys_quantity: Number(item.pivot?.keys_quantity || 1),
-            }
+        window.location.href = checkoutUrl
+        return
+      }
 
-            if (item.cartItemType === "pack" && item.products) {
-              baseItem.products = item.products.map(p => ({
-                id: p.id,
-                pivot: {
-                  installation_requested: Boolean(p.pivot?.installation_requested),
-                  keys_requested: Boolean(p.pivot?.keys_requested),
-                  keys_quantity: Number(p.pivot?.keys_quantity || 1),
-                }
-              }))
-            }
-
-            return baseItem
-          }),
-        }
-
-        if (customerData.use_installation_address) {
-          checkoutOrderData.order.installation_address = customerData.installation_address
-          checkoutOrderData.order.installation_zip_code = customerData.installation_zip_code
-          checkoutOrderData.order.installation_province = customerData.installation_province
-          checkoutOrderData.order.installation_country = customerData.installation_country
-        }
-
+      {
+        const checkoutOrderData = buildRegularCheckoutPayload()
         await createCheckoutOrder(checkoutOrderData)
 
-        clearLocalCart()
+        if (!user) {
+          clearLocalCart()
+        } else {
+          setCartOrder(null)
+        }
       }
 
       sessionStorage.removeItem(checkoutDataKey)
       sessionStorage.removeItem(checkoutPaymentKey)
+      queryClient.setQueryData(["cart-order"], null)
       queryClient.invalidateQueries({ queryKey: ["products"] })
       queryClient.invalidateQueries({ queryKey: ["packs"] })
       queryClient.invalidateQueries({ queryKey: ["cart-order"] })
@@ -318,25 +430,21 @@ function CheckoutReview() {
       setNotification({
         id: Date.now(),
         type: "error",
-        message: validationMessage || error.response?.data?.message || "No hem pogut generar la comanda. Revisa les dades i torna-ho a provar.",
+        message: validationMessage || error.response?.data?.message || (isCardPayment
+          ? "No hem pogut iniciar el pagament amb Stripe. Revisa la configuració del backend i torna-ho a provar."
+          : "No hem pogut generar la comanda. Revisa les dades i torna-ho a provar."),
       })
     } finally {
       setIsConfirming(false)
     }
   }
 
-  const content = authLoading || (user && isLoading) ? (
+  const content = authLoading || (user && (!hasLoadedCartOrder || isLoading)) ? (
     <CheckoutSkeleton step={3} />
   ) : user && isError ? (
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
       <p className="text-base-400">Torna-ho a provar d'aquí a uns instants.</p>
-    </div>
-  ) : (user && !cartOrder) || products.length === 0 ? (
-    <div className="checkout-page__notice checkout-page__notice--empty">
-      <h2>No hi ha productes per tramitar</h2>
-      <p className="text-base-400">Afegeix productes al carret abans de continuar.</p>
-      <Link to="/products" className="btn btn-primary">Veure productes</Link>
     </div>
   ) : (
     <>
@@ -401,8 +509,8 @@ function CheckoutReview() {
           keys={keys}
           total={total}
           itemCount={itemCount}
-          buttonLabel={isConfirming ? "Generant comanda..." : "Confirmar comanda"}
-          disabled={isConfirming}
+          buttonLabel={isConfirming || isConfirmingStripeReturn ? (isCardPayment ? "Connectant amb Stripe..." : "Generant comanda...") : (isCardPayment ? "Pagar amb targeta" : "Confirmar comanda")}
+          disabled={isConfirming || isConfirmingStripeReturn}
           onAction={handleConfirm}
         />
       </div>
@@ -411,12 +519,19 @@ function CheckoutReview() {
 
   return (
     <section className="checkout-page" aria-label="Revisar comanda">
-      {notification && (
+      {(notification || stripeCancelledNotification) && (
         <Notifications
-          key={notification.id}
-          type={notification.type}
-          message={notification.message}
-          onClose={() => setNotification(null)}
+          key={(notification || stripeCancelledNotification).id}
+          type={(notification || stripeCancelledNotification).type}
+          message={(notification || stripeCancelledNotification).message}
+          onClose={() => {
+            if (notification) {
+              setNotification(null)
+              return
+            }
+
+            setDismissedStripeStatus("cancelled")
+          }}
         />
       )}
 

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft } from "react-icons/hi2"
@@ -14,6 +14,7 @@ import { getLocalCartItems } from "../../utils/localCart"
 import "../../../scss/main_shop.scss"
 
 const checkoutPaymentKey = "checkoutPaymentMethod"
+const checkoutDataKey = "checkoutCustomerData"
 
 function CheckoutPayment() {
   const navigate = useNavigate()
@@ -26,6 +27,10 @@ function CheckoutPayment() {
       return response.data
     },
     enabled: Boolean(user),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 1,
   })
   const { data: commerceSettings } = useQuery({
@@ -36,7 +41,7 @@ function CheckoutPayment() {
     },
     retry: 1,
   })
-  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+  const { data: currentProducts = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const response = await getProducts()
@@ -101,6 +106,31 @@ function CheckoutPayment() {
   const { itemCount, subtotalExcludingVat, iva, shipping, installation, keys, total } = getCartTotals(products, commerceSettings)
   const paymentDescriptionId = "checkout-payment-description"
   const paymentFormId = "checkout-payment-form"
+  const customerData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
+  const hasCartItems = products.length > 0
+  const hasCustomerData = Boolean(
+    customerData.name &&
+    customerData.email &&
+    customerData.shipping_address &&
+    customerData.zip_code &&
+    customerData.country &&
+    (!customerData.use_billing_address || (customerData.billing_address && customerData.billing_zip_code && customerData.billing_country)) &&
+    (!customerData.use_installation_address || (customerData.installation_address && customerData.installation_zip_code && customerData.installation_province))
+  )
+
+  useEffect(() => {
+    if (authLoading || (user && isLoading)) {
+      return
+    }
+
+    if (!isError && (!hasCartItems || !hasCustomerData)) {
+      navigate("/cart", { replace: true })
+    }
+  }, [authLoading, hasCartItems, hasCustomerData, isError, isLoading, navigate, user])
+
+  if (!isError && !authLoading && !(user && isLoading) && (!hasCartItems || !hasCustomerData)) {
+    return null
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -114,12 +144,6 @@ function CheckoutPayment() {
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
       <p className="text-base-400">Torna-ho a provar d'aquí a uns instants.</p>
-    </div>
-  ) : (user && !cartOrder) || products.length === 0 ? (
-    <div className="checkout-page__notice checkout-page__notice--empty">
-      <h2>No hi ha productes per tramitar</h2>
-      <p className="text-base-400">Afegeix productes al carret abans de continuar.</p>
-      <Link to="/products" className="btn btn-primary">Veure productes</Link>
     </div>
   ) : (
     <>

@@ -54,6 +54,10 @@ function ProductDetailModal({
       return response.data
     },
     enabled: Boolean(user && isOpen && !isAdmin),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 1,
   })
 

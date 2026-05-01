@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { HiArrowLeft } from "react-icons/hi2"
@@ -99,6 +99,10 @@ function Checkout() {
       return response.data
     },
     enabled: Boolean(user),
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
     retry: 1,
   })
   const { data: commerceSettings } = useQuery({
@@ -109,7 +113,7 @@ function Checkout() {
     },
     retry: 1,
   })
-  const { data: currentProducts = [], isLoading: isCurrentProductsLoading } = useQuery({
+  const { data: currentProducts = [] } = useQuery({
     queryKey: ["products"],
     queryFn: async () => {
       const response = await getProducts()
@@ -230,6 +234,21 @@ function Checkout() {
   const userDataDescriptionId = "checkout-user-data-description"
   const checkoutFormId = "checkout-user-data-form"
   const useInstallationAddress = hasInstallationProducts && Boolean(getFieldValue("use_installation_address"))
+  const hasCartItems = products.length > 0
+
+  useEffect(() => {
+    if (authLoading || (user && isLoading)) {
+      return
+    }
+
+    if (!isError && !hasCartItems) {
+      navigate("/cart", { replace: true })
+    }
+  }, [authLoading, hasCartItems, isError, isLoading, navigate, user])
+
+  if (!isError && !authLoading && !(user && isLoading) && !hasCartItems) {
+    return null
+  }
 
   const content = authLoading || (user && isLoading) ? (
     <CheckoutSkeleton step={1} />
@@ -237,12 +256,6 @@ function Checkout() {
     <div className="checkout-page__notice border-base-300 bg-base-100" role="alert">
       <h2>No hem pogut carregar la comanda</h2>
       <p className="text-base-400">Torna-ho a provar d'aquí a uns instants.</p>
-    </div>
-  ) : (user && !cartOrder) || products.length === 0 ? (
-    <div className="checkout-page__notice checkout-page__notice--empty">
-      <h2>No hi ha productes per tramitar</h2>
-      <p className="text-base-400">Afegeix productes al carret abans de continuar.</p>
-      <Link to="/products" className="btn btn-primary">Veure productes</Link>
     </div>
   ) : (
     <>

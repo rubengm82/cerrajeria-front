@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react'
 import axios from 'axios'
+import { useQueryClient } from '@tanstack/react-query'
 import { mergeGuestCart } from '../api/orders_api'
 import { clearLocalCart, getLocalCartMergeItems } from '../utils/localCart'
 import { setAuthCookie, getAuthCookie, deleteAuthCookie } from '../utils/authCookie'
@@ -11,6 +12,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
+  const queryClient = useQueryClient()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -37,18 +39,20 @@ export function AuthProvider({ children }) {
     setAuthCookie(token)
     localStorage.setItem('user', JSON.stringify(user))
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    setUser(user)
 
     const guestCartItems = getLocalCartMergeItems()
     if (guestCartItems.length > 0) {
       try {
-        await mergeGuestCart(guestCartItems)
+        const mergeResponse = await mergeGuestCart(guestCartItems)
+        queryClient.setQueryData(['cart-order'], mergeResponse.data)
         clearLocalCart()
       } catch (error) {
         console.error("No s'ha pogut sincronitzar el carret local.", error)
       }
     }
 
-    setUser(user)
+    await queryClient.invalidateQueries({ queryKey: ['cart-order'] })
   }
 
   // LOGOUT
@@ -63,6 +67,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user')
     delete axios.defaults.headers.common['Authorization']
     setUser(null)
+    queryClient.removeQueries({ queryKey: ['cart-order'] })
     
     // Llamar al logout de la API en background (sin esperar)
     axios.post('/api/logout').catch(() => {})

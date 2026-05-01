@@ -1,0 +1,66 @@
+.error-404-door-scene {
+  animation: error-404-knock-shake 2.2s ease-in-out forwards;
+}
+
+.error-404-door {
+  animation: error-404-door-close 2.2s ease-in-out forwards;
+  transform-style: preserve-3d;
+}
+
+.error-404-handle {
+  animation: error-404-handle-turn 2.2s ease-in-out forwards;
+  transform-origin: 85% 50%;
+}
+
+@keyframes error-404-door-close {
+  0% {
+    transform: perspective(900px) rotateY(-34deg);
+  }
+
+  72% {
+    transform: perspective(900px) rotateY(0deg);
+  }
+
+  84% {
+    transform: perspective(900px) rotateY(-3deg);
+  }
+
+  100% {
+    transform: perspective(900px) rotateY(0deg);
+  }
+}
+
+@keyframes error-404-knock-shake {
+  0%,
+  42%,
+  74%,
+  100% {
+    transform: translateX(0);
+  }
+
+  47% {
+    transform: translateX(-3px);
+  }
+
+  52% {
+    transform: translateX(3px);
+  }
+
+  57% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes error-404-handle-turn {
+  0%,
+  40%,
+  76%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  52%,
+  62% {
+    transform: rotate(24deg);
+  }
+}

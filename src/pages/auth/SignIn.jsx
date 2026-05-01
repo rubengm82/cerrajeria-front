@@ -11,6 +11,7 @@ function SignIn() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
   const { login } = useAuth()
+  const getRedirectPath = (user) => (user?.role === 'admin' || user?.role === 1 ? '/orders' : '/')
 
   // FUNCTION del Submit
   const handleSubmit = (event) => {
@@ -18,7 +19,7 @@ function SignIn() {
     setError('')
     
     login(email, password)
-      .then(() => navigate('/'))
+      .then((user) => navigate(getRedirectPath(user)))
       .catch((err) => {
         // Verificar si el error es por email no verificado
         if (err.response?.status === 403 && err.response?.data?.email_verified === false) {

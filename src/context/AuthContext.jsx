@@ -53,6 +53,7 @@ export function AuthProvider({ children }) {
     }
 
     await queryClient.invalidateQueries({ queryKey: ['cart-order'] })
+    return user
   }
 
   // LOGOUT

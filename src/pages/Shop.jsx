@@ -13,16 +13,39 @@ import '../../scss/main_shop.scss'
 
 const productSkeletons = Array.from({ length: 5 })
 const categorySkeletons = Array.from({ length: 5 })
+const shopNotificationKey = "shopNotification"
+
+const getInitialNotification = (locationState) => {
+  if (locationState?.notificationMessage) {
+    sessionStorage.removeItem(shopNotificationKey)
+
+    return {
+      id: Date.now(),
+      type: locationState.notificationType || "info",
+      message: locationState.notificationMessage,
+    }
+  }
+
+  try {
+    const storedNotification = JSON.parse(sessionStorage.getItem(shopNotificationKey) || "null")
+    sessionStorage.removeItem(shopNotificationKey)
+
+    return storedNotification?.notificationMessage ? {
+      id: Date.now(),
+      type: storedNotification.notificationType || "info",
+      message: storedNotification.notificationMessage,
+    } : null
+  } catch {
+    sessionStorage.removeItem(shopNotificationKey)
+    return null
+  }
+}
 
 function Shop() {
   const navigate = useNavigate()
   const location = useLocation()
   const locationState = location.state
-  const [notification, setNotification] = useState(locationState?.notificationMessage ? {
-    id: Date.now(),
-    type: locationState.notificationType || "info",
-    message: locationState.notificationMessage,
-  } : null)
+  const [notification, setNotification] = useState(() => getInitialNotification(locationState))
   
   // Estado para el modal de ver producto
   const [selectedProduct, setSelectedProduct] = useState(null);

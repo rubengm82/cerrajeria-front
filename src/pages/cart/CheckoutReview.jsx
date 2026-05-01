@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { HiArrowLeft, HiOutlinePhoto } from "react-icons/hi2"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -16,6 +16,11 @@ import "../../../scss/main_shop.scss"
 
 const checkoutDataKey = "checkoutCustomerData"
 const checkoutPaymentKey = "checkoutPaymentMethod"
+const shopNotificationKey = "shopNotification"
+const checkoutSuccessNotification = {
+  notificationType: "success",
+  notificationMessage: "Compra realitzada correctament. Gràcies per la teva comanda.",
+}
 
 const paymentLabels = {
   card: "Targeta de crèdit",
@@ -103,6 +108,7 @@ function CheckoutReview() {
   const [isConfirmingStripeReturn, setIsConfirmingStripeReturn] = useState(false)
   const [notification, setNotification] = useState(null)
   const [dismissedStripeStatus, setDismissedStripeStatus] = useState(null)
+  const isCompletingCheckoutRef = useRef(false)
   const customerData = JSON.parse(sessionStorage.getItem(checkoutDataKey) || "{}")
   const paymentMethod = sessionStorage.getItem(checkoutPaymentKey) || ""
   const { data: commerceSettings } = useQuery({
@@ -213,6 +219,7 @@ function CheckoutReview() {
   const isCardPayment = paymentMethod === "card"
   const stripeStatus = new URLSearchParams(location.search).get("stripe_status")
   const stripeSessionId = new URLSearchParams(location.search).get("session_id")
+  const isSuccessfulStripeReturn = stripeStatus === "success"
   const stripeCancelledNotification = stripeStatus === "cancelled" && dismissedStripeStatus !== "cancelled"
     ? {
         id: "stripe-cancelled",
@@ -226,17 +233,13 @@ function CheckoutReview() {
       return
     }
 
-    if (!isError && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+    if (!isCompletingCheckoutRef.current && !isConfirming && !isSuccessfulStripeReturn && !isError && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
       navigate("/cart", { replace: true })
     }
-  }, [authLoading, hasCartItems, hasCustomerData, hasLoadedCartOrder, hasPaymentMethod, isError, isLoading, navigate, user])
+  }, [authLoading, hasCartItems, hasCustomerData, hasLoadedCartOrder, hasPaymentMethod, isConfirming, isError, isLoading, isSuccessfulStripeReturn, navigate, user])
 
   useEffect(() => {
-    if (!stripeStatus || authLoading) {
-      return
-    }
-
-    if (stripeStatus !== "success") {
+    if (authLoading || !isSuccessfulStripeReturn) {
       return
     }
 
@@ -257,6 +260,7 @@ function CheckoutReview() {
         const paymentStatus = response.data?.payment_status
 
         if (paymentStatus !== "paid") {
+          isCompletingCheckoutRef.current = false
           setNotification({
             id: Date.now(),
             type: "info",
@@ -265,8 +269,10 @@ function CheckoutReview() {
           return
         }
 
+        isCompletingCheckoutRef.current = true
         sessionStorage.removeItem(checkoutDataKey)
         sessionStorage.removeItem(checkoutPaymentKey)
+        sessionStorage.setItem(shopNotificationKey, JSON.stringify(checkoutSuccessNotification))
 
         if (!user) {
           clearLocalCart()
@@ -279,12 +285,10 @@ function CheckoutReview() {
 
         navigate("/", {
           replace: true,
-          state: {
-            notificationType: "success",
-            notificationMessage: "El pagament amb targeta s'ha completat correctament.",
-          },
+          state: checkoutSuccessNotification,
         })
       } catch (error) {
+        isCompletingCheckoutRef.current = false
         const validationMessage = error.response?.data?.errors
           ? Object.values(error.response.data.errors)[0]?.[0]
           : null
@@ -300,9 +304,9 @@ function CheckoutReview() {
     }
 
     confirmStripeReturn()
-  }, [authLoading, navigate, queryClient, stripeSessionId, stripeStatus, user])
+  }, [authLoading, isSuccessfulStripeReturn, navigate, queryClient, stripeSessionId, user])
 
-  if (!isError && !authLoading && !(user && (!hasLoadedCartOrder || isLoading)) && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
+  if (!isCompletingCheckoutRef.current && !isConfirming && !isSuccessfulStripeReturn && !isError && !authLoading && !(user && (!hasLoadedCartOrder || isLoading)) && (!hasCartItems || !hasCustomerData || !hasPaymentMethod)) {
     return null
   }
 
@@ -384,6 +388,7 @@ function CheckoutReview() {
   }
 
   const handleCreateOrder = async () => {
+    isCompletingCheckoutRef.current = true
     setIsConfirming(true)
 
     try {
@@ -412,17 +417,17 @@ function CheckoutReview() {
 
       sessionStorage.removeItem(checkoutDataKey)
       sessionStorage.removeItem(checkoutPaymentKey)
+      sessionStorage.setItem(shopNotificationKey, JSON.stringify(checkoutSuccessNotification))
       queryClient.setQueryData(["cart-order"], null)
       queryClient.invalidateQueries({ queryKey: ["products"] })
       queryClient.invalidateQueries({ queryKey: ["packs"] })
       queryClient.invalidateQueries({ queryKey: ["cart-order"] })
       navigate("/", {
-        state: {
-          notificationType: "success",
-          notificationMessage: "La comanda s'ha generat correctament.",
-        },
+        replace: true,
+        state: checkoutSuccessNotification,
       })
     } catch (error) {
+      isCompletingCheckoutRef.current = false
       const validationMessage = error.response?.data?.errors
         ? Object.values(error.response.data.errors)[0]?.[0]
         : null

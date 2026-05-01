@@ -23,6 +23,14 @@ const paymentLabels = {
   bizum: "Bizum",
 }
 
+const formatCheckoutAddress = (address, zipCode, province, country) => (
+  [
+    address,
+    [zipCode, province].filter(Boolean).join(" "),
+    country,
+  ].filter(Boolean).join(", ")
+)
+
 const getImportantImage = (product) => (
   product?.images?.find((image) => image.is_important === true || image.is_important === 1) || product?.images?.[0]
 )
@@ -52,16 +60,20 @@ const buildCheckoutItems = (items) => items.map((item) => {
 })
 
 function CheckoutReviewProduct({ product }) {
+  const [isExpanded, setIsExpanded] = useState(false)
   const quantity = Number(product?.pivot?.quantity || 1)
   const currentPrice = getPriceExcludingVat(getProductPrice(product))
   const lineTotal = currentPrice * quantity
   const image = getImportantImage(product)
-  const itemTypeLabel = product.cartItemType === "pack" ? "Pack" : product.category?.name || "Producte"
+  const isPack = product.cartItemType === "pack"
+  const packProducts = isPack ? product?.products?.filter((packProduct) => !packProduct?.deleted_at) || [] : []
+  const itemTypeLabel = isPack ? "Pack" : product.category?.name || "Producte"
   const hasInstallation = Boolean(Number(product.pivot?.installation_requested))
   const hasKeys = Boolean(product.pivot?.keys_requested)
   const keysQuantity = Number(product.pivot?.keys_quantity || 1)
   const priceKeys = Number(product.price_keys || 0)
   const keysLineTotal = hasKeys ? priceKeys * keysQuantity : 0
+  const packProductsId = `checkout-review-pack-products-${product.id}`
 
   return (
     <article className="checkout-review-product border-base-300" aria-label={`${product.name}, ${quantity} unitats`}>
@@ -74,8 +86,25 @@ function CheckoutReviewProduct({ product }) {
       </div>
 
       <div className="checkout-review-product__content">
-        <p className="checkout-review-product__category text-base-400">{itemTypeLabel}</p>
-        <h3>{product.name}</h3>
+        <div className="checkout-review-product__heading">
+          <div>
+            <p className="checkout-review-product__category text-base-400">{itemTypeLabel}</p>
+            <h3>{product.name}</h3>
+          </div>
+
+          {packProducts.length > 0 && (
+            <button
+              type="button"
+              className="checkout-review-product__expand"
+              onClick={() => setIsExpanded(!isExpanded)}
+              aria-expanded={isExpanded}
+              aria-controls={packProductsId}
+              aria-label={isExpanded ? "Amagar productes del pack" : "Mostrar productes del pack"}
+            >
+              {isExpanded ? "▲" : "▼"}
+            </button>
+          )}
+        </div>
         <p className="text-base-400">{quantity} unitats x {formatPrice(currentPrice)}</p>
         {hasInstallation && (
           <p className="text-primary font-semibold">Amb instal·lació</p>
@@ -86,6 +115,32 @@ function CheckoutReviewProduct({ product }) {
       </div>
 
       <strong className="checkout-review-product__total">{formatPrice(lineTotal + keysLineTotal)}</strong>
+
+      {isPack && isExpanded && (
+        <div id={packProductsId} className="checkout-review-product__pack-products">
+          <h4>Productes del pack:</h4>
+          {packProducts.map((packProduct) => {
+            const packProductHasInstallation = Boolean(Number(packProduct.pivot?.installation_requested))
+            const packProductHasKeys = Boolean(packProduct.pivot?.keys_requested)
+            const packProductKeysQuantity = Number(packProduct.pivot?.keys_quantity || 1)
+            const packProductPriceKeys = Number(packProduct.price_keys || 0)
+
+            return (
+              <div key={`${product.id}-pack-product-${packProduct.id}`} className="checkout-review-product__pack-product">
+                <span className="checkout-review-product__pack-product-name">{packProduct.name}</span>
+                <div className="checkout-review-product__pack-product-options">
+                  {packProductHasInstallation && (
+                    <span>Amb instal·lació</span>
+                  )}
+                  {packProductHasKeys && (
+                    <span>Amb {packProductKeysQuantity} clau/s ({formatPrice(packProductPriceKeys)}/unitat)</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </article>
   )
 }
@@ -220,6 +275,26 @@ function CheckoutReview() {
         message: "Has cancel.lat el pagament amb targeta. Pots revisar la comanda i tornar-ho a provar.",
       }
     : null
+  const shippingAddress = formatCheckoutAddress(
+    customerData.shipping_address,
+    customerData.shipping_zip_code,
+    customerData.shipping_province,
+    customerData.shipping_country
+  )
+  const installationAddress = formatCheckoutAddress(
+    customerData.installation_address,
+    customerData.installation_zip_code,
+    customerData.installation_province,
+    customerData.installation_country
+  )
+  const billingAddress = customerData.use_billing_address && customerData.billing_address
+    ? formatCheckoutAddress(
+        customerData.billing_address,
+        customerData.billing_zip_code,
+        customerData.billing_province,
+        customerData.billing_country
+      )
+    : shippingAddress
 
   useEffect(() => {
     if (authLoading || (user && (!hasLoadedCartOrder || isLoading))) {
@@ -465,23 +540,17 @@ function CheckoutReview() {
                 <div><dt>DNI</dt><dd>{customerData.dni || "No indicat"}</dd></div>
                 <div><dt>Telèfon</dt><dd>{customerData.phone || "No indicat"}</dd></div>
                 <div><dt>Correu</dt><dd>{customerData.email}</dd></div>
-                <div><dt>Adreça</dt><dd>{customerData.address}</dd></div>
-                <div><dt>Codi postal</dt><dd>{customerData.zip_code}</dd></div>
-                <div><dt>Província</dt><dd>{customerData.province || "No indicada"}</dd></div>
-                <div><dt>País</dt><dd>{customerData.country}</dd></div>
-                {customerData.use_billing_address && customerData.billing_address && (
-                  <div><dt>Adreça de facturació</dt><dd>{`${customerData.billing_address}, ${customerData.billing_zip_code || ""} ${customerData.billing_province || ""}, ${customerData.billing_country || ""}`}</dd></div>
-                )}
               </dl>
             </section>
 
             <section className="checkout-review__section" aria-labelledby="checkout-review-address-title">
-              <h3 id="checkout-review-address-title">Adreces de la comanda</h3>
-              <dl className="checkout-review__details">
-                <div><dt>Enviament</dt><dd>{`${customerData.shipping_address}, ${customerData.shipping_zip_code || ""} ${customerData.shipping_province || ""}, ${customerData.shipping_country || ""}`}</dd></div>
+              <h3 id="checkout-review-address-title">Direccions de la comanda:</h3>
+              <dl className="checkout-review__details checkout-review__details--stack">
+                <div><dt>Direcció d'enviament</dt><dd>{shippingAddress}</dd></div>
                 {customerData.installation_address && (
-                  <div><dt>Instal·lació</dt><dd>{`${customerData.installation_address}, ${customerData.installation_zip_code || ""} ${customerData.installation_province || ""}, ${customerData.installation_country || ""}`}</dd></div>
+                  <div><dt>Direcció d'instal·lació</dt><dd>{installationAddress}</dd></div>
                 )}
+                <div><dt>Direcció de facturació</dt><dd>{billingAddress}</dd></div>
               </dl>
             </section>
 

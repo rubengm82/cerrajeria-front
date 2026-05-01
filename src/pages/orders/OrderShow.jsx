@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { Fragment, useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getOrder } from '../../api/orders_api'
 import { getCommerceSettings } from '../../api/commerce_settings_api'
 import LoadingAnimation from '../../components/LoadingAnimation'
 import { HiArrowLeft } from 'react-icons/hi'
-import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice, hasProductKeys } from '../../utils/cartTotals'
+import { formatPrice, getCartTotals, getPriceExcludingVat, getProductPrice } from '../../utils/cartTotals'
 import { getEffectiveOrderStatus, isInstallationOrder } from '../../utils/orderStatus'
 
 const getOrderItems = (order) => {
@@ -39,6 +39,31 @@ const getOrderItems = (order) => {
 }
 
 const formatAlbaranNumber = (orderId) => `ALB-${orderId.toString().padStart(6, '0')}`
+
+const formatOrderAddress = (address, zipCode, province, country) => (
+  [
+    address,
+    [zipCode, province].filter(Boolean).join(' '),
+    country,
+  ].filter(Boolean).join(', ')
+)
+
+const getKeysInfo = (product) => {
+  if (!product.pivot?.keys_requested) {
+    return {
+      label: '',
+      price: 0,
+    }
+  }
+
+  const keysQuantity = Number(product.pivot?.keys_quantity || 1)
+  const priceKeys = Number(product.price_keys || 0)
+
+  return {
+    label: `${keysQuantity}x ${formatPrice(priceKeys)}`,
+    price: priceKeys * keysQuantity,
+  }
+}
 
 function OrderShow() {
   const { id } = useParams()
@@ -118,6 +143,24 @@ function OrderShow() {
 
     const displayStatus = getEffectiveOrderStatus(order)
     const isInstallation = isInstallationOrder(order)
+    const shippingAddress = formatOrderAddress(
+      order.shipping_address,
+      order.shipping_zip_code,
+      order.shipping_province,
+      order.shipping_country
+    )
+    const billingAddress = formatOrderAddress(
+      order.billing_address,
+      order.billing_zip_code,
+      order.billing_province,
+      order.billing_country
+    )
+    const installationAddress = formatOrderAddress(
+      order.installation_address,
+      order.installation_zip_code,
+      order.installation_province,
+      order.installation_country
+    )
 
   return (
     <div className="p-4 md:p-0">
@@ -177,12 +220,12 @@ function OrderShow() {
               <p><span className="font-medium">Província:</span> {order.customer_province || order.user?.shipping_province || ''}</p>
               <p><span className="font-medium">País:</span> {order.customer_country || order.user?.shipping_country || ''}</p>
               {order.billing_address && (
-                <p><span className="font-medium">Adreça de Facturació:</span> {[order.billing_address, order.billing_zip_code, order.billing_province, order.billing_country].filter(Boolean).join(', ')}</p>
+                <p><span className="font-medium">Adreça de Facturació:</span> {billingAddress}</p>
               )}
-              {isInstallation && (
-                <p><span className="font-medium">Adreça d'Instal·lació:</span> {order.installation_address || order.shipping_address || ''}</p>
+              {isInstallation && order.installation_address && (
+                <p><span className="font-medium">Adreça d'Instal·lació:</span> {installationAddress}</p>
               )}
-               <p><span className="font-medium">Adreça d'Enviament:</span> {order.shipping_address}</p>
+               <p><span className="font-medium">Adreça d'Enviament:</span> {shippingAddress}</p>
             </div>
           </div>
         </div>
@@ -205,41 +248,57 @@ function OrderShow() {
               </thead>
               <tbody>
                 {orderItems.map((item) => {
-                  let hasKeys = false
-                  let keysInfo = '-'
-                  let itemKeysPrice = 0
-
                   if (item.cartItemType === 'pack') {
-                    const packKeys = (item.products || []).filter(p => p.pivot?.keys_requested)
-                    if (packKeys.length > 0) {
-                      hasKeys = true
-                      keysInfo = packKeys.map(p => `${p.pivot.keys_quantity}x ${p.name} (${formatPrice(Number(p.price_keys))})`).join(', ')
-                      itemKeysPrice = packKeys.reduce((sum, p) => sum + (Number(p.price_keys) * (p.pivot.keys_quantity || 1)), 0)
-                    }
-                  } else {
-                    hasKeys = hasProductKeys(item) && item.pivot?.keys_requested
-                    if (hasKeys) {
-                      const keysQty = item.pivot?.keys_quantity || 1
-                      keysInfo = `${keysQty}x ${formatPrice(Number(item.price_keys))}`
-                      itemKeysPrice = Number(item.price_keys) * keysQty
-                    }
+                    const packProducts = item.products || []
+                    const unitPriceExcludingVat = getPriceExcludingVat(getProductPrice(item))
+                    const lineTotal = unitPriceExcludingVat * item.pivot.quantity
+
+                    return (
+                      <Fragment key={`${item.cartItemType}-${item.id}`}>
+                        <tr>
+                          <td className="font-medium">Pack: {item.name}</td>
+                          <td className="text-base-400">{item.code || ''}</td>
+                          <td className="text-center">{item.pivot.quantity}</td>
+                          <td className="text-center">{packProducts.some(p => p.pivot?.installation_requested) ? 'Sí' : ''}</td>
+                          <td className="text-center"></td>
+                          <td className="text-right">{formatPrice(unitPriceExcludingVat)}</td>
+                          <td className="text-right font-medium">{formatPrice(lineTotal)}</td>
+                        </tr>
+                        {packProducts.map((packProduct) => {
+                          const packProductKeys = getKeysInfo(packProduct)
+
+                          return (
+                            <tr key={`pack-${item.id}-product-${packProduct.id}`} className="bg-base-200/40">
+                              <td className="pl-8 mr-2">
+                                <span>{packProduct.name}</span>
+                              </td>
+                              <td className="text-base-400">{packProduct.code || ''}</td>
+                              <td className="text-center">{packProduct.pivot?.quantity || item.pivot.quantity}</td>
+                              <td className="text-center">{packProduct.pivot?.installation_requested ? 'Sí' : ''}</td>
+                              <td className="text-center">
+                                <span className="text-xs">{packProductKeys.label}</span>
+                              </td>
+                              <td className="text-right text-base-400">Inclòs</td>
+                              <td className="text-right font-medium">{packProductKeys.price > 0 ? formatPrice(packProductKeys.price) : ''}</td>
+                            </tr>
+                          )
+                        })}
+                      </Fragment>
+                    )
                   }
 
+                  const itemKeys = getKeysInfo(item)
                   const unitPriceExcludingVat = getPriceExcludingVat(getProductPrice(item))
-                  const lineTotal = (unitPriceExcludingVat * item.pivot.quantity) + itemKeysPrice
+                  const lineTotal = (unitPriceExcludingVat * item.pivot.quantity) + itemKeys.price
 
                   return (
                   <tr key={`${item.cartItemType}-${item.id}`}>
-                    <td className="font-medium">{item.cartItemType === 'pack' ? 'Pack: ' : ''}{item.name}</td>
-                    <td className="text-base-400">{item.code || '-'}</td>
+                    <td className="font-medium">{item.name}</td>
+                    <td className="text-base-400">{item.code || ''}</td>
                     <td className="text-center">{item.pivot.quantity}</td>
+                    <td className="text-center">{item.pivot.installation_requested ? 'Sí' : ''}</td>
                     <td className="text-center">
-                      {item.cartItemType === 'pack' 
-                        ? (item.products?.some(p => p.pivot.installation_requested) ? 'Sí' : '-')
-                        : (item.pivot.installation_requested ? 'Sí' : '-')}
-                    </td>
-                    <td className="text-center">
-                      <span className="text-xs">{keysInfo}</span>
+                      <span className="text-xs">{itemKeys.label}</span>
                     </td>
                     <td className="text-right">{formatPrice(unitPriceExcludingVat)}</td>
                     <td className="text-right font-medium">{formatPrice(lineTotal)}</td>
